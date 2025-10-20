@@ -22,11 +22,18 @@ class World {
 
     canvas;
     ctx;
+    keyboard;
 
-    constructor(canvas) {
+    constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
+        this.keyboard = keyboard;
         this.draw();
+        this.setWorld();
+    }
+
+    setWorld(){
+        this.character.world = this;
     }
 
     // Draw() wird immer wieder aufgerufen
@@ -53,8 +60,18 @@ class World {
     }
 
     addToMap(mo) {
-        if (mo.img) {
-            this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+        if(mo.otherDirection) {
+            this.ctx.save();
+            this.ctx.translate(mo.x + mo.width, mo.y);
+            this.ctx.scale(-1, 1);
+            if (mo.img) {
+                this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
+            }
+            this.ctx.restore();
+        } else {
+            if (mo.img) {
+                this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+            }
         }
     }
 }
