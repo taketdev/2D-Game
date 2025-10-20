@@ -5,15 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2D Game</title>
     <link rel="stylesheet" href="./style.css">
+    <!-- Basis Klassen zuerst -->
     <script src="models/movable_object.class.js"></script>
+    <script src="./models/keyboard.class.js"></script>
+    
+    <!-- Alle Objekt-Klassen -->
     <script src="./models/character.class.js"></script>
     <script src="./models/chicken.class.js"></script>
+    <script src="./models/endboss.class.js"></script>
     <script src="./models/clouds.class.js"></script>
-    <script src="./models/world.class.js"></script>
     <script src="./models/background_object.class.js"></script>
-    <script src="./models/keyboard.class.js"></script>
+    
+    <!-- Level System -->
     <script src="./models/level.class.js"></script>
     <script src="./levels/level1.js"></script>
+    
+    <!-- World (benötigt level1) -->
+    <script src="./models/world.class.js"></script>
+    
+    <!-- Game Logic (benötigt alles) -->
     <script src="./js/game.js"></script>
 </head>
 <body onload="init()">
