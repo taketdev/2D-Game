@@ -1,12 +1,13 @@
 class World {
-
+    // Game Objects
     character = new Character();
-
     level = level1;
+    
+    // Canvas Properties
     canvas;
     ctx;
     keyboard;
-    camera_x  = -100;
+    camera_x = -100;
 
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
@@ -16,24 +17,27 @@ class World {
         this.setWorld();
     }
 
-    setWorld(){
+    setWorld() {
         this.character.world = this;
     }
 
-    // Draw() wird immer wieder aufgerufen
+    // Main game loop - called continuously
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        // Apply camera transformation
         this.ctx.translate(this.camera_x, 0);
 
-        this.addObjectsToMap(this.level.backgroundObjects); // Alle Hintergründe werden hinzugefügt
-        this.addToMap(this.character); // Alle Character werden hinzugefügt
-        this.addObjectsToMap(this.level.clouds); // Alle Clouds werden hinzugefügt
-        this.addObjectsToMap(this.level.enemies); // Alle Enemies werden hinzugefügt
+        // Draw all game objects in correct order
+        this.addObjectsToMap(this.level.backgroundObjects);
+        this.addToMap(this.character);
+        this.addObjectsToMap(this.level.clouds);
+        this.addObjectsToMap(this.level.enemies);
 
+        // Reset camera transformation
         this.ctx.translate(-this.camera_x, 0);
         
-        // Draw() wird immer wieder aufgerufen
+        // Continue game loop
         let self = this;
         requestAnimationFrame(function() {
             self.draw();
