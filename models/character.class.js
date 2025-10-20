@@ -1,5 +1,8 @@
 class Character extends MovableObject{
 
+    height = 280;
+    y = 150;
+
 
     constructor() {
         super();

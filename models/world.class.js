@@ -1,6 +1,7 @@
 class World {
 
     character = new Character();
+
     enemies = [
         new Chicken(),
         new Chicken(),
@@ -13,7 +14,10 @@ class World {
     ];
 
     backgroundObjects = [
-        new BackgroundObject('./img_pollo_locco/img/5_background/layers/3_third_layer/1.png', 0, 100)
+        new BackgroundObject('./img_pollo_locco/img/5_background/layers/air.png', 0),
+        new BackgroundObject('./img_pollo_locco/img/5_background/layers/3_third_layer/1.png', 0),
+        new BackgroundObject('./img_pollo_locco/img/5_background/layers/2_second_layer/1.png', 0),
+        new BackgroundObject('./img_pollo_locco/img/5_background/layers/1_first_layer/1.png', 0)
     ];
 
     canvas;
@@ -25,13 +29,15 @@ class World {
         this.draw();
     }
 
+    // Draw() wird immer wieder aufgerufen
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+        this.addObjectsToMap(this.backgroundObjects); // Alle Hintergründe werden hinzugefügt
         this.addToMap(this.character); // Alle Character werden hinzugefügt
         this.addObjectsToMap(this.clouds); // Alle Clouds werden hinzugefügt
         this.addObjectsToMap(this.enemies); // Alle Enemies werden hinzugefügt
-        this.addObjectsToMap(this.backgroundObjects); // Alle Hintergründe werden hinzugefügt
+
         
         // Draw() wird immer wieder aufgerufen
         let self = this;
