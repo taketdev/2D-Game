@@ -25,9 +25,11 @@ function createBackgroundObjects() {
 
 const level1 = new Level(
     [
-        new Chicken(),
-        new Chicken(),
-        new Chicken(),
+        new Goblin(),
+        new Goblin(),
+        new Goblin(),
+        new FlyingEye(),
+        new FlyingEye(),
         new Endboss(),
     ],
     [

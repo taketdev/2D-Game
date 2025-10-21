@@ -69,8 +69,21 @@ class World {
             } else {
                 mo.drawIdleSprite(this.ctx);
             }
-        } else {
-            // Normal rendering for other objects
+        }
+        // Check if object is Goblin with sprite animations
+        else if (mo instanceof Goblin) {
+            if (mo.isRunning) {
+                mo.drawRunSprite(this.ctx);
+            } else {
+                mo.drawIdleSprite(this.ctx);
+            }
+        }
+        // Check if object is Flying Eye with sprite animations
+        else if (mo instanceof FlyingEye) {
+            mo.drawFlightSprite(this.ctx);
+        }
+        else {
+            // Normal rendering for other objects (Chicken, Clouds, Background)
             if(mo.otherDirection) {
                 this.ctx.save();
                 this.ctx.translate(mo.x + mo.width, mo.y);
