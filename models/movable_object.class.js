@@ -1,13 +1,9 @@
 class MovableObject {
-    // Position Properties
+
     x = 150;
     y = 350;
-    
-    // Size Properties  
     height = 100;
     width = 100;
-    
-    // Movement Properties
     speed = 0.15;
     otherDirection = false;
     
@@ -51,7 +47,7 @@ class MovableObject {
             this.imageCache[path] = img;
         });
     }
-    
+
     // Animation Methods
     playAnimation(images) {
         let i = this.currentImage % images.length;

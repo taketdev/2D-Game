@@ -2,8 +2,9 @@ class Character extends MovableObject {
     // Character Properties
     height = 200;
     y = 225; 
-    speed = 10;
+    speed = 3;
     world;
+
     // Idle
     idleFrame;
     currentIdleFrame = 1;
@@ -23,14 +24,14 @@ class Character extends MovableObject {
     walkFrameHeight = 128;
     walkframeCount = 7;
     walkFrameCount = 0;
-    walkAnimationSpeed = 100;
+    walkAnimationSpeed = 150;
     lastWalkFrameTime= Date.now();
     walkDisplayWidth = 200;
     walkDisplayHeight = 200;
 
     // Jump
     jumpImage;
-    currentJumpFrame = 0;
+    currentJumpFrame = 3;
     jumpFrameWidth = 128;
     jumpFrameHeight = 128;
     jumpFrameCount = 8;
@@ -107,10 +108,10 @@ class Character extends MovableObject {
     updateJumpAnimation() {
         let now = Date.now();
         if (now - this.lastJumpFrameTime > this.jumpAnimationSpeed) {
-            this.currentJumpFrame++;
-            if (this.currentJumpFrame >= this.jumpFrameCount) {
-                this.currentJumpFrame = 0;
+            if (this.currentJumpFrame < 5) {  // Nur bis Frame 7 animieren
+                this.currentJumpFrame++;
             }
+            // Bei Frame 7 stoppen - keine weitere Animation
             this.lastJumpFrameTime = now;
         }
     }
@@ -188,7 +189,6 @@ class Character extends MovableObject {
 
         // Animation updates (10 FPS)
         setInterval(() => {
-            this.handleAnimations();
             this.updateIdleAnimation();
             this.updateWalkAnimation();
             this.updateJumpAnimation();
@@ -235,11 +235,6 @@ handleMovement() {
     this.isRunning = isRunning && isMoving && !this.isAboveGround();
 }
 
-    handleAnimations() {
-        // Wir machen hier nichts mehr, da wir jetzt Spritesheets verwenden
-        // Die Animation-Updates laufen über updateIdleAnimation() und updateWalkAnimation()
-    }
-
     updateCamera() {
         if (this.world) {
             this.world.camera_x = -this.x + 100;
@@ -248,8 +243,8 @@ handleMovement() {
 
     jump() {
         if (!this.isAboveGround()) { 
-            this.speedY = 20;   // Jump force upward
-            this.currentJumpFrame = 0;
+            this.speedY = 15;   // Jump force upward
+            this.currentJumpFrame = 3;  // Startet bei Frame 3 statt 0
         }
     }
 }
