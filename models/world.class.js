@@ -62,17 +62,27 @@ class World {
     }
 
     addToMap(mo) {
-        if(mo.otherDirection) {
-            this.ctx.save();
-            this.ctx.translate(mo.x + mo.width, mo.y);
-            this.ctx.scale(-1, 1);
-            if (mo.img) {
-                this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
+        // Check if object is Endboss with sprite animations
+        if (mo instanceof Endboss) {
+            if (mo.isWalking) {
+                mo.drawWalkSprite(this.ctx);
+            } else {
+                mo.drawIdleSprite(this.ctx);
             }
-            this.ctx.restore();
         } else {
-            if (mo.img) {
-                this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+            // Normal rendering for other objects
+            if(mo.otherDirection) {
+                this.ctx.save();
+                this.ctx.translate(mo.x + mo.width, mo.y);
+                this.ctx.scale(-1, 1);
+                if (mo.img) {
+                    this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
+                }
+                this.ctx.restore();
+            } else {
+                if (mo.img) {
+                    this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+                }
             }
         }
     }
