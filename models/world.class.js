@@ -30,7 +30,16 @@ class World {
 
         // Draw all game objects in correct order
         this.addObjectsToMap(this.level.backgroundObjects);
-        this.addToMap(this.character);
+        
+        // Character (Idle or normal)
+        if (this.character.isAboveGround()) {
+            this.character.drawJumpSprite(this.ctx, this.character.x, this.character.y);
+        } else if (this.character.isIdle){
+            this.character.drawIdleSprite(this.ctx, this.character.x, this.character.y);
+        } else {
+            this.character.drawWalkSprite(this.ctx, this.character.x, this.character.y);
+        }
+        
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.enemies);
 

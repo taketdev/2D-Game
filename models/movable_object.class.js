@@ -14,7 +14,7 @@ class MovableObject {
     // Physics Properties
     speedY = 0;
     acceleration = 1;
-    
+
     // Image Properties
     img;
     imageCache = {};
@@ -26,12 +26,16 @@ class MovableObject {
             if (this.isAboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
+            } else if (this.y > 225) {
+                // Falls Character unter dem Boden ist, zurück zum Boden setzen
+                this.y = 225;
+                this.speedY = 0;
             }
         }, 1000 / 25);
     }
 
     isAboveGround() {
-        return this.y < 180;
+        return this.y < 225;  // Boden-Level an Character-Position angepasst
     }
 
     // Image Loading Methods
@@ -47,7 +51,7 @@ class MovableObject {
             this.imageCache[path] = img;
         });
     }
-
+    
     // Animation Methods
     playAnimation(images) {
         let i = this.currentImage % images.length;
