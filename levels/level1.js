@@ -9,10 +9,14 @@ function createBackgroundObjects() {
         let imageNumber = (i % 2 === 0) ? '1' : '2';
         
         backgroundObjects.push(
-            new BackgroundObject('./img_pollo_locco/img/5_background/layers/air.png', x),
-            new BackgroundObject(`./img_pollo_locco/img/5_background/layers/3_third_layer/${imageNumber}.png`, x),
-            new BackgroundObject(`./img_pollo_locco/img/5_background/layers/2_second_layer/${imageNumber}.png`, x),
-            new BackgroundObject(`./img_pollo_locco/img/5_background/layers/1_first_layer/${imageNumber}.png`, x)
+            new BackgroundObject(`./assets/background/Battleground1/Bright/sky.png`, x),           
+            new BackgroundObject(`./assets/background/Battleground1/Bright/ruins_bg.png`, x),
+            new BackgroundObject('./assets/background/Battleground1/Bright/hills&trees.png', x),
+            new BackgroundObject(`./assets/background/Battleground1/Bright/ruins.png`, x),
+            new BackgroundObject(`./assets/background/Battleground1/Bright/ruins2.png`, x),
+            new BackgroundObject(`./assets/background/Battleground1/Bright/statue.png`, x),
+            new BackgroundObject(`./assets/background/Battleground1/Bright/stones&grass.png`, x)
+            
         );
     }
     
