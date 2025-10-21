@@ -31,10 +31,12 @@ class World {
         // Draw all game objects in correct order
         this.addObjectsToMap(this.level.backgroundObjects);
         
-        // Character (Idle or normal)
+        // Character (verschiedene Animationen)
         if (this.character.isAboveGround()) {
             this.character.drawJumpSprite(this.ctx, this.character.x, this.character.y);
-        } else if (this.character.isIdle){
+        } else if (this.character.isRunning) {
+            this.character.drawRunSprite(this.ctx, this.character.x, this.character.y);
+        } else if (this.character.isIdle) {
             this.character.drawIdleSprite(this.ctx, this.character.x, this.character.y);
         } else {
             this.character.drawWalkSprite(this.ctx, this.character.x, this.character.y);

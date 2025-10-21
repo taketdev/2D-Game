@@ -14,6 +14,7 @@ class Character extends MovableObject {
     idleAnimationSpeed = 200;
     lastIdleFrameTime = Date.now();
     isIdle = true;
+    isRunning = false;
 
     // Walk
     walkImage;
@@ -38,13 +39,24 @@ class Character extends MovableObject {
     jumpDisplayWidth = 200;
     jumpDisplayHeight = 200;
 
+    // Run
+    runImage;
+    currentRunFrame = 0;
+    runFrameWidth = 128;
+    runFrameHeight = 128;
+    runFrameCount = 8;  // Anzahl der Frames im Run-Spritesheet
+    runAnimationSpeed = 80;  // Schneller als Walk (80ms statt 100ms)
+    lastRunFrameTime = Date.now();
+    runDisplayWidth = 200;
+    runDisplayHeight = 200;
 
 
     constructor() {
         super();
         this.loadIdleImage('./assets/wizard_assets/Wanderer Magican/Idle.png');
-        this.loadWalkImage('./assets/wizard_assets/Wanderer Magican/Walk.png'); // Spritesheet für Walk
+        this.loadWalkImage('./assets/wizard_assets/Wanderer Magican/Walk.png');
         this.loadJumpImage('./assets/wizard_assets/Wanderer Magican/Jump.png');
+        this.loadRunImage('./assets/wizard_assets/Wanderer Magican/Run.png');
         this.animate();
         this.applyGravity();
     }
@@ -62,6 +74,11 @@ class Character extends MovableObject {
     loadJumpImage(path) {
         this.jumpImage = new Image();
         this.jumpImage.src = path;
+    }
+
+    loadRunImage(path) {
+        this.runImage = new Image();
+        this.runImage.src = path;
     }
 
     // Update Idle Animation
@@ -98,6 +115,17 @@ class Character extends MovableObject {
         }
     }
 
+    updateRunAnimation() {
+        let now = Date.now();
+        if (now - this.lastRunFrameTime > this.runAnimationSpeed) {
+            this.currentRunFrame++;
+            if (this.currentRunFrame >= this.runFrameCount) {
+                this.currentRunFrame = 0;
+            }
+            this.lastRunFrameTime = now;
+        }
+    }
+
     drawSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         if (!image || !image.complete) return;
 
@@ -125,23 +153,30 @@ class Character extends MovableObject {
 
     drawIdleSprite(ctx, x, y) {
         let frameX = this.currentIdleFrame * this.idleSpriteWidth;
-        this.drawSprite(ctx, thisidleImage, frameX,
+        this.drawSprite(ctx, this.idleImage, frameX,
             this.idleSpriteWidth, this.idleSpriteHeight,
             this.idleDisplayWidth, this.idleDisplayHeight);
     }
 
     drawWalkSprite(ctx, x, y) {
         let frameX = this.currentWalkFrame * this.walkFrameWidth;
-        this.drawSprite(ctx, this.walkImage, framceX,
+        this.drawSprite(ctx, this.walkImage, frameX,
             this.walkFrameWidth, this.walkFrameHeight,
             this.walkDisplayWidth, this.walkDisplayHeight);
     }
 
     drawJumpSprite(ctx, x, y) {
-        let frameX = this.currentJumpFrame * this.walkFrameWidth;
+        let frameX = this.currentJumpFrame * this.jumpFrameWidth;
         this.drawSprite(ctx, this.jumpImage, frameX,
             this.jumpFrameWidth, this.jumpFrameHeight,
             this.jumpDisplayWidth, this.jumpDisplayHeight);
+    }
+
+    drawRunSprite(ctx, x, y) {
+        let frameX = this.currentRunFrame * this.runFrameWidth;
+        this.drawSprite(ctx, this.runImage, frameX,
+            this.runFrameWidth, this.runFrameHeight,
+            this.runDisplayWidth, this.runDisplayHeight);
     }
 
     animate() {
@@ -157,6 +192,7 @@ class Character extends MovableObject {
             this.updateIdleAnimation();
             this.updateWalkAnimation();
             this.updateJumpAnimation();
+            this.updateRunAnimation();
         }, 100);
     }
 
@@ -165,17 +201,25 @@ handleMovement() {
 
     // Checken ob irgendwas gedrückt wird
     let isMoving = false;
+    let isRunning = false;
+
+    // Check if Shift is pressed for running
+    if (this.world.keyboard.SHIFT) {
+        isRunning = true;
+    }
 
     // Move right
     if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-        this.x += this.speed;
+        let moveSpeed = isRunning ? this.speed * 2 : this.speed; // Doppelte Geschwindigkeit beim Rennen
+        this.x += moveSpeed;
         this.otherDirection = false;
         isMoving = true;
     }
 
     // Move left  
     if (this.world.keyboard.LEFT && this.x > this.world.level.level_start_x) {
-        this.x -= this.speed;
+        let moveSpeed = isRunning ? this.speed * 2 : this.speed; // Doppelte Geschwindigkeit beim Rennen
+        this.x -= moveSpeed;
         this.otherDirection = true;
         isMoving = true;
     }
@@ -186,8 +230,9 @@ handleMovement() {
         isMoving = true;
     }
 
-    // Setze idle Status
+    // Setze Status
     this.isIdle = !isMoving && !this.isAboveGround();
+    this.isRunning = isRunning && isMoving && !this.isAboveGround();
 }
 
     handleAnimations() {
