@@ -33,17 +33,22 @@ class World {
         
         // Character (verschiedene Animationen)
         if (this.character.isAboveGround()) {
-            this.character.drawJumpSprite(this.ctx, this.character.x, this.character.y);
+            this.character.drawJumpSprite(this.ctx);
         } else if (this.character.isRunning) {
-            this.character.drawRunSprite(this.ctx, this.character.x, this.character.y);
+            this.character.drawRunSprite(this.ctx);
         } else if (this.character.isIdle) {
-            this.character.drawIdleSprite(this.ctx, this.character.x, this.character.y);
+            this.character.drawIdleSprite(this.ctx);
         } else {
-            this.character.drawWalkSprite(this.ctx, this.character.x, this.character.y);
+            this.character.drawWalkSprite(this.ctx);
         }
-        
+        // Draw collision frame for character
+        this.character.drawFrame(this.ctx);
+
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.enemies);
+
+        // Draw collision frames for all enemies
+        this.drawCollisionFrames();
 
         // Reset camera transformation
         this.ctx.translate(-this.camera_x, 0);
@@ -98,5 +103,14 @@ class World {
                 }
             }
         }
+    }
+
+    drawCollisionFrames() {
+        // Draw collision frames for all enemies
+        this.level.enemies.forEach(enemy => {
+            if (enemy.drawFrame) {
+                enemy.drawFrame(this.ctx);
+            }
+        });
     }
 }

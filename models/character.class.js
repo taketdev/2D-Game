@@ -1,9 +1,16 @@
 class Character extends MovableObject {
     // Character Properties
+    width = 200;
     height = 200;
-    y = 225; 
+    y = 225;
     speed = 3;
     world;
+
+    // Collision Box (angepasst an tatsächlichen Körper - zentriert)
+    collisionOffsetX = 60;
+    collisionOffsetY = 90;
+    collisionWidth = 80;
+    collisionHeight = 115;
 
     // Idle
     idleFrame;
@@ -82,7 +89,7 @@ class Character extends MovableObject {
         this.runImage.src = path;
     }
 
-    // Update Idle Animation
+    // Update animations
     updateIdleAnimation() {
         let now = Date.now();
         if (now - this.lastIdleFrameTime > this.idleAnimationSpeed) {
@@ -111,7 +118,7 @@ class Character extends MovableObject {
             if (this.currentJumpFrame < 5) {  // Nur bis Frame 7 animieren
                 this.currentJumpFrame++;
             }
-            // Bei Frame 7 stoppen - keine weitere Animation
+            // stop at frame 7 - not other animations
             this.lastJumpFrameTime = now;
         }
     }
@@ -152,28 +159,28 @@ class Character extends MovableObject {
         }
     }
 
-    drawIdleSprite(ctx, x, y) {
+    drawIdleSprite(ctx) {
         let frameX = this.currentIdleFrame * this.idleSpriteWidth;
         this.drawSprite(ctx, this.idleImage, frameX,
             this.idleSpriteWidth, this.idleSpriteHeight,
             this.idleDisplayWidth, this.idleDisplayHeight);
     }
 
-    drawWalkSprite(ctx, x, y) {
+    drawWalkSprite(ctx) {
         let frameX = this.currentWalkFrame * this.walkFrameWidth;
         this.drawSprite(ctx, this.walkImage, frameX,
             this.walkFrameWidth, this.walkFrameHeight,
             this.walkDisplayWidth, this.walkDisplayHeight);
     }
 
-    drawJumpSprite(ctx, x, y) {
+    drawJumpSprite(ctx) {
         let frameX = this.currentJumpFrame * this.jumpFrameWidth;
         this.drawSprite(ctx, this.jumpImage, frameX,
             this.jumpFrameWidth, this.jumpFrameHeight,
             this.jumpDisplayWidth, this.jumpDisplayHeight);
     }
 
-    drawRunSprite(ctx, x, y) {
+    drawRunSprite(ctx) {
         let frameX = this.currentRunFrame * this.runFrameWidth;
         this.drawSprite(ctx, this.runImage, frameX,
             this.runFrameWidth, this.runFrameHeight,
@@ -242,9 +249,26 @@ handleMovement() {
     }
 
     jump() {
-        if (!this.isAboveGround()) { 
+        if (!this.isAboveGround()) {
             this.speedY = 15;   // Jump force upward
             this.currentJumpFrame = 3;  // Startet bei Frame 3 statt 0
         }
+    }
+
+    // Debug: Draw collision frame
+    drawFrame(ctx) {
+        if (!CONFIG.SHOW_COLLISION_BOXES) return;
+
+        // Collision box (rot)
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'red';
+        ctx.rect(
+            this.x + this.collisionOffsetX,
+            this.y + this.collisionOffsetY,
+            this.collisionWidth,
+            this.collisionHeight
+        );
+        ctx.stroke();
     }
 }

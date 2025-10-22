@@ -4,6 +4,12 @@ class Endboss extends MovableObject {
     height = 400;
     width = 350;
 
+    // Collision Box (angepasst an tatsächlichen Körper - zentriert)
+    collisionOffsetX = 100;
+    collisionOffsetY = 70;
+    collisionWidth = 150;
+    collisionHeight = 210;
+
     // Idle Animation Properties
     idleImage;
     currentIdleFrame = 0;
@@ -120,6 +126,23 @@ class Endboss extends MovableObject {
             this.updateIdleAnimation();
             this.updateWalkAnimation();
         }, 1000 / 60);
+    }
+
+    // Debug: Draw collision frame
+    drawFrame(ctx) {
+        if (!CONFIG.SHOW_COLLISION_BOXES) return;
+
+        // Collision box (gelb)
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'yellow';
+        ctx.rect(
+            this.x + this.collisionOffsetX,
+            this.y + this.collisionOffsetY,
+            this.collisionWidth,
+            this.collisionHeight
+        );
+        ctx.stroke();
     }
 
 }

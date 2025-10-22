@@ -68,4 +68,13 @@ class MovableObject {
             this.x -= this.speed;
         }, 1000 / 60);
     }
+
+    // Debug: Draw collision frame
+    drawFrame(ctx) {
+        ctx.beginPath();
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = 'blue';
+        ctx.rect(this.x, this.y, this.width, this.height);
+        ctx.stroke();
+    }
 }

@@ -4,6 +4,12 @@ class FlyingEye extends MovableObject {
     height = 250;
     width = 250;
 
+    // Collision Box (angepasst an tatsächlichen Körper - zentriert)
+    collisionOffsetX = 85;
+    collisionOffsetY = 90;
+    collisionWidth = 70;
+    collisionHeight = 70;
+
     // Flight Animation Properties
     flightImage;
     currentFlightFrame = 0;
@@ -93,5 +99,22 @@ class FlyingEye extends MovableObject {
         setInterval(() => {
             this.updateFlightAnimation();
         }, 1000 / 60);
+    }
+
+    // Debug: Draw collision frame
+    drawFrame(ctx) {
+        if (!CONFIG.SHOW_COLLISION_BOXES) return;
+
+        // Collision box (cyan)
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'cyan';
+        ctx.rect(
+            this.x + this.collisionOffsetX,
+            this.y + this.collisionOffsetY,
+            this.collisionWidth,
+            this.collisionHeight
+        );
+        ctx.stroke();
     }
 }
