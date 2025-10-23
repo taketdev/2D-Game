@@ -29,8 +29,9 @@
 
 body {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 100vh;
     margin: 0;
     padding: 20px;
@@ -58,6 +59,8 @@ body {
         6px 6px 0 #000,
         12px 12px 0 rgba(0, 0, 0, 0.3);
     position: relative;
+    flex: 1;
+    margin-bottom: 20px;
 }
 
 .game-container::before {
@@ -181,6 +184,7 @@ h1 {
     box-shadow: 
         inset 2px 2px 0 #2d4a3e,
         inset -2px -2px 0 #000;
+    pointer-events: none;
 }
 
 .pixel-border::after {
@@ -191,6 +195,7 @@ h1 {
     right: 6px;
     bottom: 6px;
     border: 1px solid #3f6654;
+    pointer-events: none;
 }
 
 canvas {
@@ -204,6 +209,9 @@ canvas {
         inset 2px 2px 0 rgba(45, 74, 62, 0.3),
         inset -2px -2px 0 rgba(0, 0, 0, 0.8),
         0 0 0 1px #2d4a3e;
+    position: relative;
+    z-index: 10;
+    pointer-events: auto;
 }
 
 /* Game Info Panel */
@@ -336,6 +344,182 @@ canvas {
     margin: 0 2px;
 }
 
+/* Footer */
+.pixel-footer {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 900px;
+    background-color: #1a2f23;
+    border: 4px solid #0f1912;
+    box-shadow: 
+        inset 2px 2px 0 #2d4a3e,
+        inset -2px -2px 0 #000,
+        0 -4px 0 rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.footer-decoration {
+    height: 8px;
+    background: repeating-linear-gradient(
+        90deg,
+        #0f1912 0px,
+        #0f1912 8px,
+        #1a2f23 8px,
+        #1a2f23 16px,
+        #2d4a3e 16px,
+        #2d4a3e 24px,
+        #1a2f23 24px,
+        #1a2f23 32px
+    );
+    border-bottom: 2px solid #000;
+}
+
+.footer-content {
+    padding: 20px;
+    text-align: center;
+    color: #8fb89f;
+}
+
+.footer-content p {
+    margin: 0 0 15px 0;
+    font-size: 0.9em;
+    text-shadow: 1px 1px 0 #0f1912;
+}
+
+.footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.pixel-link {
+    background-color: #2d4a3e;
+    color: #a4d4b4;
+    padding: 8px 16px;
+    border: 3px solid #1a2f23;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 
+        inset 1px 1px 0 #3f6654,
+        inset -1px -1px 0 #0f1912,
+        2px 2px 0 #000;
+    text-shadow: 1px 1px 0 #0f1912;
+    image-rendering: pixelated;
+    transition: none;
+    position: relative;
+}
+
+.pixel-link:hover {
+    background-color: #3f6654;
+    transform: translate(1px, 1px);
+    box-shadow: 
+        inset 1px 1px 0 #5a8a70,
+        inset -1px -1px 0 #1a2f23,
+        1px 1px 0 #000;
+}
+
+.pixel-link:active {
+    transform: translate(2px, 2px);
+    box-shadow: 
+        inset 1px 1px 0 #1a2f23,
+        inset -1px -1px 0 #3f6654;
+}
+
+/* Impressum Styles */
+.impressum-panel {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.impressum-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.impressum-section {
+    background-color: #1a2f23;
+    border: 3px solid #0f1912;
+    padding: 20px;
+    box-shadow: 
+        inset 2px 2px 0 #2d4a3e,
+        inset -2px -2px 0 #000,
+        2px 2px 0 rgba(0, 0, 0, 0.5);
+    position: relative;
+}
+
+.impressum-section::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    border: 1px solid #3f6654;
+    pointer-events: none;
+}
+
+.impressum-section h3 {
+    color: #a4d4b4;
+    font-size: 1.2em;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    text-shadow: 
+        1px 0 0 #1a2f23,
+        -1px 0 0 #1a2f23,
+        0 1px 0 #1a2f23,
+        0 -1px 0 #1a2f23,
+        2px 2px 0 #0f1912;
+    image-rendering: pixelated;
+}
+
+.impressum-section p {
+    color: #8fb89f;
+    line-height: 1.6;
+    margin: 12px 0;
+    font-size: 0.9em;
+}
+
+.impressum-section strong {
+    color: #a4d4b4;
+    text-shadow: 1px 1px 0 #1a2f23;
+}
+
+.back-button-container {
+    text-align: center;
+    margin-top: 25px;
+    padding-top: 25px;
+    border-top: 3px solid #1a2f23;
+}
+
+.back-button {
+    font-size: 1.1em;
+    padding: 12px 24px;
+}
+
+/* Responsive Design for Impressum */
+@media (max-width: 768px) {
+    .impressum-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .impressum-section {
+        padding: 15px;
+        border-width: 2px;
+    }
+    
+    .impressum-section h3 {
+        font-size: 1.1em;
+    }
+    
+    .back-button {
+        font-size: 1em;
+        padding: 10px 20px;
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .game-container {
@@ -361,6 +545,7 @@ canvas {
     
     .pixel-border {
         border-width: 3px;
+        padding: 10px;
     }
     
     canvas {
