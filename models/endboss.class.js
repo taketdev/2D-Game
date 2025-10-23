@@ -113,7 +113,7 @@ class Endboss extends MovableObject {
         this.loadAttack2Image('./assets/werwolf boss/Attack2.png');
         this.loadAttack3Image('./assets/werwolf boss/Attack3.png');
         this.loadDeathImage('./assets/werwolf boss/Death.png');
-        this.x = 1900; // Endboss am Ende des Levels platziert (bei level_end_x = 2200)
+        this.x = 4700; // Endboss am Ende von Battleground2 platziert (Battleground2 endet bei ~5040)
         this.speed = this.baseSpeed;
         this.animate();
         this.updateAI();
