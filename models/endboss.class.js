@@ -4,6 +4,11 @@ class Endboss extends MovableObject {
     height = 400;
     width = 350;
 
+    // Health System
+    maxHP = 500;
+    currentHP = 500;
+    isDead = false;
+
     // Collision Box (angepasst an tatsächlichen Körper - zentriert)
     collisionOffsetX = 100;
     collisionOffsetY = 70;

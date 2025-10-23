@@ -6,6 +6,11 @@ class Character extends MovableObject {
     speed = 3;
     world;
 
+    // Health System
+    maxHP = 100;
+    currentHP = 100;
+    isDead = false;
+
     // Collision Box (angepasst an tatsächlichen Körper - zentriert)
     collisionOffsetX = 60;
     collisionOffsetY = 90;

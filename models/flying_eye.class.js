@@ -4,6 +4,11 @@ class FlyingEye extends MovableObject {
     height = 250;
     width = 250;
 
+    // Health System
+    maxHP = 20;
+    currentHP = 20;
+    isDead = false;
+
     // Collision Box (angepasst an tatsächlichen Körper - zentriert)
     collisionOffsetX = 85;
     collisionOffsetY = 90;

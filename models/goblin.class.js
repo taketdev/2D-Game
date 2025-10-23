@@ -4,6 +4,11 @@ class Goblin extends MovableObject {
     height = 250;
     width = 250;
 
+    // Health System
+    maxHP = 30;
+    currentHP = 30;
+    isDead = false;
+
     // Collision Box (angepasst an tatsächlichen Körper - zentriert)
     collisionOffsetX = 90;
     collisionOffsetY = 100;
