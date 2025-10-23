@@ -28,9 +28,7 @@ function createBackgroundObjects() {
             new BackgroundObject(`./assets/background/Battleground3/Bright/jungle_bg.png`, x),
             new BackgroundObject(`./assets/background/Battleground3/Bright/trees&bushes.png`, x),
             new BackgroundObject(`./assets/background/Battleground3/Bright/tree_face.png`, x),
-            new BackgroundObject(`./assets/background/Battleground3/Bright/lianas.png`, x),
-            new BackgroundObject(`./assets/background/Battleground3/Bright/grass&road.png`, x),
-            new BackgroundObject(`./assets/background/Battleground3/Bright/fireflys.png`, x)
+            new BackgroundObject(`./assets/background/Battleground3/Bright/grass&road.png`, x)
         );
     }
 
@@ -53,13 +51,75 @@ function createBackgroundObjects() {
     return backgroundObjects;
 }
 
+function createForegroundObjects() {
+    let foregroundObjects = [];
+
+    // Battleground3: Vordergrund-Elemente (lianas und fireflys)
+    // Diese werden ÜBER dem Character gerendert
+    for (let i = 3; i < 5; i++) {
+        let x = i * 720;
+
+        foregroundObjects.push(
+            new BackgroundObject(`./assets/background/Battleground3/Bright/lianas.png`, x),
+            new BackgroundObject(`./assets/background/Battleground3/Bright/fireflys.png`, x)
+        );
+    }
+
+    return foregroundObjects;
+}
+
+// Funktion zum Erstellen von Goblins mit spezifischer Position
+function createGoblinAt(x) {
+    let goblin = new Goblin();
+    goblin.x = x;
+    goblin.patrolStartX = x;
+    goblin.patrolEndX = x + goblin.patrolRange;
+    return goblin;
+}
+
+// Funktion zum Erstellen von Flying Eyes mit spezifischer Position
+function createFlyingEyeAt(x) {
+    let flyingEye = new FlyingEye();
+    flyingEye.x = x;
+    flyingEye.startY = flyingEye.y;
+    return flyingEye;
+}
+
+// Funktion zum Erstellen von Mushrooms mit spezifischer Position
+function createMushroomAt(x) {
+    let mushroom = new Mushroom();
+    mushroom.x = x;
+    mushroom.patrolStartX = x;
+    mushroom.patrolEndX = x + mushroom.patrolRange;
+    return mushroom;
+}
+
+// Funktion zum Erstellen von Skeletons mit spezifischer Position
+function createSkeletonAt(x) {
+    let skeleton = new Skeleton();
+    skeleton.x = x;
+    skeleton.patrolStartX = x;
+    skeleton.patrolEndX = x + skeleton.patrolRange;
+    return skeleton;
+}
+
 const level1 = new Level(
     [
-        new Goblin(),
-        new Goblin(),
-        new Goblin(),
-        new FlyingEye(),
-        new FlyingEye(),
+        // Battleground1 (x=0 bis x=2160): Goblins und Flying Eyes verteilt
+        createGoblinAt(500),
+        createGoblinAt(1000),
+        createGoblinAt(1800),
+        createFlyingEyeAt(700),
+        createFlyingEyeAt(1300),
+        createFlyingEyeAt(1900),
+
+        // Battleground3 (x=2160 bis x=3600): Mushrooms und Skeletons verteilt
+        createMushroomAt(2400),
+        createMushroomAt(3000),
+        createSkeletonAt(2700),
+        createSkeletonAt(3300),
+
+        // Endboss am Ende
         new Endboss(),
     ],
     [
@@ -67,5 +127,6 @@ const level1 = new Level(
         new Cloud(),
     ],
     createBackgroundObjects(),
-    [] // Collectibles werden dynamisch gespawnt
+    [], // Collectibles werden dynamisch gespawnt
+    createForegroundObjects() // Vordergrund-Elemente (über dem Character)
 );

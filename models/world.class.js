@@ -221,6 +221,11 @@ class World {
             projectile.drawFrame(this.ctx);
         });
 
+        // Draw foreground objects (über Character, z.B. lianas, fireflys)
+        if (this.level.foregroundObjects) {
+            this.addObjectsToMap(this.level.foregroundObjects);
+        }
+
         this.addObjectsToMap(this.level.clouds);
 
         // Draw collectibles (nicht eingesammelte)
@@ -329,6 +334,34 @@ class World {
                 mo.drawAttackSprite(this.ctx);
             } else {
                 mo.drawFlightSprite(this.ctx);
+            }
+        }
+        // Check if object is Mushroom with sprite animations
+        else if (mo instanceof Mushroom) {
+            if (mo.isDead) {
+                mo.drawDeathSprite(this.ctx);
+            } else if (mo.isTakingHit) {
+                mo.drawTakeHitSprite(this.ctx);
+            } else if (mo.isAttacking) {
+                mo.drawAttackSprite(this.ctx);
+            } else if (mo.isRunning) {
+                mo.drawRunSprite(this.ctx);
+            } else {
+                mo.drawIdleSprite(this.ctx);
+            }
+        }
+        // Check if object is Skeleton with sprite animations
+        else if (mo instanceof Skeleton) {
+            if (mo.isDead) {
+                mo.drawDeathSprite(this.ctx);
+            } else if (mo.isTakingHit) {
+                mo.drawTakeHitSprite(this.ctx);
+            } else if (mo.isAttacking) {
+                mo.drawAttackSprite(this.ctx);
+            } else if (mo.isWalking) {
+                mo.drawWalkSprite(this.ctx);
+            } else {
+                mo.drawIdleSprite(this.ctx);
             }
         }
         else {

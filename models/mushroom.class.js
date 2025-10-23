@@ -1,19 +1,19 @@
-class Goblin extends MovableObject {
+class Mushroom extends MovableObject {
     // Position and Size
-    y = 190;
-    height = 250;
-    width = 250;
+    y = 148;
+    height = 300;
+    width = 300;
 
     // Health System
-    maxHP = 30;
-    currentHP = 30;
+    maxHP = 25;
+    currentHP = 25;
     isDead = false;
 
     // Collision Box (angepasst an tatsächlichen Körper - zentriert)
-    collisionOffsetX = 90;
-    collisionOffsetY = 80;
-    collisionWidth = 65;
-    collisionHeight = 100;
+    collisionOffsetX = 110;
+    collisionOffsetY = 120;
+    collisionWidth = 75;
+    collisionHeight = 85;
 
     // Idle Animation Properties
     idleImage;
@@ -21,8 +21,8 @@ class Goblin extends MovableObject {
     idleSpriteWidth = 150;
     idleSpriteHeight = 150;
     idleFrameCount = 4;
-    idleDisplayWidth = 250;
-    idleDisplayHeight = 250;
+    idleDisplayWidth = 300;
+    idleDisplayHeight = 300;
     idleAnimationSpeed = 150;
     lastIdleFrameTime = Date.now();
 
@@ -32,9 +32,9 @@ class Goblin extends MovableObject {
     runSpriteWidth = 150;
     runSpriteHeight = 150;
     runFrameCount = 8;
-    runDisplayWidth = 250;
-    runDisplayHeight = 250;
-    runAnimationSpeed = 120; // Verlangsamt von 80 auf 120ms
+    runDisplayWidth = 300;
+    runDisplayHeight = 300;
+    runAnimationSpeed = 120;
     lastRunFrameTime = Date.now();
 
     // Take Hit Animation Properties
@@ -43,8 +43,8 @@ class Goblin extends MovableObject {
     takeHitSpriteWidth = 150;
     takeHitSpriteHeight = 150;
     takeHitFrameCount = 4;
-    takeHitDisplayWidth = 250;
-    takeHitDisplayHeight = 250;
+    takeHitDisplayWidth = 300;
+    takeHitDisplayHeight = 300;
     takeHitAnimationSpeed = 100;
     lastTakeHitFrameTime = Date.now();
     isTakingHit = false;
@@ -55,12 +55,12 @@ class Goblin extends MovableObject {
     attackSpriteWidth = 150;
     attackSpriteHeight = 150;
     attackFrameCount = 8;
-    attackDisplayWidth = 250;
-    attackDisplayHeight = 250;
+    attackDisplayWidth = 300;
+    attackDisplayHeight = 300;
     attackAnimationSpeed = 80;
     lastAttackFrameTime = Date.now();
     isAttacking = false;
-    attackHitFrame = 4; // Frame bei dem der Treffer registriert wird
+    attackHitFrame = 4;
 
     // Death Animation Properties
     deathImage;
@@ -68,8 +68,8 @@ class Goblin extends MovableObject {
     deathSpriteWidth = 150;
     deathSpriteHeight = 150;
     deathFrameCount = 4;
-    deathDisplayWidth = 250;
-    deathDisplayHeight = 250;
+    deathDisplayWidth = 300;
+    deathDisplayHeight = 300;
     deathAnimationSpeed = 150;
     lastDeathFrameTime = Date.now();
     deathAnimationFinished = false;
@@ -80,35 +80,38 @@ class Goblin extends MovableObject {
     // Patrol System
     patrolStartX;
     patrolEndX;
-    patrolRange = 300; // 300px Patrol-Bereich
+    patrolRange = 300;
     movingRight = false;
 
     // AI Behavior
-    turnTowardsCharacter = false; // Direction wird in patrol() gesetzt
-    aggroRange = 300; // 300px Reichweite für Aggro
+    turnTowardsCharacter = false;
+    aggroRange = 300;
     isAggro = false;
     targetCharacterX = 0;
-    attackRange = 80; // 80px Reichweite für Attack
-    attackCooldown = 2000; // 2 Sekunden Cooldown zwischen Attacks
+    attackRange = 80;
+    attackCooldown = 2000;
     lastAttackTime = 0;
 
     constructor() {
         super();
-        this.loadIdleImage('./assets/monsters/Goblin/Idle.png');
-        this.loadRunImage('./assets/monsters/Goblin/Run.png');
-        this.loadTakeHitImage('./assets/monsters/Goblin/Take Hit.png');
-        this.loadAttackImage('./assets/monsters/Goblin/Attack.png');
-        this.loadDeathImage('./assets/monsters/Goblin/Death.png');
+        this.loadIdleImage('./assets/monsters/Mushroom/Idle.png');
+        this.loadRunImage('./assets/monsters/Mushroom/Run.png');
+        this.loadTakeHitImage('./assets/monsters/Mushroom/Take Hit.png');
+        this.loadAttackImage('./assets/monsters/Mushroom/Attack.png');
+        this.loadDeathImage('./assets/monsters/Mushroom/Death.png');
 
-        // Random position and speed (langsamer, angepasst an Character)
+        // Random position and speed
         this.x = 200 + Math.random() * 500;
         this.speed = 0.5 + Math.random() * 0.5;
+
+        // Y-Position Variation (±10px)
+        this.y += Math.random() * 20 - 10;
 
         // Setup Patrol-Bereich
         this.patrolStartX = this.x;
         this.patrolEndX = this.x + this.patrolRange;
-        this.movingRight = Math.random() > 0.5; // Random start direction
-        this.otherDirection = !this.movingRight; // Sprite spiegeln
+        this.movingRight = Math.random() > 0.5;
+        this.otherDirection = !this.movingRight;
 
         this.animate();
         this.patrol();
@@ -182,7 +185,6 @@ class Goblin extends MovableObject {
         if (now - this.lastAttackFrameTime > this.attackAnimationSpeed) {
             this.currentAttackFrame++;
 
-            // Bei attackHitFrame Schaden zufügen
             if (this.currentAttackFrame === this.attackHitFrame && this.world) {
                 this.dealDamageToCharacter();
             }
@@ -212,7 +214,6 @@ class Goblin extends MovableObject {
     drawSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         if (!image || !image.complete) return;
 
-        // Disable image smoothing for crisp pixel art
         ctx.imageSmoothingEnabled = false;
 
         if (this.otherDirection) {
@@ -236,7 +237,6 @@ class Goblin extends MovableObject {
             );
         }
 
-        // Re-enable image smoothing for other objects
         ctx.imageSmoothingEnabled = true;
     }
 
@@ -279,30 +279,24 @@ class Goblin extends MovableObject {
         setInterval(() => {
             if (this.isDead) return;
 
-            // Blockiere Bewegung während Attack
             if (this.isAttacking) return;
 
-            // Wenn Aggro: Bewege sanft zum Character
             if (this.isAggro) {
                 let distanceToTarget = this.targetCharacterX - this.x;
                 let absDistance = Math.abs(distanceToTarget);
 
-                // Dead Zone: Wenn Character sehr nah ist (±30px), nicht mehr bewegen/drehen
                 if (absDistance < 30) {
                     return;
                 }
 
                 if (distanceToTarget < 0) {
-                    // Character ist links
-                    this.x -= this.speed * 0.7; // 30% langsamer für sanfte Verfolgung
+                    this.x -= this.speed * 0.7;
                     this.otherDirection = true;
                 } else {
-                    // Character ist rechts
                     this.x += this.speed * 0.7;
                     this.otherDirection = false;
                 }
             } else {
-                // Normale Patrol-Bewegung
                 if (this.movingRight) {
                     this.x += this.speed;
                     this.otherDirection = false;
@@ -311,7 +305,6 @@ class Goblin extends MovableObject {
                     this.otherDirection = true;
                 }
 
-                // Prüfe Patrol-Grenzen und drehe um
                 if (this.x >= this.patrolEndX) {
                     this.movingRight = false;
                 } else if (this.x <= this.patrolStartX) {
@@ -322,7 +315,6 @@ class Goblin extends MovableObject {
     }
 
     setAggro(character) {
-        // Kein Aggro wenn Character tot
         if (character.isDead) {
             this.isAggro = false;
             return;
@@ -334,7 +326,6 @@ class Goblin extends MovableObject {
     }
 
     animate() {
-        // Animation updates (60 FPS for smoother animations)
         setInterval(() => {
             this.updateIdleAnimation();
             this.updateRunAnimation();
@@ -344,14 +335,12 @@ class Goblin extends MovableObject {
         }, 1000 / 60);
     }
 
-    // Attack Character wenn in Reichweite
     tryAttack(character) {
         if (this.isDead || this.isAttacking) return;
 
         let distance = Math.abs(this.x - character.x);
         let now = Date.now();
 
-        // Prüfe ob in Attack-Range und Cooldown abgelaufen
         if (distance <= this.attackRange && now - this.lastAttackTime >= this.attackCooldown) {
             this.isAttacking = true;
             this.currentAttackFrame = 0;
@@ -359,16 +348,14 @@ class Goblin extends MovableObject {
         }
     }
 
-    // Schaden an Character zufügen bei Attack-Frame
     dealDamageToCharacter() {
         if (!this.world || !this.world.character) return;
 
         let distance = Math.abs(this.x - this.world.character.x);
 
-        // Prüfe ob Character noch in Reichweite ist
-        if (distance <= this.attackRange + 20) { // +20px Toleranz
-            this.world.character.takeAttackDamage(CONFIG.DAMAGE.GOBLIN_ATTACK);
-            console.log('Goblin dealt damage to character!');
+        if (distance <= this.attackRange + 20) {
+            this.world.character.takeAttackDamage(CONFIG.DAMAGE.MUSHROOM_ATTACK);
+            console.log('Mushroom dealt damage to character!');
         }
     }
 
@@ -384,18 +371,16 @@ class Goblin extends MovableObject {
         this.isDead = true;
         this.currentDeathFrame = 0;
         this.deathAnimationFinished = false;
-        this.speed = 0; // Stop movement
-        console.log('Goblin died!');
+        this.speed = 0;
+        console.log('Mushroom died!');
     }
 
-    // Debug: Draw collision frame
     drawFrame(ctx) {
         if (!CONFIG.SHOW_COLLISION_BOXES) return;
 
-        // Collision box (blau)
         ctx.beginPath();
         ctx.lineWidth = 2;
-        ctx.strokeStyle = 'blue';
+        ctx.strokeStyle = 'green';
         ctx.rect(
             this.x + this.collisionOffsetX,
             this.y + this.collisionOffsetY,

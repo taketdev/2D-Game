@@ -17,6 +17,8 @@ const CONFIG = {
         // Enemy Attack Damage
         GOBLIN_ATTACK: 12,        // Goblin Attack-Schaden
         FLYING_EYE_ATTACK: 10,    // Flying Eye Attack-Schaden
+        MUSHROOM_ATTACK: 10,      // Mushroom Attack-Schaden
+        SKELETON_ATTACK: 15,      // Skeleton Attack-Schaden
         ENDBOSS_ATTACK2: 25,      // Endboss Attack2-Schaden
         ENDBOSS_ATTACK3: 35       // Endboss Attack3-Schaden
     }

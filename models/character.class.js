@@ -2,7 +2,7 @@ class Character extends MovableObject {
     // Character Properties
     width = 200;
     height = 200;
-    y = 225;
+    y = 165;
     speed = 3;
     world;
 
@@ -392,6 +392,8 @@ class Character extends MovableObject {
             this.updateKnockback();
             this.handleMovement();
             this.updateCamera();
+            this.updateAttack1Animation();
+            this.updateAttack2Animation();
         }, 1000 / 60);
 
         // Animation updates (10 FPS)
@@ -402,8 +404,6 @@ class Character extends MovableObject {
             this.updateRunAnimation();
             this.updateHurtAnimation();
             this.updateDeathAnimation();
-            this.updateAttack1Animation();
-            this.updateAttack2Animation();
         }, 100);
 
         // Mana Regeneration (jede Sekunde)

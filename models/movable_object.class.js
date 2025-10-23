@@ -22,16 +22,16 @@ class MovableObject {
             if (this.isAboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
-            } else if (this.y > 225) {
+            } else if (this.y > 165) {
                 // Falls Character unter dem Boden ist, zurück zum Boden setzen
-                this.y = 225;
+                this.y = 165;
                 this.speedY = 0;
             }
         }, 1000 / 25);
     }
 
     isAboveGround() {
-        return this.y < 225;  // Boden-Level an Character-Position angepasst
+        return this.y < 165;  // Boden-Level an Character-Position angepasst
     }
 
     // Image Loading Methods
@@ -71,6 +71,9 @@ class MovableObject {
 
     // Collision Detection
     isColliding(obj) {
+        // Ignoriere Kollision mit toten Objekten
+        if (obj.isDead) return false;
+
         // Verwende die Collision-Box Werte wenn vorhanden
         let myX = this.x + (this.collisionOffsetX || 0);
         let myY = this.y + (this.collisionOffsetY || 0);
