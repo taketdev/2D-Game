@@ -21,7 +21,6 @@ function createBackgroundObjects() {
     // Startet nahtlos bei x=2160
     for (let i = 3; i < 5; i++) {
         let x = i * 720;
-            if (i === 4) x -= 5;
 
         backgroundObjects.push(
             new BackgroundObject(`./assets/background/Battleground3/Bright/sky.png`, x),
@@ -37,8 +36,6 @@ function createBackgroundObjects() {
     // Startet nahtlos bei x=3600
     for (let i = 5; i < 8; i++) {
         let x = i * 720;
-            if (i === 6) x -= 5;
-            if (i === 7) x -= 10;
 
         backgroundObjects.push(
             new BackgroundObject(`./assets/background/Battleground2/Bright/bg.png`, x),

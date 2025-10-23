@@ -529,7 +529,8 @@ handleMovement() {
 
     updateCamera() {
         if (this.world) {
-            this.world.camera_x = -this.x + 100;
+            // Runde die Kamera-Position auf ganze Zahlen um Sub-Pixel-Rendering zu vermeiden
+            this.world.camera_x = Math.round(-this.x + 100);
         }
     }
 
@@ -577,7 +578,17 @@ handleMovement() {
 
     updateKnockback() {
         if (this.isKnockedBack && this.knockbackForce > 0) {
-            this.x += this.knockbackDirection * this.knockbackForce;
+            // Berechne neue Position
+            let newX = this.x + this.knockbackDirection * this.knockbackForce;
+            
+            // Level-Grenzen: nutze die Level-Properties für konsistente Grenzen
+            // Aber für Pushback verwende eine härtere linke Grenze um schwarzen Bereich zu vermeiden
+            let minX = this.world ? this.world.level.level_start_x : 102;
+            let maxX = this.world ? this.world.level.level_end_x : 5000;
+            
+            // Begrenze Position innerhalb der Level-Grenzen
+            this.x = Math.max(minX, Math.min(maxX, newX));
+            
             this.knockbackForce *= 0.7; // Schneller abbremsen (statt 0.85)
         }
     }
