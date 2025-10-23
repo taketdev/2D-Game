@@ -2,6 +2,7 @@
 let canvas;
 let world;
 let keyboard = new Keyboard();
+let menu;
 
 // Key Codes
 const KEYS = {
@@ -16,12 +17,37 @@ const KEYS = {
 };
 
 /**
- * Initialize the game
+ * Initialize the menu (called on page load)
  */
 function init() {
     canvas = document.getElementById('canvas');
+    menu = new Menu(canvas);
+
+    // Start menu render loop
+    startMenuLoop();
+}
+
+/**
+ * Menu render loop
+ */
+function startMenuLoop() {
+    function menuRender() {
+        if (menu && menu.isActive) {
+            menu.draw();
+            requestAnimationFrame(menuRender);
+        } else if (menu && menu.gameStarted) {
+            // Menu closed, game started - do nothing, world loop handles rendering
+        }
+    }
+    requestAnimationFrame(menuRender);
+}
+
+/**
+ * Initialize the actual game (called from menu when Play is clicked)
+ */
+function initGame() {
     world = new World(canvas, keyboard);
-    console.log('My Character is', world.character);
+    console.log('Game started! My Character is', world.character);
 }
 
 /**
