@@ -15,6 +15,11 @@ class World {
     keyboard;
     camera_x = -100;
 
+    // Collectible Spawn System
+    maxScrollsOnMap = 3;
+    scrollSpawnCooldown = 10000; // 10 Sekunden Cooldown
+    lastScrollSpawnTime = 0;
+
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
@@ -22,6 +27,50 @@ class World {
         this.draw();
         this.setWorld();
         this.checkCollisions();
+        this.startScrollSpawning();
+    }
+
+    startScrollSpawning() {
+        // Spawne initial 3 Scrolls
+        this.spawnInitialScrolls();
+
+        // Prüfe alle 2 Sekunden ob neue Scrolls gespawnt werden müssen
+        setInterval(() => {
+            this.checkScrollSpawn();
+        }, 2000);
+    }
+
+    spawnInitialScrolls() {
+        for (let i = 0; i < this.maxScrollsOnMap; i++) {
+            this.spawnScroll();
+        }
+    }
+
+    checkScrollSpawn() {
+        let activeScrolls = this.getActiveScrollCount();
+
+        // Spawne neuen Scroll wenn weniger als max und Cooldown abgelaufen
+        if (activeScrolls < this.maxScrollsOnMap) {
+            let now = Date.now();
+            if (now - this.lastScrollSpawnTime >= this.scrollSpawnCooldown) {
+                this.spawnScroll();
+                this.lastScrollSpawnTime = now;
+            }
+        }
+    }
+
+    getActiveScrollCount() {
+        if (!this.level.collectibles) return 0;
+        return this.level.collectibles.filter(scroll => !scroll.collected).length;
+    }
+
+    spawnScroll() {
+        let levelWidth = this.level.level_end_x;
+        let groundY = 335;
+        let randomX = Math.random() * (levelWidth - 400) + 200; // Zwischen 200 und 1800
+
+        let newScroll = new Scroll(randomX, groundY);
+        this.level.collectibles.push(newScroll);
     }
 
     setWorld() {
@@ -32,6 +81,7 @@ class World {
         setInterval(() => {
             this.checkEnemyCollisions();
             this.checkProjectileCollisions();
+            this.checkCollectibleCollisions();
             this.cleanupProjectiles();
         }, 1000 / 60);
     }
@@ -71,6 +121,37 @@ class World {
                 }
             });
         });
+    }
+
+    checkCollectibleCollisions() {
+        if (!this.level.collectibles) return;
+
+        this.level.collectibles.forEach(collectible => {
+            if (collectible.collected) return; // Bereits eingesammelt
+
+            if (this.character.isColliding(collectible)) {
+                // Character hat Collectible eingesammelt
+                this.collectItem(collectible);
+            }
+        });
+    }
+
+    collectItem(collectible) {
+        collectible.collected = true;
+
+        // Restore Health (max 100)
+        this.character.currentHP += collectible.healthRestore;
+        if (this.character.currentHP > this.character.maxHP) {
+            this.character.currentHP = this.character.maxHP;
+        }
+
+        // Restore Mana (max 100)
+        this.character.currentMana += collectible.manaRestore;
+        if (this.character.currentMana > this.character.maxMana) {
+            this.character.currentMana = this.character.maxMana;
+        }
+
+        console.log(`Scroll collected! HP: ${this.character.currentHP}/${this.character.maxHP}, Mana: ${this.character.currentMana}/${this.character.maxMana}`);
     }
 
     cleanupProjectiles() {
@@ -118,6 +199,16 @@ class World {
         });
 
         this.addObjectsToMap(this.level.clouds);
+
+        // Draw collectibles (nicht eingesammelte)
+        if (this.level.collectibles) {
+            this.level.collectibles.forEach(collectible => {
+                if (!collectible.collected) {
+                    this.addToMap(collectible);
+                    collectible.drawFrame(this.ctx);
+                }
+            });
+        }
 
         this.addObjectsToMap(this.level.enemies);
 
