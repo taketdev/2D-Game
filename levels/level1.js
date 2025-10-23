@@ -84,6 +84,29 @@ function createSkeletonAt(x) {
     return skeleton;
 }
 
+// Funktion zum Erstellen von Wolken mit spezifischer Position
+function createCloudAt(x, cloudType = 1) {
+    let cloud = new Cloud();
+    // Setze spezifische Position
+    cloud.x = x;
+    
+    // Lade verschiedene Wolken-Bilder für Abwechslung
+    const cloudImages = [
+        './assets/clouds/Cloud1.png',
+        './assets/clouds/Cloud2.png',
+        './assets/clouds/Cloud3.png',
+        './assets/clouds/Cloud4.png',
+        './assets/clouds/Cloud5.png'
+    ];
+    
+    cloud.loadImage(cloudImages[cloudType - 1] || cloudImages[0]);
+    
+    // Variiere Y-Position leicht für natürlicheres Aussehen
+    cloud.y = 30 + Math.random() * 40; // Y zwischen 30 und 70
+    
+    return cloud;
+}
+
 // Function to create a fresh level instance
 function createLevel1() {
     return new Level(
@@ -105,8 +128,15 @@ function createLevel1() {
             // Endboss wird dynamisch gespawnt wenn Character Battleground2 erreicht
         ],
         [
-            new Cloud(),
-            new Cloud(),
+            // Nur Battleground1 Wolken (x=0 bis x=2160) für eine schöne Atmosphäre
+            createCloudAt(400, 1),
+            createCloudAt(900, 2),
+            createCloudAt(1400, 3),
+            createCloudAt(1800, 4),
+            
+            // Ein paar zusätzliche für Abwechslung
+            createCloudAt(650, 5),
+            createCloudAt(1150, 1),
         ],
         createBackgroundObjects(),
         [] // Collectibles werden dynamisch gespawnt

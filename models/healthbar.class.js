@@ -8,7 +8,7 @@ class HealthBar extends StatusBar {
 
     loadHudPanel() {
         this.hudPanelImage = new Image();
-        this.hudPanelImage.src = './assets/hud/hudPaneltry.png';
+        this.hudPanelImage.src = './assets/hud/hudPaneltry2.png';
     }
 
     draw(ctx) {
