@@ -99,7 +99,17 @@ class Menu {
         // Draw background
         this.ctx.drawImage(this.images.background, 0, 0, this.canvas.width, this.canvas.height);
 
-        this.drawMainMenu();
+        // Clear bounds for inactive buttons
+        this.clearInactiveButtonBounds();
+
+        // Draw appropriate menu based on dialog state
+        if (this.currentDialog === 'settings') {
+            this.drawSettingsDialog();
+        } else if (this.currentDialog === 'controls') {
+            this.drawControlsDialog();
+        } else {
+            this.drawMainMenu();
+        }
     }
 
     /**
@@ -143,6 +153,103 @@ class Menu {
     }
 
     /**
+     * Draw settings dialog
+     */
+    drawSettingsDialog() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        // Draw settings menu background frame
+        const menuWidth = 250;
+        const menuHeight = 200;
+        const menuX = centerX - menuWidth / 2;
+        const menuY = centerY - menuHeight / 2;
+
+        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+
+        // Settings title
+        this.ctx.fillStyle = '#d9d9d9ff';
+        this.ctx.font = 'bold 24px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Settings', centerX, menuY + 40);
+
+        // Music toggle section
+        this.ctx.font = '18px Arial';
+        this.ctx.fillText('Music:', centerX, menuY + 80);
+
+        // Music toggle button
+        const musicButtonSize = 35;
+        const musicButtonX = centerX - musicButtonSize / 2;
+        const musicButtonY = menuY + 90;
+        
+        const musicIconImg = this.musicEnabled ? this.images.musicIcon : this.images.musicMuteIcon;
+        this.drawButton('musicToggle', musicButtonX, musicButtonY, musicButtonSize, musicButtonSize, musicIconImg);
+
+        // Close button (X)
+        const closeButtonSize = 30;
+        const closeButtonX = menuX + menuWidth - closeButtonSize - 10;
+        const closeButtonY = menuY + 10;
+        this.drawButton('close', closeButtonX, closeButtonY, closeButtonSize, closeButtonSize, this.images.xBtn);
+    }
+
+    /**
+     * Draw controls dialog
+     */
+    drawControlsDialog() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        // Draw controls menu background frame (same size as main menu)
+        const menuWidth = 200;
+        const menuHeight = 250;
+        const menuX = centerX - menuWidth / 2;
+        const menuY = centerY - menuHeight / 2;
+
+        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+
+        // Controls title
+        this.ctx.fillStyle = '#d9d9d9ff';
+        this.ctx.font = 'bold 20px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('How to Play', centerX, menuY + 30);
+
+        // Controls text
+        this.ctx.font = '14px Arial';
+        this.ctx.textAlign = 'left';
+        const textX = menuX + 15;
+        let textY = menuY + 60;
+        const lineHeight = 20;
+
+        const controls = [
+            '← → Arrow Keys: Move',
+            '↑ Arrow Key: Jump',
+            'D: Attack 1',
+            'E: Attack 2',
+            'SPACE: Special Attack',
+            '',
+            'Collect scrolls to gain',
+            'experience and power!',
+            '',
+            'Defeat all enemies to win!'
+        ];
+
+        controls.forEach(line => {
+            if (line === '') {
+                textY += lineHeight / 2;
+            } else {
+                this.ctx.fillText(line, textX, textY);
+                textY += lineHeight;
+            }
+        });
+
+        // Close button (X)
+        const closeButtonSize = 30;
+        const closeButtonX = menuX + menuWidth - closeButtonSize - 10;
+        const closeButtonY = menuY + 10;
+        this.drawButton('close', closeButtonX, closeButtonY, closeButtonSize, closeButtonSize, this.images.xBtn);
+    }
+
+    /**
      * Draw a button with animation
      */
     drawButton(buttonName, x, y, width, height, image) {
@@ -164,6 +271,34 @@ class Menu {
 
         // Store button bounds for click detection
         this.buttonStates[buttonName].bounds = { x, y, width, height };
+    }
+
+    /**
+     * Clear button bounds for buttons that are not currently visible
+     */
+    clearInactiveButtonBounds() {
+        if (this.currentDialog === 'settings') {
+            // Clear main menu button bounds
+            ['play', 'settings', 'exit', 'question'].forEach(name => {
+                if (this.buttonStates[name]) {
+                    this.buttonStates[name].bounds = null;
+                }
+            });
+        } else if (this.currentDialog === 'controls') {
+            // Clear main menu button bounds
+            ['play', 'settings', 'exit', 'question'].forEach(name => {
+                if (this.buttonStates[name]) {
+                    this.buttonStates[name].bounds = null;
+                }
+            });
+        } else {
+            // Clear dialog button bounds when in main menu
+            ['musicToggle', 'close'].forEach(name => {
+                if (this.buttonStates[name]) {
+                    this.buttonStates[name].bounds = null;
+                }
+            });
+        }
     }
 
 
@@ -209,7 +344,7 @@ class Menu {
 
         let overButton = false;
 
-        // Check if hovering over any button
+        // Check if hovering over any button that has valid bounds
         Object.entries(this.buttonStates).forEach(([name, state]) => {
             if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
                 overButton = true;
@@ -229,6 +364,18 @@ class Menu {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
+        // Handle settings dialog clicks
+        if (this.currentDialog === 'settings') {
+            this.handleSettingsClick(x, y);
+            return;
+        }
+
+        // Handle controls dialog clicks
+        if (this.currentDialog === 'controls') {
+            this.handleControlsClick(x, y);
+            return;
+        }
+
         // Main menu buttons
         const playBtn = this.buttonStates.play;
         if (playBtn.bounds && this.isPointInButton(x, y, playBtn.bounds)) {
@@ -238,7 +385,7 @@ class Menu {
 
         const settingsBtn = this.buttonStates.settings;
         if (settingsBtn.bounds && this.isPointInButton(x, y, settingsBtn.bounds)) {
-            console.log('Settings button clicked');
+            this.openSettings();
             return;
         }
 
@@ -250,7 +397,38 @@ class Menu {
 
         const questionBtn = this.buttonStates.question;
         if (questionBtn.bounds && this.isPointInButton(x, y, questionBtn.bounds)) {
-            console.log('Question button clicked');
+            this.openControls();
+            return;
+        }
+    }
+
+    /**
+     * Handle settings dialog clicks
+     */
+    handleSettingsClick(x, y) {
+        // Music toggle button
+        const musicToggleBtn = this.buttonStates.musicToggle;
+        if (musicToggleBtn.bounds && this.isPointInButton(x, y, musicToggleBtn.bounds)) {
+            this.toggleMusic();
+            return;
+        }
+
+        // Close button
+        const closeBtn = this.buttonStates.close;
+        if (closeBtn.bounds && this.isPointInButton(x, y, closeBtn.bounds)) {
+            this.closeSettings();
+            return;
+        }
+    }
+
+    /**
+     * Handle controls dialog clicks
+     */
+    handleControlsClick(x, y) {
+        // Close button
+        const closeBtn = this.buttonStates.close;
+        if (closeBtn.bounds && this.isPointInButton(x, y, closeBtn.bounds)) {
+            this.closeControls();
             return;
         }
     }
@@ -284,5 +462,55 @@ class Menu {
     exitGame() {
         console.log('Exit button clicked');
         // TODO: Implement exit functionality
+    }
+
+    /**
+     * Open settings dialog
+     */
+    openSettings() {
+        console.log('Opening settings...');
+        this.currentDialog = 'settings';
+    }
+
+    /**
+     * Close settings dialog
+     */
+    closeSettings() {
+        console.log('Closing settings...');
+        this.currentDialog = null;
+    }
+
+    /**
+     * Toggle music on/off
+     */
+    toggleMusic() {
+        this.musicEnabled = !this.musicEnabled;
+        console.log('Music toggled:', this.musicEnabled ? 'ON' : 'OFF');
+        
+        // TODO: Implement actual audio control here
+        // You can add audio context control here when you have background music
+        if (this.musicEnabled) {
+            // Enable music
+            // backgroundMusic.play();
+        } else {
+            // Disable music  
+            // backgroundMusic.pause();
+        }
+    }
+
+    /**
+     * Open controls dialog
+     */
+    openControls() {
+        console.log('Opening controls...');
+        this.currentDialog = 'controls';
+    }
+
+    /**
+     * Close controls dialog
+     */
+    closeControls() {
+        console.log('Closing controls...');
+        this.currentDialog = null;
     }
 }
