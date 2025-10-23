@@ -201,6 +201,9 @@ class FlyingEye extends MovableObject {
 
     moveWithWave() {
         setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             if (this.isDead && !this.isFalling) {
                 // Start falling when dead
                 this.isFalling = true;
@@ -236,6 +239,9 @@ class FlyingEye extends MovableObject {
     animate() {
         // Animation updates (60 FPS for smoother animations)
         setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             this.updateFlightAnimation();
             this.updateAttackAnimation();
             this.updateDeathAnimation();

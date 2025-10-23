@@ -394,6 +394,9 @@ class Character extends MovableObject {
     animate() {
         // Movement and controls (60 FPS)
         this.movementIntervalId = setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             this.updateKnockback();
             this.handleMovement();
             this.updateCamera();
@@ -403,6 +406,9 @@ class Character extends MovableObject {
 
         // Animation updates (10 FPS)
         this.animationIntervalId = setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             this.updateIdleAnimation();
             this.updateWalkAnimation();
             this.updateJumpAnimation();
@@ -413,6 +419,9 @@ class Character extends MovableObject {
 
         // Mana Regeneration (jede Sekunde)
         this.manaRegenIntervalId = setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             this.regenerateMana();
         }, 1000);
     }
@@ -431,8 +440,12 @@ class Character extends MovableObject {
         this.deathAnimationFinished = false;
         console.log('Character died!');
         
-        // Cleanup intervals when character dies
-        this.cleanup();
+        // DON'T cleanup intervals yet - let death animation finish first
+        // Only stop movement
+        if (this.movementIntervalId) {
+            clearInterval(this.movementIntervalId);
+            this.movementIntervalId = null;
+        }
     }
 
     // Cleanup method to clear all intervals

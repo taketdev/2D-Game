@@ -43,6 +43,14 @@ function startMenuLoop() {
 }
 
 /**
+ * Stop menu render loop
+ */
+function stopMenuLoop() {
+    // The loop will stop automatically when menu.isActive becomes false
+    // This function exists for consistency with startMenuLoop calls
+}
+
+/**
  * Initialize the actual game (called from menu when Play is clicked)
  */
 function initGame() {
@@ -58,6 +66,8 @@ function cleanup() {
         world.cleanup();
         console.log('Game cleanup completed');
     }
+    // Reset world to null so a completely new instance is created
+    world = null;
 }
 
 /**

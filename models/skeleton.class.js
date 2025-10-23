@@ -277,6 +277,9 @@ class Skeleton extends MovableObject {
 
     patrol() {
         setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             if (this.isDead) return;
 
             if (this.isAttacking) return;
@@ -327,6 +330,9 @@ class Skeleton extends MovableObject {
 
     animate() {
         setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             this.updateIdleAnimation();
             this.updateWalkAnimation();
             this.updateTakeHitAnimation();

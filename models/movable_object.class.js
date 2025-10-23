@@ -23,6 +23,9 @@ class MovableObject {
     // Physics Methods
     applyGravity() {
         this.gravityIntervalId = setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             if (this.isAboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
@@ -69,6 +72,9 @@ class MovableObject {
 
     moveLeft() {
         this.moveLeftIntervalId = setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             this.x -= this.speed;
         }, 1000 / 60);
     }

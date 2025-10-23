@@ -121,6 +121,9 @@ class Endboss extends MovableObject {
 
     updateAI() {
         setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             if (this.isDead) return;
 
             // Update Phase basierend auf HP
@@ -396,6 +399,9 @@ class Endboss extends MovableObject {
     animate() {
         // Animation updates (60 FPS for smoother animations)
         setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             this.updateIdleAnimation();
             this.updateWalkAnimation();
             this.updateHitAnimation();

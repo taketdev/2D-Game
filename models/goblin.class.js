@@ -281,6 +281,9 @@ class Goblin extends MovableObject {
 
     patrol() {
         this.patrolIntervalId = setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             if (this.isDead) return;
 
             // Blockiere Bewegung während Attack
@@ -340,6 +343,9 @@ class Goblin extends MovableObject {
     animate() {
         // Animation updates (60 FPS for smoother animations)
         this.animationIntervalId = setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             this.updateIdleAnimation();
             this.updateRunAnimation();
             this.updateTakeHitAnimation();

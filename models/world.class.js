@@ -1,7 +1,7 @@
 class World {
     // Game Objects
     character = new Character();
-    level = level1;
+    level = createLevel1(); // Create fresh level instance
     projectiles = []; // Array für alle Projektile
 
     // HUD Elements
@@ -23,6 +23,13 @@ class World {
     // Endboss Spawn System
     endbossSpawned = false;
     endbossSpawnX = 3600; // Battleground2 startet bei x=3600
+
+    // Game Over System
+    gameOverTriggered = false;
+    victoryTriggered = false;
+
+    // Pause System
+    isPaused = false;
 
     // Interval IDs für Cleanup
     scrollSpawnIntervalId;
@@ -92,12 +99,16 @@ class World {
 
     checkCollisions() {
         this.collisionCheckIntervalId = setInterval(() => {
+            if (this.isPaused) return; // Skip updates when paused
+            
             this.checkEnemyCollisions();
             this.checkProjectileCollisions();
             this.checkCollectibleCollisions();
             this.updateEnemyDirections();
             this.cleanupProjectiles();
             this.checkEndbossSpawn();
+            this.checkGameOver();
+            this.checkVictory();
         }, 1000 / 60);
     }
 
@@ -289,6 +300,33 @@ class World {
 
         // Zeichne Boss Health Bar nur wenn Endboss in Sichtweite
         this.drawBossHealthBar();
+
+        // Draw pause button (bottom right) - only when game is not paused
+        if (!this.isPaused) {
+            this.drawPauseButton();
+        }
+    }
+
+    drawPauseButton() {
+        const pauseIconSize = 40;
+        const pauseIconX = this.canvas.width - pauseIconSize - 15;
+        const pauseIconY = this.canvas.height - pauseIconSize - 15;
+
+        // Simple pause icon using canvas drawing (since we might not have the image loaded)
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        this.ctx.fillRect(pauseIconX, pauseIconY, pauseIconSize, pauseIconSize);
+        
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(pauseIconX + 12, pauseIconY + 8, 5, 24);
+        this.ctx.fillRect(pauseIconX + 23, pauseIconY + 8, 5, 24);
+
+        // Store bounds for click detection
+        this.pauseButtonBounds = {
+            x: pauseIconX,
+            y: pauseIconY,
+            width: pauseIconSize,
+            height: pauseIconSize
+        };
     }
 
     drawBossHealthBar() {
@@ -439,5 +477,47 @@ class World {
                 projectile.cleanup();
             }
         });
+    }
+
+    checkGameOver() {
+        // Check if character is dead and death animation is finished
+        if (this.character.isDead && this.character.deathAnimationFinished && !this.gameOverTriggered) {
+            this.gameOverTriggered = true;
+            // Add small delay to ensure death animation is fully visible
+            setTimeout(() => {
+                this.triggerGameOver();
+            }, 500); // 500ms delay
+        }
+    }
+
+    triggerGameOver() {
+        console.log('Triggering Game Over...');
+        
+        // Show game over screen via menu (don't cleanup yet, keep game visible but darkened)
+        if (typeof menu !== 'undefined' && menu) {
+            menu.showGameOver();
+        }
+    }
+
+    checkVictory() {
+        // Check if endboss exists and is dead with finished death animation
+        let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
+        
+        if (endboss && endboss.isDead && endboss.deathAnimationFinished && !this.victoryTriggered) {
+            this.victoryTriggered = true;
+            // Add small delay to ensure death animation is fully visible
+            setTimeout(() => {
+                this.triggerVictory();
+            }, 500); // 500ms delay
+        }
+    }
+
+    triggerVictory() {
+        console.log('Triggering Victory!');
+        
+        // Show victory screen via menu (don't cleanup yet, keep game visible but darkened)
+        if (typeof menu !== 'undefined' && menu) {
+            menu.showVictory();
+        }
     }
 }

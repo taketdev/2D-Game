@@ -56,6 +56,9 @@ class Projectile extends MovableObject {
 
     animate() {
         this.animationIntervalId = setInterval(() => {
+            // Check if game is paused
+            if (this.world && this.world.isPaused) return;
+            
             this.updateAnimation();
             this.move();
         }, 1000 / 60);

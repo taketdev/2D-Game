@@ -87,28 +87,34 @@ function createSkeletonAt(x) {
     return skeleton;
 }
 
-const level1 = new Level(
-    [
-        // Battleground1 (x=0 bis x=2160): Goblins und Flying Eyes verteilt
-        createGoblinAt(500),
-        createGoblinAt(1000),
-        createGoblinAt(1800),
-        createFlyingEyeAt(700),
-        createFlyingEyeAt(1300),
-        createFlyingEyeAt(1900),
+// Function to create a fresh level instance
+function createLevel1() {
+    return new Level(
+        [
+            // Battleground1 (x=0 bis x=2160): Goblins und Flying Eyes verteilt
+            createGoblinAt(500),
+            createGoblinAt(1000),
+            createGoblinAt(1800),
+            createFlyingEyeAt(700),
+            createFlyingEyeAt(1300),
+            createFlyingEyeAt(1900),
 
-        // Battleground3 (x=2160 bis x=3600): Mushrooms und Skeletons verteilt
-        createMushroomAt(2400),
-        createMushroomAt(3000),
-        createSkeletonAt(2700),
-        createSkeletonAt(3300),
+            // Battleground3 (x=2160 bis x=3600): Mushrooms und Skeletons verteilt
+            createMushroomAt(2400),
+            createMushroomAt(3000),
+            createSkeletonAt(2700),
+            createSkeletonAt(3300),
 
-        // Endboss wird dynamisch gespawnt wenn Character Battleground2 erreicht
-    ],
-    [
-        new Cloud(),
-        new Cloud(),
-    ],
-    createBackgroundObjects(),
-    [] // Collectibles werden dynamisch gespawnt
-);
+            // Endboss wird dynamisch gespawnt wenn Character Battleground2 erreicht
+        ],
+        [
+            new Cloud(),
+            new Cloud(),
+        ],
+        createBackgroundObjects(),
+        [] // Collectibles werden dynamisch gespawnt
+    );
+}
+
+// Create initial level instance for compatibility
+const level1 = createLevel1();

@@ -10,8 +10,11 @@ class Menu {
 
         // Menu state
         this.isActive = true;
-        this.currentDialog = null; // null, 'controls', 'settings'
+        this.currentDialog = null; // null, 'controls', 'settings', 'pause'
+        this.previousDialog = null; // Track where settings was opened from
         this.gameStarted = false;
+        this.isGameOver = false;
+        this.isVictory = false;
 
         // Images
         this.images = {};
@@ -24,7 +27,8 @@ class Menu {
             exit: { scale: 1, pressed: false },
             question: { scale: 1, pressed: false },
             close: { scale: 1, pressed: false },
-            musicToggle: { scale: 1, pressed: false }
+            musicToggle: { scale: 1, pressed: false },
+            resume: { scale: 1, pressed: false }
         };
 
         // Settings
@@ -96,8 +100,15 @@ class Menu {
 
         if (!this.isActive) return;
 
-        // Draw background
-        this.ctx.drawImage(this.images.background, 0, 0, this.canvas.width, this.canvas.height);
+        // Game Over mode: Draw dark overlay instead of background
+        if (this.isGameOver || this.isVictory) {
+            // Draw dark overlay over the game
+            this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        } else {
+            // Normal mode: Draw background
+            this.ctx.drawImage(this.images.background, 0, 0, this.canvas.width, this.canvas.height);
+        }
 
         // Clear bounds for inactive buttons
         this.clearInactiveButtonBounds();
@@ -107,8 +118,16 @@ class Menu {
             this.drawSettingsDialog();
         } else if (this.currentDialog === 'controls') {
             this.drawControlsDialog();
+        } else if (this.currentDialog === 'pause') {
+            this.drawPauseDialog();
         } else {
-            this.drawMainMenu();
+            if (this.isGameOver) {
+                this.drawGameOverMenu();
+            } else if (this.isVictory) {
+                this.drawVictoryMenu();
+            } else {
+                this.drawMainMenu();
+            }
         }
     }
 
@@ -142,6 +161,98 @@ class Menu {
         this.drawButton('settings', buttonX, settingsY, buttonWidth, buttonHeight, this.images.settingsBtn);
 
         // Exit button (bottom)
+        const exitY = settingsY + buttonSpacing;
+        this.drawButton('exit', buttonX, exitY, buttonWidth, buttonHeight, this.images.exitBtn);
+
+        // Question icon (top right)
+        const iconSize = 40;
+        const iconX = this.canvas.width - iconSize - 15;
+        const iconY = 15;
+        this.drawButton('question', iconX, iconY, iconSize, iconSize, this.images.questionIcon);
+    }
+
+    /**
+     * Draw game over menu
+     */
+    drawGameOverMenu() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        // "Game Over" text above the menu
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 28px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Game Over', centerX, centerY - 120);
+
+        // Draw blank menu background frame (same as main menu)
+        const menuWidth = 200;
+        const menuHeight = 250;
+        const menuX = centerX - menuWidth / 2;
+        const menuY = centerY - menuHeight / 2 + 20; // Slightly below center
+
+        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+
+        // Calculate button positions (same as main menu)
+        const buttonWidth = 140;
+        const buttonHeight = 45;
+        const buttonX = centerX - buttonWidth / 2;
+        const buttonSpacing = 55;
+
+        // Play button (top) - for retry
+        const playY = menuY + 50;
+        this.drawButton('play', buttonX, playY, buttonWidth, buttonHeight, this.images.playBtn);
+
+        // Settings button (middle)
+        const settingsY = playY + buttonSpacing;
+        this.drawButton('settings', buttonX, settingsY, buttonWidth, buttonHeight, this.images.settingsBtn);
+
+        // Exit button (bottom) - back to main menu
+        const exitY = settingsY + buttonSpacing;
+        this.drawButton('exit', buttonX, exitY, buttonWidth, buttonHeight, this.images.exitBtn);
+
+        // Question icon (top right)
+        const iconSize = 40;
+        const iconX = this.canvas.width - iconSize - 15;
+        const iconY = 15;
+        this.drawButton('question', iconX, iconY, iconSize, iconSize, this.images.questionIcon);
+    }
+
+    /**
+     * Draw victory menu
+     */
+    drawVictoryMenu() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        // "Victory!" text above the menu
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 28px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Victory!', centerX, centerY - 120);
+
+        // Draw blank menu background frame (same as main menu)
+        const menuWidth = 200;
+        const menuHeight = 250;
+        const menuX = centerX - menuWidth / 2;
+        const menuY = centerY - menuHeight / 2 + 20; // Slightly below center
+
+        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+
+        // Calculate button positions (same as main menu)
+        const buttonWidth = 140;
+        const buttonHeight = 45;
+        const buttonX = centerX - buttonWidth / 2;
+        const buttonSpacing = 55;
+
+        // Play button (top) - for play again
+        const playY = menuY + 50;
+        this.drawButton('play', buttonX, playY, buttonWidth, buttonHeight, this.images.playBtn);
+
+        // Settings button (middle)
+        const settingsY = playY + buttonSpacing;
+        this.drawButton('settings', buttonX, settingsY, buttonWidth, buttonHeight, this.images.settingsBtn);
+
+        // Exit button (bottom) - back to main menu
         const exitY = settingsY + buttonSpacing;
         this.drawButton('exit', buttonX, exitY, buttonWidth, buttonHeight, this.images.exitBtn);
 
@@ -291,9 +402,16 @@ class Menu {
                     this.buttonStates[name].bounds = null;
                 }
             });
+        } else if (this.currentDialog === 'pause') {
+            // Clear main menu button bounds
+            ['play', 'settings', 'question'].forEach(name => {
+                if (this.buttonStates[name]) {
+                    this.buttonStates[name].bounds = null;
+                }
+            });
         } else {
             // Clear dialog button bounds when in main menu
-            ['musicToggle', 'close'].forEach(name => {
+            ['musicToggle', 'close', 'resume'].forEach(name => {
                 if (this.buttonStates[name]) {
                     this.buttonStates[name].bounds = null;
                 }
@@ -336,7 +454,7 @@ class Menu {
      * Handle mouse move for hover effects
      */
     handleMouseMove(e) {
-        if (!this.isActive || !this.imagesLoaded) return;
+        if (!this.imagesLoaded) return;
 
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -344,12 +462,21 @@ class Menu {
 
         let overButton = false;
 
-        // Check if hovering over any button that has valid bounds
-        Object.entries(this.buttonStates).forEach(([name, state]) => {
-            if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
+        // Check pause button when game is running
+        if (!this.isActive && this.gameStarted && world && world.pauseButtonBounds) {
+            if (this.isPointInButton(x, y, world.pauseButtonBounds)) {
                 overButton = true;
             }
-        });
+        }
+
+        // Check if hovering over any menu button that has valid bounds
+        if (this.isActive) {
+            Object.entries(this.buttonStates).forEach(([name, state]) => {
+                if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
+                    overButton = true;
+                }
+            });
+        }
 
         this.canvas.style.cursor = overButton ? 'pointer' : 'default';
     }
@@ -358,11 +485,22 @@ class Menu {
      * Handle click events
      */
     handleClick(e) {
-        if (!this.isActive || !this.imagesLoaded) return;
+        if (!this.imagesLoaded) return;
 
         const rect = this.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
+
+        // Check for pause button click when game is running (not in menu overlay)
+        if (!this.isActive && this.gameStarted && world && world.pauseButtonBounds) {
+            if (this.isPointInButton(x, y, world.pauseButtonBounds)) {
+                this.togglePause();
+                return;
+            }
+        }
+
+        // Only handle menu clicks when menu is active
+        if (!this.isActive) return;
 
         // Handle settings dialog clicks
         if (this.currentDialog === 'settings') {
@@ -376,10 +514,20 @@ class Menu {
             return;
         }
 
-        // Main menu buttons
+        // Handle pause dialog clicks
+        if (this.currentDialog === 'pause') {
+            this.handlePauseClick(x, y);
+            return;
+        }
+
+        // Main menu buttons (different behavior for Game Over and Victory)
         const playBtn = this.buttonStates.play;
         if (playBtn.bounds && this.isPointInButton(x, y, playBtn.bounds)) {
-            this.startGame();
+            if (this.isGameOver || this.isVictory) {
+                this.restartGame();
+            } else {
+                this.startGame();
+            }
             return;
         }
 
@@ -391,7 +539,11 @@ class Menu {
 
         const exitBtn = this.buttonStates.exit;
         if (exitBtn.bounds && this.isPointInButton(x, y, exitBtn.bounds)) {
-            this.exitGame();
+            if (this.isGameOver || this.isVictory) {
+                this.returnToMainMenu();
+            } else {
+                this.exitGame();
+            }
             return;
         }
 
@@ -434,6 +586,32 @@ class Menu {
     }
 
     /**
+     * Handle pause dialog clicks
+     */
+    handlePauseClick(x, y) {
+        // Resume button
+        const resumeBtn = this.buttonStates.resume;
+        if (resumeBtn.bounds && this.isPointInButton(x, y, resumeBtn.bounds)) {
+            this.resumeGame();
+            return;
+        }
+
+        // Settings button
+        const settingsBtn = this.buttonStates.settings;
+        if (settingsBtn.bounds && this.isPointInButton(x, y, settingsBtn.bounds)) {
+            this.openSettingsFromPause();
+            return;
+        }
+
+        // Exit to main menu button
+        const exitBtn = this.buttonStates.exit;
+        if (exitBtn.bounds && this.isPointInButton(x, y, exitBtn.bounds)) {
+            this.exitToMainMenu();
+            return;
+        }
+    }
+
+    /**
      * Check if point is inside button bounds
      */
     isPointInButton(x, y, bounds) {
@@ -469,6 +647,7 @@ class Menu {
      */
     openSettings() {
         console.log('Opening settings...');
+        this.previousDialog = null;
         this.currentDialog = 'settings';
     }
 
@@ -477,7 +656,12 @@ class Menu {
      */
     closeSettings() {
         console.log('Closing settings...');
-        this.currentDialog = null;
+        if (this.previousDialog === 'pause') {
+            this.currentDialog = 'pause';
+            this.previousDialog = null;
+        } else {
+            this.currentDialog = null;
+        }
     }
 
     /**
@@ -512,5 +696,201 @@ class Menu {
     closeControls() {
         console.log('Closing controls...');
         this.currentDialog = null;
+    }
+
+    /**
+     * Show game over screen
+     */
+    showGameOver() {
+        console.log('Game Over!');
+        this.isActive = true;
+        this.isGameOver = true;
+        this.isVictory = false;
+        this.currentDialog = null;
+        this.gameStarted = false;
+        
+        // Restart menu render loop
+        if (typeof startMenuLoop === 'function') {
+            startMenuLoop();
+        }
+    }
+
+    /**
+     * Show victory screen
+     */
+    showVictory() {
+        console.log('Victory!');
+        this.isActive = true;
+        this.isGameOver = false;
+        this.isVictory = true;
+        this.currentDialog = null;
+        this.gameStarted = false;
+        
+        // Restart menu render loop
+        if (typeof startMenuLoop === 'function') {
+            startMenuLoop();
+        }
+    }
+
+    /**
+     * Restart the game from game over
+     */
+    restartGame() {
+        console.log('Restarting game...');
+        
+        // Cleanup existing game
+        if (typeof cleanup === 'function') {
+            cleanup();
+        }
+        
+        // Reset menu state
+        this.isGameOver = false;
+        this.isVictory = false;
+        this.currentDialog = null;
+        this.isActive = false;
+        this.gameStarted = true;
+
+        // Start new game
+        if (typeof initGame === 'function') {
+            initGame();
+        }
+    }
+
+    /**
+     * Return to main menu from game over
+     */
+    returnToMainMenu() {
+        console.log('Returning to main menu...');
+        
+        // Cleanup existing game
+        if (typeof cleanup === 'function') {
+            cleanup();
+        }
+        
+        // Reset menu state
+        this.isGameOver = false;
+        this.isVictory = false;
+        this.currentDialog = null;
+        this.isActive = true;
+        this.gameStarted = false;
+    }
+
+    /**
+     * Draw pause dialog
+     */
+    drawPauseDialog() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
+
+        // Draw pause menu background frame (similar to game over)
+        // First, draw semi-transparent overlay
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        const menuWidth = 200;
+        const menuHeight = 230;
+        const menuX = centerX - menuWidth / 2;
+        const menuY = centerY - menuHeight / 2;
+
+        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+
+        // Pause title
+        this.ctx.fillStyle = '#d9d9d9ff';
+        this.ctx.font = 'bold 28px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Paused', centerX, menuY + 45);
+
+        // Calculate button positions
+        const buttonWidth = 140;
+        const buttonHeight = 45;
+        const buttonX = centerX - buttonWidth / 2;
+        const buttonSpacing = 55;
+
+        // Resume button
+        const resumeY = menuY + 75;
+        this.drawButton('resume', buttonX, resumeY, buttonWidth, buttonHeight, this.images.playBtn);
+
+        // Settings button
+        const settingsY = resumeY + buttonSpacing;
+        this.drawButton('settings', buttonX, settingsY, buttonWidth, buttonHeight, this.images.settingsBtn);
+
+        // Exit to main menu button
+        const exitY = settingsY + buttonSpacing;
+        this.drawButton('exit', buttonX, exitY, buttonWidth, buttonHeight, this.images.exitBtn);
+    }
+
+    /**
+     * Toggle pause state
+     */
+    togglePause() {
+        if (!world) return;
+
+        if (world.isPaused) {
+            this.resumeGame();
+        } else {
+            this.pauseGame();
+        }
+    }
+
+    /**
+     * Pause the game
+     */
+    pauseGame() {
+        console.log('Pausing game...');
+        if (world) {
+            world.isPaused = true;
+        }
+        this.isActive = true;
+        this.currentDialog = 'pause';
+        
+        // Restart menu render loop
+        if (typeof startMenuLoop === 'function') {
+            startMenuLoop();
+        }
+    }
+
+    /**
+     * Resume the game
+     */
+    resumeGame() {
+        console.log('Resuming game...');
+        if (world) {
+            world.isPaused = false;
+        }
+        this.isActive = false;
+        this.currentDialog = null;
+        
+        // Stop menu render loop
+        if (typeof stopMenuLoop === 'function') {
+            stopMenuLoop();
+        }
+    }
+
+    /**
+     * Exit to main menu from pause
+     */
+    exitToMainMenu() {
+        console.log('Exiting to main menu from pause...');
+        
+        // Cleanup existing game
+        if (typeof cleanup === 'function') {
+            cleanup();
+        }
+        
+        // Reset menu state
+        this.isGameOver = false;
+        this.isVictory = false;
+        this.currentDialog = null;
+        this.isActive = true;
+        this.gameStarted = false;
+    }
+
+    /**
+     * Open settings from pause menu
+     */
+    openSettingsFromPause() {
+        console.log('Opening settings from pause...');
+        this.previousDialog = 'pause';
+        this.currentDialog = 'settings';
     }
 }
