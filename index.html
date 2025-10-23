@@ -45,11 +45,47 @@
 </head>
 <body onload="init()">
     
-    <h1>Return of the Wizard</h1>
-
-    <canvas id="canvas" width="720" height="480">
-
-    </canvas>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Return of the Wizard</h1>
+            <div class="pixel-decoration top"></div>
+        </div>
+        
+        <div class="canvas-frame">
+            <div class="pixel-border">
+                <canvas id="canvas" width="720" height="480"></canvas>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <div class="pixel-decoration bottom"></div>
+            <div class="info-panel">
+                <h2>🧙‍♂️ Abenteuer-Anleitung</h2>
+                <div class="info-content">
+                    <div class="controls-section">
+                        <h3>⚔️ Steuerung:</h3>
+                        <p><span class="key">WASD</span> oder <span class="key">Pfeiltasten</span> - Bewegung</p>
+                        <p><span class="key">LEERTASTE</span> - Zauber wirken</p>
+                        <p><span class="key">ESC</span> - Pause/Menü</p>
+                    </div>
+                    
+                    <div class="story-section">
+                        <h3>📜 Geschichte:</h3>
+                        <p>Als mächtiger Zauberer kehrst du in die verfluchten Lande zurück, um die dunklen Kreaturen zu besiegen. 
+                        Sammle magische Schriftrollen, bekämpfe Goblins, fliegende Augen, Pilzmonster und Skelette. 
+                        Am Ende wartet der gefährliche Werwolf-Boss auf dich!</p>
+                    </div>
+                    
+                    <div class="tips-section">
+                        <h3>💡 Tipps:</h3>
+                        <p>• Halte Abstand zu Feinden und nutze deine Magie</p>
+                        <p>• Sammle Schriftrollen für zusätzliche Punkte</p>
+                        <p>• Beobachte deine Gesundheit und dein Mana</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>
