@@ -23,6 +23,11 @@ class Character extends MovableObject {
     collisionWidth = 80;
     collisionHeight = 115;
 
+    // Interval IDs für Cleanup
+    movementIntervalId;
+    animationIntervalId;
+    manaRegenIntervalId;
+
     // Knockback Properties
     isKnockedBack = false;
     knockbackForce = 0;
@@ -49,7 +54,7 @@ class Character extends MovableObject {
     walkFrameWidth = 128;
     walkFrameHeight = 128;
     walkframeCount = 7;
-    walkFrameCount = 0;
+    walkFrameCount = 7;
     walkAnimationSpeed = 150;
     lastWalkFrameTime= Date.now();
     walkDisplayWidth = 200;
@@ -212,7 +217,7 @@ class Character extends MovableObject {
     updateJumpAnimation() {
         let now = Date.now();
         if (now - this.lastJumpFrameTime > this.jumpAnimationSpeed) {
-            if (this.currentJumpFrame < 5) {  // Nur bis Frame 7 animieren
+            if (this.currentJumpFrame < 5) {  // Nur bis Frame 5 animieren
                 this.currentJumpFrame++;
             }
             // stop at frame 7 - not other animations
@@ -388,7 +393,7 @@ class Character extends MovableObject {
 
     animate() {
         // Movement and controls (60 FPS)
-        setInterval(() => {
+        this.movementIntervalId = setInterval(() => {
             this.updateKnockback();
             this.handleMovement();
             this.updateCamera();
@@ -397,7 +402,7 @@ class Character extends MovableObject {
         }, 1000 / 60);
 
         // Animation updates (10 FPS)
-        setInterval(() => {
+        this.animationIntervalId = setInterval(() => {
             this.updateIdleAnimation();
             this.updateWalkAnimation();
             this.updateJumpAnimation();
@@ -407,7 +412,7 @@ class Character extends MovableObject {
         }, 100);
 
         // Mana Regeneration (jede Sekunde)
-        setInterval(() => {
+        this.manaRegenIntervalId = setInterval(() => {
             this.regenerateMana();
         }, 1000);
     }
@@ -425,6 +430,25 @@ class Character extends MovableObject {
         this.currentDeathFrame = 0;
         this.deathAnimationFinished = false;
         console.log('Character died!');
+        
+        // Cleanup intervals when character dies
+        this.cleanup();
+    }
+
+    // Cleanup method to clear all intervals
+    cleanup() {
+        if (this.movementIntervalId) {
+            clearInterval(this.movementIntervalId);
+            this.movementIntervalId = null;
+        }
+        if (this.animationIntervalId) {
+            clearInterval(this.animationIntervalId);
+            this.animationIntervalId = null;
+        }
+        if (this.manaRegenIntervalId) {
+            clearInterval(this.manaRegenIntervalId);
+            this.manaRegenIntervalId = null;
+        }
     }
 
 handleMovement() {

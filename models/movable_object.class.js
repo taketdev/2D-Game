@@ -16,9 +16,13 @@ class MovableObject {
     imageCache = {};
     currentImage = 0;
 
+    // Interval IDs für Cleanup
+    gravityIntervalId;
+    moveLeftIntervalId;
+
     // Physics Methods
     applyGravity() {
-        setInterval(() => {
+        this.gravityIntervalId = setInterval(() => {
             if (this.isAboveGround() || this.speedY > 0) {
                 this.y -= this.speedY;
                 this.speedY -= this.acceleration;
@@ -64,7 +68,7 @@ class MovableObject {
     }
 
     moveLeft() {
-        setInterval(() => {
+        this.moveLeftIntervalId = setInterval(() => {
             this.x -= this.speed;
         }, 1000 / 60);
     }
@@ -120,6 +124,19 @@ class MovableObject {
         this.isDead = true;
         console.log(`${this.constructor.name} died!`);
         // Wird in Subklassen überschrieben für spezifische Tod-Animationen
+        this.cleanup();
+    }
+
+    // Cleanup method to clear all intervals
+    cleanup() {
+        if (this.gravityIntervalId) {
+            clearInterval(this.gravityIntervalId);
+            this.gravityIntervalId = null;
+        }
+        if (this.moveLeftIntervalId) {
+            clearInterval(this.moveLeftIntervalId);
+            this.moveLeftIntervalId = null;
+        }
     }
 
     // Debug: Draw collision frame

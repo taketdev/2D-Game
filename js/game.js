@@ -25,6 +25,16 @@ function init() {
 }
 
 /**
+ * Cleanup game when needed (e.g., on game over or restart)
+ */
+function cleanup() {
+    if (world && world.cleanup) {
+        world.cleanup();
+        console.log('Game cleanup completed');
+    }
+}
+
+/**
  * Handle keydown events
  */
 window.addEventListener('keydown', (event) => {

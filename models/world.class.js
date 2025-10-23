@@ -24,6 +24,10 @@ class World {
     endbossSpawned = false;
     endbossSpawnX = 3600; // Battleground2 startet bei x=3600
 
+    // Interval IDs für Cleanup
+    scrollSpawnIntervalId;
+    collisionCheckIntervalId;
+
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
@@ -39,7 +43,7 @@ class World {
         this.spawnInitialScrolls();
 
         // Prüfe alle 2 Sekunden ob neue Scrolls gespawnt werden müssen
-        setInterval(() => {
+        this.scrollSpawnIntervalId = setInterval(() => {
             this.checkScrollSpawn();
         }, 2000);
     }
@@ -87,7 +91,7 @@ class World {
     }
 
     checkCollisions() {
-        setInterval(() => {
+        this.collisionCheckIntervalId = setInterval(() => {
             this.checkEnemyCollisions();
             this.checkProjectileCollisions();
             this.checkCollectibleCollisions();
@@ -402,6 +406,37 @@ class World {
         this.level.enemies.forEach(enemy => {
             if (enemy.drawFrame) {
                 enemy.drawFrame(this.ctx);
+            }
+        });
+    }
+
+    // Cleanup method to clear all intervals
+    cleanup() {
+        if (this.scrollSpawnIntervalId) {
+            clearInterval(this.scrollSpawnIntervalId);
+            this.scrollSpawnIntervalId = null;
+        }
+        if (this.collisionCheckIntervalId) {
+            clearInterval(this.collisionCheckIntervalId);
+            this.collisionCheckIntervalId = null;
+        }
+        
+        // Cleanup character
+        if (this.character && this.character.cleanup) {
+            this.character.cleanup();
+        }
+        
+        // Cleanup all enemies
+        this.level.enemies.forEach(enemy => {
+            if (enemy.cleanup) {
+                enemy.cleanup();
+            }
+        });
+        
+        // Cleanup all projectiles
+        this.projectiles.forEach(projectile => {
+            if (projectile.cleanup) {
+                projectile.cleanup();
             }
         });
     }

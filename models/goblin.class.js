@@ -92,6 +92,10 @@ class Goblin extends MovableObject {
     attackCooldown = 2000; // 2 Sekunden Cooldown zwischen Attacks
     lastAttackTime = 0;
 
+    // Interval IDs für Cleanup
+    patrolIntervalId;
+    animationIntervalId;
+
     constructor() {
         super();
         this.loadIdleImage('./assets/monsters/Goblin/Idle.png');
@@ -276,7 +280,7 @@ class Goblin extends MovableObject {
     }
 
     patrol() {
-        setInterval(() => {
+        this.patrolIntervalId = setInterval(() => {
             if (this.isDead) return;
 
             // Blockiere Bewegung während Attack
@@ -335,7 +339,7 @@ class Goblin extends MovableObject {
 
     animate() {
         // Animation updates (60 FPS for smoother animations)
-        setInterval(() => {
+        this.animationIntervalId = setInterval(() => {
             this.updateIdleAnimation();
             this.updateRunAnimation();
             this.updateTakeHitAnimation();
@@ -386,6 +390,19 @@ class Goblin extends MovableObject {
         this.deathAnimationFinished = false;
         this.speed = 0; // Stop movement
         console.log('Goblin died!');
+        this.cleanup();
+    }
+
+    // Cleanup method to clear all intervals
+    cleanup() {
+        if (this.patrolIntervalId) {
+            clearInterval(this.patrolIntervalId);
+            this.patrolIntervalId = null;
+        }
+        if (this.animationIntervalId) {
+            clearInterval(this.animationIntervalId);
+            this.animationIntervalId = null;
+        }
     }
 
     // Debug: Draw collision frame

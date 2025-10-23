@@ -23,6 +23,7 @@ class Projectile extends MovableObject {
     // Lifecycle
     hasHit = false;
     markedForDeletion = false;
+    animationIntervalId;
 
     constructor(x, y, direction, projectileType, damage) {
         super();
@@ -54,7 +55,7 @@ class Projectile extends MovableObject {
     }
 
     animate() {
-        setInterval(() => {
+        this.animationIntervalId = setInterval(() => {
             this.updateAnimation();
             this.move();
         }, 1000 / 60);
@@ -118,6 +119,15 @@ class Projectile extends MovableObject {
     hit() {
         this.hasHit = true;
         this.markedForDeletion = true;
+        this.cleanup();
+    }
+
+    // Cleanup method to clear intervals
+    cleanup() {
+        if (this.animationIntervalId) {
+            clearInterval(this.animationIntervalId);
+            this.animationIntervalId = null;
+        }
     }
 
     // Debug: Draw collision frame
