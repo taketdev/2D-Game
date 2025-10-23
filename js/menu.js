@@ -175,12 +175,12 @@ class Menu {
 
         // Music toggle section
         this.ctx.font = '18px Arial';
-        this.ctx.fillText('Music:', centerX, menuY + 80);
+        this.ctx.fillText('Music:', centerX, menuY + 90);
 
         // Music toggle button
-        const musicButtonSize = 35;
+        const musicButtonSize = 25;
         const musicButtonX = centerX - musicButtonSize / 2;
-        const musicButtonY = menuY + 90;
+        const musicButtonY = menuY + 110;
         
         const musicIconImg = this.musicEnabled ? this.images.musicIcon : this.images.musicMuteIcon;
         this.drawButton('musicToggle', musicButtonX, musicButtonY, musicButtonSize, musicButtonSize, musicIconImg);
