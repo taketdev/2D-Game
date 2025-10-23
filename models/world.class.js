@@ -4,6 +4,11 @@ class World {
     level = level1;
     projectiles = []; // Array für alle Projektile
 
+    // HUD Elements
+    healthBar = new HealthBar(20, 10);
+    manaBar = new ManaBar(20, 10);
+    bossHealthBar = new BossHealthBar(300, 10); // Mittig (720/2 - 120/2 = 300)
+
     // Canvas Properties
     canvas;
     ctx;
@@ -113,6 +118,7 @@ class World {
         });
 
         this.addObjectsToMap(this.level.clouds);
+
         this.addObjectsToMap(this.level.enemies);
 
         // Draw collision frames for all enemies
@@ -120,12 +126,48 @@ class World {
 
         // Reset camera transformation
         this.ctx.translate(-this.camera_x, 0);
-        
+
+        // Draw HUD (nach Camera Reset, damit es fest bleibt)
+        this.drawHUD();
+
         // Continue game loop
         let self = this;
         requestAnimationFrame(function() {
             self.draw();
         });
+    }
+
+    drawHUD() {
+        // Update StatusBar Prozente basierend auf Character Werten
+        let healthPercentage = (this.character.currentHP / this.character.maxHP) * 100;
+        let manaPercentage = (this.character.currentMana / this.character.maxMana) * 100;
+
+        this.healthBar.setPercentage(healthPercentage);
+        this.manaBar.setPercentage(manaPercentage);
+
+        // Zeichne StatusBars
+        this.healthBar.draw(this.ctx);
+        this.manaBar.draw(this.ctx);
+
+        // Zeichne Boss Health Bar nur wenn Endboss in Sichtweite
+        this.drawBossHealthBar();
+    }
+
+    drawBossHealthBar() {
+        // Finde Endboss im Level
+        let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
+
+        if (!endboss || endboss.isDead) return;
+
+        // Prüfe ob Endboss in Sichtweite (innerhalb des Canvas)
+        let endbossScreenX = endboss.x + this.camera_x;
+        let isInView = endbossScreenX + endboss.width > -100 && endbossScreenX < this.canvas.width + 100;
+
+        if (isInView) {
+            let bossHealthPercentage = (endboss.currentHP / endboss.maxHP) * 100;
+            this.bossHealthBar.setPercentage(bossHealthPercentage);
+            this.bossHealthBar.draw(this.ctx);
+        }
     }
 
     addObjectsToMap(objects) {
