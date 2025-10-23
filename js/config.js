@@ -9,9 +9,15 @@ const CONFIG = {
         CHARACTER_MELEE: 15,      // Nahkampf-Schaden
         CHARACTER_SPELL: 25,      // Zauber-Schaden
 
-        // Enemy Contact Damage
-        GOBLIN_CONTACT: 10,       // Goblin Kontakt-Schaden
-        FLYING_EYE_CONTACT: 8,    // Flying Eye Kontakt-Schaden
-        ENDBOSS_CONTACT: 20       // Endboss Kontakt-Schaden
+        // Enemy Contact Damage (nicht mehr verwendet - nur Pushback)
+        GOBLIN_CONTACT: 0,        // Kein Schaden bei Kontakt
+        FLYING_EYE_CONTACT: 0,    // Kein Schaden bei Kontakt
+        ENDBOSS_CONTACT: 0,       // Kein Schaden bei Kontakt
+
+        // Enemy Attack Damage
+        GOBLIN_ATTACK: 12,        // Goblin Attack-Schaden
+        FLYING_EYE_ATTACK: 10,    // Flying Eye Attack-Schaden
+        ENDBOSS_ATTACK2: 25,      // Endboss Attack2-Schaden
+        ENDBOSS_ATTACK3: 35       // Endboss Attack3-Schaden
     }
 };

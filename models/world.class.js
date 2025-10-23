@@ -75,6 +75,11 @@ class World {
 
     setWorld() {
         this.character.world = this;
+
+        // Setze World-Referenz für alle Enemies
+        this.level.enemies.forEach(enemy => {
+            enemy.world = this;
+        });
     }
 
     checkCollisions() {
@@ -82,8 +87,34 @@ class World {
             this.checkEnemyCollisions();
             this.checkProjectileCollisions();
             this.checkCollectibleCollisions();
+            this.updateEnemyDirections();
             this.cleanupProjectiles();
         }, 1000 / 60);
+    }
+
+    updateEnemyDirections() {
+        this.level.enemies.forEach(enemy => {
+            if (enemy.isDead) return;
+
+            // Update Aggro für Enemies mit Aggro-System
+            if (enemy.setAggro) {
+                enemy.setAggro(this.character);
+            }
+
+            // Attack-Trigger für Enemies mit Attack-System
+            if (enemy.tryAttack) {
+                enemy.tryAttack(this.character);
+            }
+
+            // turnTowardsCharacter nur für Flying Eye (andere steuern Direction selbst)
+            if (enemy.turnTowardsCharacter) {
+                if (this.character.x < enemy.x) {
+                    enemy.otherDirection = true; // Schaut nach links
+                } else {
+                    enemy.otherDirection = false; // Schaut nach rechts
+                }
+            }
+        });
     }
 
     checkEnemyCollisions() {
@@ -91,18 +122,8 @@ class World {
             if (enemy.isDead) return; // Tote Enemies ignorieren
 
             if (this.character.isColliding(enemy)) {
-                // Bestimme Schaden basierend auf Enemy-Typ
-                let damage = 0;
-                if (enemy instanceof Endboss) {
-                    damage = CONFIG.DAMAGE.ENDBOSS_CONTACT;
-                } else if (enemy instanceof Goblin) {
-                    damage = CONFIG.DAMAGE.GOBLIN_CONTACT;
-                } else if (enemy instanceof FlyingEye) {
-                    damage = CONFIG.DAMAGE.FLYING_EYE_CONTACT;
-                }
-
-                // Knockback und Schaden anwenden
-                this.character.applyKnockback(enemy.x, damage);
+                // Nur sanftes Wegschieben bei Kontakt, KEIN Schaden
+                this.character.applyPushback(enemy.x);
             }
         });
     }
@@ -173,9 +194,11 @@ class World {
         // Draw all game objects in correct order
         this.addObjectsToMap(this.level.backgroundObjects);
 
-        // Character (verschiedene Animationen) - Attack hat Priorität
+        // Character (verschiedene Animationen) - Attack und Hurt haben Priorität
         if (this.character.isDead) {
             this.character.drawDeathSprite(this.ctx);
+        } else if (this.character.isHurt) {
+            this.character.drawHurtSprite(this.ctx);
         } else if (this.character.isAttacking1) {
             this.character.drawAttack1Sprite(this.ctx);
         } else if (this.character.isAttacking2) {
@@ -272,6 +295,12 @@ class World {
         if (mo instanceof Endboss) {
             if (mo.isDead) {
                 mo.drawDeathSprite(this.ctx);
+            } else if (mo.isTakingHit) {
+                mo.drawHitSprite(this.ctx);
+            } else if (mo.isAttacking3) {
+                mo.drawAttack3Sprite(this.ctx);
+            } else if (mo.isAttacking2) {
+                mo.drawAttack2Sprite(this.ctx);
             } else if (mo.isWalking) {
                 mo.drawWalkSprite(this.ctx);
             } else {
@@ -282,6 +311,10 @@ class World {
         else if (mo instanceof Goblin) {
             if (mo.isDead) {
                 mo.drawDeathSprite(this.ctx);
+            } else if (mo.isTakingHit) {
+                mo.drawTakeHitSprite(this.ctx);
+            } else if (mo.isAttacking) {
+                mo.drawAttackSprite(this.ctx);
             } else if (mo.isRunning) {
                 mo.drawRunSprite(this.ctx);
             } else {
@@ -292,6 +325,8 @@ class World {
         else if (mo instanceof FlyingEye) {
             if (mo.isDead) {
                 mo.drawDeathSprite(this.ctx);
+            } else if (mo.isAttacking) {
+                mo.drawAttackSprite(this.ctx);
             } else {
                 mo.drawFlightSprite(this.ctx);
             }

@@ -102,6 +102,11 @@ class MovableObject {
         // Debug-Ausgabe
         console.log(`${this.constructor.name} took ${damage} damage. HP: ${this.currentHP}/${this.maxHP}`);
 
+        // Trigger Take Hit Animation (wenn verfügbar)
+        if (this.playTakeHitAnimation && this.currentHP > 0) {
+            this.playTakeHitAnimation();
+        }
+
         // Prüfe ob tot
         if (this.currentHP === 0) {
             this.die();

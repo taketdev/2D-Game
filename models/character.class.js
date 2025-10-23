@@ -77,6 +77,18 @@ class Character extends MovableObject {
     runDisplayWidth = 200;
     runDisplayHeight = 200;
 
+    // Hurt
+    hurtImage;
+    currentHurtFrame = 0;
+    hurtFrameWidth = 128;
+    hurtFrameHeight = 128;
+    hurtFrameCount = 3;
+    hurtDisplayWidth = 200;
+    hurtDisplayHeight = 200;
+    hurtAnimationSpeed = 100;
+    lastHurtFrameTime = Date.now();
+    isHurt = false;
+
     // Death
     deathImage;
     currentDeathFrame = 0;
@@ -126,6 +138,7 @@ class Character extends MovableObject {
         this.loadWalkImage('./assets/wizard_assets/Wanderer Magican/Walk.png');
         this.loadJumpImage('./assets/wizard_assets/Wanderer Magican/Jump.png');
         this.loadRunImage('./assets/wizard_assets/Wanderer Magican/Run.png');
+        this.loadHurtImage('./assets/wizard_assets/Wanderer Magican/Hurt.png');
         this.loadDeathImage('./assets/wizard_assets/Wanderer Magican/Dead.png');
         this.loadAttack1Image('./assets/wizard_assets/Wanderer Magican/Attack_1.png');
         this.loadAttack2Image('./assets/wizard_assets/Wanderer Magican/Attack_2.png');
@@ -151,6 +164,11 @@ class Character extends MovableObject {
     loadRunImage(path) {
         this.runImage = new Image();
         this.runImage.src = path;
+    }
+
+    loadHurtImage(path) {
+        this.hurtImage = new Image();
+        this.hurtImage.src = path;
     }
 
     loadDeathImage(path) {
@@ -210,6 +228,20 @@ class Character extends MovableObject {
                 this.currentRunFrame = 0;
             }
             this.lastRunFrameTime = now;
+        }
+    }
+
+    updateHurtAnimation() {
+        if (!this.isHurt) return;
+
+        let now = Date.now();
+        if (now - this.lastHurtFrameTime > this.hurtAnimationSpeed) {
+            this.currentHurtFrame++;
+            if (this.currentHurtFrame >= this.hurtFrameCount) {
+                this.isHurt = false;
+                this.currentHurtFrame = 0;
+            }
+            this.lastHurtFrameTime = now;
         }
     }
 
@@ -326,6 +358,13 @@ class Character extends MovableObject {
             this.runDisplayWidth, this.runDisplayHeight);
     }
 
+    drawHurtSprite(ctx) {
+        let frameX = this.currentHurtFrame * this.hurtFrameWidth;
+        this.drawSprite(ctx, this.hurtImage, frameX,
+            this.hurtFrameWidth, this.hurtFrameHeight,
+            this.hurtDisplayWidth, this.hurtDisplayHeight);
+    }
+
     drawDeathSprite(ctx) {
         let frameX = this.currentDeathFrame * this.deathFrameWidth;
         this.drawSprite(ctx, this.deathImage, frameX,
@@ -361,6 +400,7 @@ class Character extends MovableObject {
             this.updateWalkAnimation();
             this.updateJumpAnimation();
             this.updateRunAnimation();
+            this.updateHurtAnimation();
             this.updateDeathAnimation();
             this.updateAttack1Animation();
             this.updateAttack2Animation();
@@ -370,6 +410,12 @@ class Character extends MovableObject {
         setInterval(() => {
             this.regenerateMana();
         }, 1000);
+    }
+
+    playTakeHitAnimation() {
+        if (this.isDead || this.isHurt) return;
+        this.isHurt = true;
+        this.currentHurtFrame = 0;
     }
 
     die() {
@@ -457,32 +503,34 @@ handleMovement() {
         }
     }
 
-    // Knockback bei Kollision
-    applyKnockback(enemyX, damage) {
-        if (this.invulnerable || this.isDead) return;
-
-        // Schaden zufügen
-        this.takeDamage(damage);
+    // Pushback bei Kollision - nur sanftes Wegschieben, KEIN Schaden
+    applyPushback(enemyX) {
+        if (this.isDead || this.isKnockedBack) return;
 
         this.isKnockedBack = true;
-        this.invulnerable = true;
-        this.lastHitTime = Date.now();
 
-        // Bestimme Knockback-Richtung basierend auf Enemy-Position
+        // Bestimme Pushback-Richtung basierend auf Enemy-Position
         if (this.x < enemyX) {
             this.knockbackDirection = -1; // Nach links
         } else {
             this.knockbackDirection = 1; // Nach rechts
         }
 
-        this.knockbackForce = 15;
-        this.speedY = 10; // Kleiner Sprung nach oben
+        this.knockbackForce = 2; // Sanftes Wegschieben
 
-        // Knockback-Effekt nach 300ms beenden
+        // Pushback-Effekt nach 150ms beenden
         setTimeout(() => {
             this.isKnockedBack = false;
             this.knockbackForce = 0;
-        }, 300);
+        }, 150);
+    }
+
+    // Schaden nehmen (wird von Enemy-Attacken aufgerufen)
+    takeAttackDamage(damage) {
+        if (this.invulnerable || this.isDead) return;
+
+        this.takeDamage(damage);
+        this.invulnerable = true;
 
         // Unverwundbarkeit nach 1 Sekunde beenden
         setTimeout(() => {
@@ -493,7 +541,7 @@ handleMovement() {
     updateKnockback() {
         if (this.isKnockedBack && this.knockbackForce > 0) {
             this.x += this.knockbackDirection * this.knockbackForce;
-            this.knockbackForce *= 0.85; // Abbremsen
+            this.knockbackForce *= 0.7; // Schneller abbremsen (statt 0.85)
         }
     }
 
