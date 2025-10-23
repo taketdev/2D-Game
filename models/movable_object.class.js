@@ -88,6 +88,32 @@ class MovableObject {
                myY + myHeight > objY;
     }
 
+    // Damage System
+    takeDamage(damage) {
+        if (this.isDead) return;
+
+        this.currentHP -= damage;
+
+        // Verhindere negative HP
+        if (this.currentHP < 0) {
+            this.currentHP = 0;
+        }
+
+        // Debug-Ausgabe
+        console.log(`${this.constructor.name} took ${damage} damage. HP: ${this.currentHP}/${this.maxHP}`);
+
+        // Prüfe ob tot
+        if (this.currentHP === 0) {
+            this.die();
+        }
+    }
+
+    die() {
+        this.isDead = true;
+        console.log(`${this.constructor.name} died!`);
+        // Wird in Subklassen überschrieben für spezifische Tod-Animationen
+    }
+
     // Debug: Draw collision frame
     drawFrame(ctx) {
         ctx.beginPath();

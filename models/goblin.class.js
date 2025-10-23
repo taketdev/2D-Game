@@ -37,6 +37,18 @@ class Goblin extends MovableObject {
     runAnimationSpeed = 80;
     lastRunFrameTime = Date.now();
 
+    // Death Animation Properties
+    deathImage;
+    currentDeathFrame = 0;
+    deathSpriteWidth = 150;
+    deathSpriteHeight = 150;
+    deathFrameCount = 4;
+    deathDisplayWidth = 250;
+    deathDisplayHeight = 250;
+    deathAnimationSpeed = 150;
+    lastDeathFrameTime = Date.now();
+    deathAnimationFinished = false;
+
     // State
     isRunning = true;
 
@@ -44,6 +56,7 @@ class Goblin extends MovableObject {
         super();
         this.loadIdleImage('./assets/monsters/Goblin/Idle.png');
         this.loadRunImage('./assets/monsters/Goblin/Run.png');
+        this.loadDeathImage('./assets/monsters/Goblin/Death.png');
 
         // Random position and speed (langsamer, angepasst an Character)
         this.x = 200 + Math.random() * 500;
@@ -62,6 +75,11 @@ class Goblin extends MovableObject {
     loadRunImage(path) {
         this.runImage = new Image();
         this.runImage.src = path;
+    }
+
+    loadDeathImage(path) {
+        this.deathImage = new Image();
+        this.deathImage.src = path;
     }
 
     updateIdleAnimation() {
@@ -83,6 +101,20 @@ class Goblin extends MovableObject {
                 this.currentRunFrame = 0;
             }
             this.lastRunFrameTime = now;
+        }
+    }
+
+    updateDeathAnimation() {
+        if (this.deathAnimationFinished) return;
+
+        let now = Date.now();
+        if (now - this.lastDeathFrameTime > this.deathAnimationSpeed) {
+            this.currentDeathFrame++;
+            if (this.currentDeathFrame >= this.deathFrameCount) {
+                this.currentDeathFrame = this.deathFrameCount - 1;
+                this.deathAnimationFinished = true;
+            }
+            this.lastDeathFrameTime = now;
         }
     }
 
@@ -131,6 +163,13 @@ class Goblin extends MovableObject {
             this.runDisplayWidth, this.runDisplayHeight);
     }
 
+    drawDeathSprite(ctx) {
+        let frameX = this.currentDeathFrame * this.deathSpriteWidth;
+        this.drawSprite(ctx, this.deathImage, frameX,
+            this.deathSpriteWidth, this.deathSpriteHeight,
+            this.deathDisplayWidth, this.deathDisplayHeight);
+    }
+
     moveLeft() {
         setInterval(() => {
             this.x -= this.speed;
@@ -142,7 +181,18 @@ class Goblin extends MovableObject {
         setInterval(() => {
             this.updateIdleAnimation();
             this.updateRunAnimation();
+            this.updateDeathAnimation();
         }, 1000 / 60);
+    }
+
+    die() {
+        if (this.isDead) return;
+
+        this.isDead = true;
+        this.currentDeathFrame = 0;
+        this.deathAnimationFinished = false;
+        this.speed = 0; // Stop movement
+        console.log('Goblin died!');
     }
 
     // Debug: Draw collision frame

@@ -30,14 +30,21 @@ class World {
 
     checkEnemyCollisions() {
         this.level.enemies.forEach(enemy => {
-            if (this.character.isColliding(enemy)) {
-                // Knockback anwenden
-                this.character.applyKnockback(enemy.x);
+            if (enemy.isDead) return; // Tote Enemies ignorieren
 
-                // Debug-Ausgabe
-                if (CONFIG.SHOW_COLLISION_BOXES) {
-                    console.log('Collision detected with enemy!');
+            if (this.character.isColliding(enemy)) {
+                // Bestimme Schaden basierend auf Enemy-Typ
+                let damage = 0;
+                if (enemy instanceof Endboss) {
+                    damage = CONFIG.DAMAGE.ENDBOSS_CONTACT;
+                } else if (enemy instanceof Goblin) {
+                    damage = CONFIG.DAMAGE.GOBLIN_CONTACT;
+                } else if (enemy instanceof FlyingEye) {
+                    damage = CONFIG.DAMAGE.FLYING_EYE_CONTACT;
                 }
+
+                // Knockback und Schaden anwenden
+                this.character.applyKnockback(enemy.x, damage);
             }
         });
     }
@@ -53,7 +60,9 @@ class World {
         this.addObjectsToMap(this.level.backgroundObjects);
         
         // Character (verschiedene Animationen)
-        if (this.character.isAboveGround()) {
+        if (this.character.isDead) {
+            this.character.drawDeathSprite(this.ctx);
+        } else if (this.character.isAboveGround()) {
             this.character.drawJumpSprite(this.ctx);
         } else if (this.character.isRunning) {
             this.character.drawRunSprite(this.ctx);
@@ -90,7 +99,9 @@ class World {
     addToMap(mo) {
         // Check if object is Endboss with sprite animations
         if (mo instanceof Endboss) {
-            if (mo.isWalking) {
+            if (mo.isDead) {
+                mo.drawDeathSprite(this.ctx);
+            } else if (mo.isWalking) {
                 mo.drawWalkSprite(this.ctx);
             } else {
                 mo.drawIdleSprite(this.ctx);
@@ -98,7 +109,9 @@ class World {
         }
         // Check if object is Goblin with sprite animations
         else if (mo instanceof Goblin) {
-            if (mo.isRunning) {
+            if (mo.isDead) {
+                mo.drawDeathSprite(this.ctx);
+            } else if (mo.isRunning) {
                 mo.drawRunSprite(this.ctx);
             } else {
                 mo.drawIdleSprite(this.ctx);
@@ -106,7 +119,11 @@ class World {
         }
         // Check if object is Flying Eye with sprite animations
         else if (mo instanceof FlyingEye) {
-            mo.drawFlightSprite(this.ctx);
+            if (mo.isDead) {
+                mo.drawDeathSprite(this.ctx);
+            } else {
+                mo.drawFlightSprite(this.ctx);
+            }
         }
         else {
             // Normal rendering for other objects (Chicken, Clouds, Background)

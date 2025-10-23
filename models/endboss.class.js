@@ -37,6 +37,18 @@ class Endboss extends MovableObject {
     walkAnimationSpeed = 60;
     lastWalkFrameTime = Date.now();
 
+    // Death Animation Properties
+    deathImage;
+    currentDeathFrame = 0;
+    deathSpriteWidth = 176;
+    deathSpriteHeight = 144;
+    deathFrameCount = 13;
+    deathDisplayWidth = 350;
+    deathDisplayHeight = 350;
+    deathAnimationSpeed = 150;
+    lastDeathFrameTime = Date.now();
+    deathAnimationFinished = false;
+
     // State
     isWalking = false;
 
@@ -44,6 +56,7 @@ class Endboss extends MovableObject {
         super();
         this.loadIdleImage('./assets/werwolf boss/Idle.png');
         this.loadWalkImage('./assets/werwolf boss/Walk.png');
+        this.loadDeathImage('./assets/werwolf boss/Death.png');
         this.x = 1900; // Endboss am Ende des Levels platziert (bei level_end_x = 2200)
         this.animate();
     }
@@ -56,6 +69,11 @@ class Endboss extends MovableObject {
     loadWalkImage(path) {
         this.walkImage = new Image();
         this.walkImage.src = path;
+    }
+
+    loadDeathImage(path) {
+        this.deathImage = new Image();
+        this.deathImage.src = path;
     }
 
     updateIdleAnimation() {
@@ -77,6 +95,20 @@ class Endboss extends MovableObject {
                 this.currentWalkFrame = 0;
             }
             this.lastWalkFrameTime = now;
+        }
+    }
+
+    updateDeathAnimation() {
+        if (this.deathAnimationFinished) return;
+
+        let now = Date.now();
+        if (now - this.lastDeathFrameTime > this.deathAnimationSpeed) {
+            this.currentDeathFrame++;
+            if (this.currentDeathFrame >= this.deathFrameCount) {
+                this.currentDeathFrame = this.deathFrameCount - 1;
+                this.deathAnimationFinished = true;
+            }
+            this.lastDeathFrameTime = now;
         }
     }
 
@@ -125,12 +157,29 @@ class Endboss extends MovableObject {
             this.walkDisplayWidth, this.walkDisplayHeight);
     }
 
+    drawDeathSprite(ctx) {
+        let frameX = this.currentDeathFrame * this.deathSpriteWidth;
+        this.drawSprite(ctx, this.deathImage, frameX,
+            this.deathSpriteWidth, this.deathSpriteHeight,
+            this.deathDisplayWidth, this.deathDisplayHeight);
+    }
+
     animate() {
         // Animation updates (60 FPS for smoother animations)
         setInterval(() => {
             this.updateIdleAnimation();
             this.updateWalkAnimation();
+            this.updateDeathAnimation();
         }, 1000 / 60);
+    }
+
+    die() {
+        if (this.isDead) return;
+
+        this.isDead = true;
+        this.currentDeathFrame = 0;
+        this.deathAnimationFinished = false;
+        console.log('Endboss died!');
     }
 
     // Debug: Draw collision frame

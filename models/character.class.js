@@ -71,6 +71,18 @@ class Character extends MovableObject {
     runDisplayWidth = 200;
     runDisplayHeight = 200;
 
+    // Death
+    deathImage;
+    currentDeathFrame = 0;
+    deathFrameWidth = 128;
+    deathFrameHeight = 128;
+    deathFrameCount = 4;
+    deathDisplayWidth = 200;
+    deathDisplayHeight = 200;
+    deathAnimationSpeed = 150;
+    lastDeathFrameTime = Date.now();
+    deathAnimationFinished = false;
+
 
     constructor() {
         super();
@@ -78,6 +90,7 @@ class Character extends MovableObject {
         this.loadWalkImage('./assets/wizard_assets/Wanderer Magican/Walk.png');
         this.loadJumpImage('./assets/wizard_assets/Wanderer Magican/Jump.png');
         this.loadRunImage('./assets/wizard_assets/Wanderer Magican/Run.png');
+        this.loadDeathImage('./assets/wizard_assets/Wanderer Magican/Dead.png');
         this.animate();
         this.applyGravity();
     }
@@ -100,6 +113,11 @@ class Character extends MovableObject {
     loadRunImage(path) {
         this.runImage = new Image();
         this.runImage.src = path;
+    }
+
+    loadDeathImage(path) {
+        this.deathImage = new Image();
+        this.deathImage.src = path;
     }
 
     // Update animations
@@ -144,6 +162,20 @@ class Character extends MovableObject {
                 this.currentRunFrame = 0;
             }
             this.lastRunFrameTime = now;
+        }
+    }
+
+    updateDeathAnimation() {
+        if (this.deathAnimationFinished) return;
+
+        let now = Date.now();
+        if (now - this.lastDeathFrameTime > this.deathAnimationSpeed) {
+            this.currentDeathFrame++;
+            if (this.currentDeathFrame >= this.deathFrameCount) {
+                this.currentDeathFrame = this.deathFrameCount - 1; // Letzten Frame halten
+                this.deathAnimationFinished = true;
+            }
+            this.lastDeathFrameTime = now;
         }
     }
 
@@ -200,6 +232,13 @@ class Character extends MovableObject {
             this.runDisplayWidth, this.runDisplayHeight);
     }
 
+    drawDeathSprite(ctx) {
+        let frameX = this.currentDeathFrame * this.deathFrameWidth;
+        this.drawSprite(ctx, this.deathImage, frameX,
+            this.deathFrameWidth, this.deathFrameHeight,
+            this.deathDisplayWidth, this.deathDisplayHeight);
+    }
+
     animate() {
         // Movement and controls (60 FPS)
         setInterval(() => {
@@ -214,11 +253,24 @@ class Character extends MovableObject {
             this.updateWalkAnimation();
             this.updateJumpAnimation();
             this.updateRunAnimation();
+            this.updateDeathAnimation();
         }, 100);
+    }
+
+    die() {
+        if (this.isDead) return;
+
+        this.isDead = true;
+        this.currentDeathFrame = 0;
+        this.deathAnimationFinished = false;
+        console.log('Character died!');
     }
 
 handleMovement() {
     if (!this.world) return;
+
+    // Blockiere Bewegung wenn Character tot ist
+    if (this.isDead) return;
 
     // Checken ob irgendwas gedrückt wird
     let isMoving = false;
@@ -270,8 +322,11 @@ handleMovement() {
     }
 
     // Knockback bei Kollision
-    applyKnockback(enemyX) {
-        if (this.invulnerable) return;
+    applyKnockback(enemyX, damage) {
+        if (this.invulnerable || this.isDead) return;
+
+        // Schaden zufügen
+        this.takeDamage(damage);
 
         this.isKnockedBack = true;
         this.invulnerable = true;

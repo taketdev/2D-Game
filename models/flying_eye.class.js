@@ -26,9 +26,22 @@ class FlyingEye extends MovableObject {
     flightAnimationSpeed = 80;
     lastFlightFrameTime = Date.now();
 
+    // Death Animation Properties
+    deathImage;
+    currentDeathFrame = 0;
+    deathSpriteWidth = 150;
+    deathSpriteHeight = 150;
+    deathFrameCount = 4;
+    deathDisplayWidth = 250;
+    deathDisplayHeight = 250;
+    deathAnimationSpeed = 150;
+    lastDeathFrameTime = Date.now();
+    deathAnimationFinished = false;
+
     constructor() {
         super();
         this.loadFlightImage('./assets/monsters/Flying eye/Flight.png');
+        this.loadDeathImage('./assets/monsters/Flying eye/Death.png');
 
         // Random position and speed (langsamer, angepasst an Character)
         this.x = 300 + Math.random() * 600;
@@ -44,6 +57,11 @@ class FlyingEye extends MovableObject {
         this.flightImage.src = path;
     }
 
+    loadDeathImage(path) {
+        this.deathImage = new Image();
+        this.deathImage.src = path;
+    }
+
     updateFlightAnimation() {
         let now = Date.now();
         if (now - this.lastFlightFrameTime > this.flightAnimationSpeed) {
@@ -52,6 +70,20 @@ class FlyingEye extends MovableObject {
                 this.currentFlightFrame = 0;
             }
             this.lastFlightFrameTime = now;
+        }
+    }
+
+    updateDeathAnimation() {
+        if (this.deathAnimationFinished) return;
+
+        let now = Date.now();
+        if (now - this.lastDeathFrameTime > this.deathAnimationSpeed) {
+            this.currentDeathFrame++;
+            if (this.currentDeathFrame >= this.deathFrameCount) {
+                this.currentDeathFrame = this.deathFrameCount - 1;
+                this.deathAnimationFinished = true;
+            }
+            this.lastDeathFrameTime = now;
         }
     }
 
@@ -93,6 +125,13 @@ class FlyingEye extends MovableObject {
             this.flightDisplayWidth, this.flightDisplayHeight);
     }
 
+    drawDeathSprite(ctx) {
+        let frameX = this.currentDeathFrame * this.deathSpriteWidth;
+        this.drawSprite(ctx, this.deathImage, frameX,
+            this.deathSpriteWidth, this.deathSpriteHeight,
+            this.deathDisplayWidth, this.deathDisplayHeight);
+    }
+
     moveLeft() {
         setInterval(() => {
             this.x -= this.speed;
@@ -103,7 +142,18 @@ class FlyingEye extends MovableObject {
         // Animation updates (60 FPS for smoother animations)
         setInterval(() => {
             this.updateFlightAnimation();
+            this.updateDeathAnimation();
         }, 1000 / 60);
+    }
+
+    die() {
+        if (this.isDead) return;
+
+        this.isDead = true;
+        this.currentDeathFrame = 0;
+        this.deathAnimationFinished = false;
+        this.speed = 0; // Stop movement
+        console.log('Flying Eye died!');
     }
 
     // Debug: Draw collision frame
