@@ -15,10 +15,31 @@ class World {
         this.keyboard = keyboard;
         this.draw();
         this.setWorld();
+        this.checkCollisions();
     }
 
     setWorld() {
         this.character.world = this;
+    }
+
+    checkCollisions() {
+        setInterval(() => {
+            this.checkEnemyCollisions();
+        }, 1000 / 60);
+    }
+
+    checkEnemyCollisions() {
+        this.level.enemies.forEach(enemy => {
+            if (this.character.isColliding(enemy)) {
+                // Knockback anwenden
+                this.character.applyKnockback(enemy.x);
+
+                // Debug-Ausgabe
+                if (CONFIG.SHOW_COLLISION_BOXES) {
+                    console.log('Collision detected with enemy!');
+                }
+            }
+        });
     }
 
     // Main game loop - called continuously

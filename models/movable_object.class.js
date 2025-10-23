@@ -69,6 +69,25 @@ class MovableObject {
         }, 1000 / 60);
     }
 
+    // Collision Detection
+    isColliding(obj) {
+        // Verwende die Collision-Box Werte wenn vorhanden
+        let myX = this.x + (this.collisionOffsetX || 0);
+        let myY = this.y + (this.collisionOffsetY || 0);
+        let myWidth = this.collisionWidth || this.width;
+        let myHeight = this.collisionHeight || this.height;
+
+        let objX = obj.x + (obj.collisionOffsetX || 0);
+        let objY = obj.y + (obj.collisionOffsetY || 0);
+        let objWidth = obj.collisionWidth || obj.width;
+        let objHeight = obj.collisionHeight || obj.height;
+
+        return myX < objX + objWidth &&
+               myX + myWidth > objX &&
+               myY < objY + objHeight &&
+               myY + myHeight > objY;
+    }
+
     // Debug: Draw collision frame
     drawFrame(ctx) {
         ctx.beginPath();

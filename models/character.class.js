@@ -12,6 +12,14 @@ class Character extends MovableObject {
     collisionWidth = 80;
     collisionHeight = 115;
 
+    // Knockback Properties
+    isKnockedBack = false;
+    knockbackForce = 0;
+    knockbackDirection = 1; // 1 = rechts, -1 = links
+    invulnerable = false;
+    invulnerableTime = 1000; // 1 Sekunde Unverwundbarkeit
+    lastHitTime = 0;
+
     // Idle
     idleFrame;
     currentIdleFrame = 1;
@@ -190,6 +198,7 @@ class Character extends MovableObject {
     animate() {
         // Movement and controls (60 FPS)
         setInterval(() => {
+            this.updateKnockback();
             this.handleMovement();
             this.updateCamera();
         }, 1000 / 60);
@@ -251,7 +260,44 @@ handleMovement() {
     jump() {
         if (!this.isAboveGround()) {
             this.speedY = 15;   // Jump force upward
-            this.currentJumpFrame = 3;  // Startet bei Frame 3 statt 0
+            this.currentJumpFrame = 3;  // start at frame 3
+        }
+    }
+
+    // Knockback bei Kollision
+    applyKnockback(enemyX) {
+        if (this.invulnerable) return;
+
+        this.isKnockedBack = true;
+        this.invulnerable = true;
+        this.lastHitTime = Date.now();
+
+        // Bestimme Knockback-Richtung basierend auf Enemy-Position
+        if (this.x < enemyX) {
+            this.knockbackDirection = -1; // Nach links
+        } else {
+            this.knockbackDirection = 1; // Nach rechts
+        }
+
+        this.knockbackForce = 15;
+        this.speedY = 10; // Kleiner Sprung nach oben
+
+        // Knockback-Effekt nach 300ms beenden
+        setTimeout(() => {
+            this.isKnockedBack = false;
+            this.knockbackForce = 0;
+        }, 300);
+
+        // Unverwundbarkeit nach 1 Sekunde beenden
+        setTimeout(() => {
+            this.invulnerable = false;
+        }, this.invulnerableTime);
+    }
+
+    updateKnockback() {
+        if (this.isKnockedBack && this.knockbackForce > 0) {
+            this.x += this.knockbackDirection * this.knockbackForce;
+            this.knockbackForce *= 0.85; // Abbremsen
         }
     }
 
