@@ -17,9 +17,39 @@ const KEYS = {
 };
 
 /**
+ * Preload fonts before initializing the game
+ */
+function preloadFonts() {
+    return new Promise((resolve) => {
+        // Create temporary canvas to force font loading
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        
+        // Try to use each font variant to ensure they're loaded
+        const fonts = [
+            '16px PixelifySans',
+            'bold 16px PixelifySans',
+            '500 16px PixelifySans',
+            '600 16px PixelifySans'
+        ];
+        
+        fonts.forEach(font => {
+            tempCtx.font = font;
+            tempCtx.fillText('Loading...', 0, 0);
+        });
+        
+        // Give fonts time to load
+        setTimeout(resolve, 100);
+    });
+}
+
+/**
  * Initialize the menu (called on page load)
  */
-function init() {
+async function init() {
+    // Preload fonts first
+    await preloadFonts();
+    
     canvas = document.getElementById('canvas');
     menu = new Menu(canvas);
 

@@ -92,7 +92,7 @@ class Menu {
             this.ctx.fillStyle = '#000';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
             this.ctx.fillStyle = '#fff';
-            this.ctx.font = '20px Arial';
+            this.ctx.font = '20px PixelifySans';
             this.ctx.textAlign = 'center';
             this.ctx.fillText('Loading...', this.canvas.width / 2, this.canvas.height / 2);
             return;
@@ -180,7 +180,7 @@ class Menu {
 
         // "Game Over" text above the menu
         this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 28px Arial';
+        this.ctx.font = 'bold 28px PixelifySans';
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Game Over', centerX, centerY - 120);
 
@@ -226,7 +226,7 @@ class Menu {
 
         // "Victory!" text above the menu
         this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 28px Arial';
+        this.ctx.font = 'bold 28px PixelifySans';
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Victory!', centerX, centerY - 120);
 
@@ -280,12 +280,12 @@ class Menu {
 
         // Settings title
         this.ctx.fillStyle = '#d9d9d9ff';
-        this.ctx.font = 'bold 24px Arial';
+        this.ctx.font = 'bold 24px PixelifySans';
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Settings', centerX, menuY + 40);
 
         // Music toggle section
-        this.ctx.font = '18px Arial';
+        this.ctx.font = '18px PixelifySans';
         this.ctx.fillText('Music:', centerX, menuY + 90);
 
         // Music toggle button
@@ -320,12 +320,12 @@ class Menu {
 
         // Controls title
         this.ctx.fillStyle = '#d9d9d9ff';
-        this.ctx.font = 'bold 20px Arial';
+        this.ctx.font = 'bold 20px PixelifySans';
         this.ctx.textAlign = 'center';
         this.ctx.fillText('How to Play', centerX, menuY + 30);
 
         // Controls text
-        this.ctx.font = '14px Arial';
+        this.ctx.font = '14px PixelifySans';
         this.ctx.textAlign = 'left';
         const textX = menuX + 15;
         let textY = menuY + 60;
@@ -796,7 +796,7 @@ class Menu {
 
         // Pause title
         this.ctx.fillStyle = '#d9d9d9ff';
-        this.ctx.font = 'bold 28px Arial';
+        this.ctx.font = 'bold 28px PixelifySans';
         this.ctx.textAlign = 'center';
         this.ctx.fillText('Paused', centerX, menuY + 45);
 
