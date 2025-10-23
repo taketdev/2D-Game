@@ -2,7 +2,8 @@ class World {
     // Game Objects
     character = new Character();
     level = level1;
-    
+    projectiles = []; // Array für alle Projektile
+
     // Canvas Properties
     canvas;
     ctx;
@@ -25,6 +26,8 @@ class World {
     checkCollisions() {
         setInterval(() => {
             this.checkEnemyCollisions();
+            this.checkProjectileCollisions();
+            this.cleanupProjectiles();
         }, 1000 / 60);
     }
 
@@ -49,6 +52,31 @@ class World {
         });
     }
 
+    checkProjectileCollisions() {
+        this.projectiles.forEach(projectile => {
+            if (projectile.hasHit) return; // Bereits getroffenes Projektil ignorieren
+
+            this.level.enemies.forEach(enemy => {
+                if (enemy.isDead) return; // Tote Enemies ignorieren
+
+                if (projectile.isColliding(enemy)) {
+                    // Projektil hat Gegner getroffen
+                    enemy.takeDamage(projectile.damage);
+                    projectile.hit(); // Markiere Projektil als getroffen
+                }
+            });
+        });
+    }
+
+    cleanupProjectiles() {
+        // Entferne Projektile die zum Löschen markiert sind
+        this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
+    }
+
+    addProjectile(projectile) {
+        this.projectiles.push(projectile);
+    }
+
     // Main game loop - called continuously
     draw() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -58,10 +86,14 @@ class World {
 
         // Draw all game objects in correct order
         this.addObjectsToMap(this.level.backgroundObjects);
-        
-        // Character (verschiedene Animationen)
+
+        // Character (verschiedene Animationen) - Attack hat Priorität
         if (this.character.isDead) {
             this.character.drawDeathSprite(this.ctx);
+        } else if (this.character.isAttacking1) {
+            this.character.drawAttack1Sprite(this.ctx);
+        } else if (this.character.isAttacking2) {
+            this.character.drawAttack2Sprite(this.ctx);
         } else if (this.character.isAboveGround()) {
             this.character.drawJumpSprite(this.ctx);
         } else if (this.character.isRunning) {
@@ -73,6 +105,12 @@ class World {
         }
         // Draw collision frame for character
         this.character.drawFrame(this.ctx);
+
+        // Draw projectiles
+        this.projectiles.forEach(projectile => {
+            projectile.drawProjectileSprite(this.ctx);
+            projectile.drawFrame(this.ctx);
+        });
 
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.enemies);

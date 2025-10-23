@@ -10,7 +10,9 @@ const KEYS = {
     RIGHT: 39,
     DOWN: 40,
     SPACE: 32,
-    SHIFT: 16
+    SHIFT: 16,
+    D: 68,      // Attack 1
+    E: 69       // Attack 2
 };
 
 /**
@@ -45,6 +47,12 @@ window.addEventListener('keydown', (event) => {
         case KEYS.SHIFT:
             keyboard.SHIFT = true;
             break;
+        case KEYS.D:
+            keyboard.D = true;
+            break;
+        case KEYS.E:
+            keyboard.E = true;
+            break;
     }
 });
 
@@ -70,6 +78,12 @@ window.addEventListener('keyup', (event) => {
             break;
         case KEYS.SHIFT:
             keyboard.SHIFT = false;
+            break;
+        case KEYS.D:
+            keyboard.D = false;
+            break;
+        case KEYS.E:
+            keyboard.E = false;
             break;
     }
 });

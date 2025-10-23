@@ -11,6 +11,12 @@ class Character extends MovableObject {
     currentHP = 100;
     isDead = false;
 
+    // Mana System
+    maxMana = 100;
+    currentMana = 100;
+    manaCostPerSpell = 20; // 20 Mana pro Zauber
+    manaRegenRate = 5; // 5 Mana pro Sekunde
+
     // Collision Box (angepasst an tatsächlichen Körper - zentriert)
     collisionOffsetX = 60;
     collisionOffsetY = 90;
@@ -83,6 +89,36 @@ class Character extends MovableObject {
     lastDeathFrameTime = Date.now();
     deathAnimationFinished = false;
 
+    // Attack 1 (D key) - Charge_1 Projektil
+    attack1Image;
+    currentAttack1Frame = 0;
+    attack1FrameWidth = 128; // 896 / 7 = 128
+    attack1FrameHeight = 128;
+    attack1FrameCount = 7; // 0-6
+    attack1DisplayWidth = 200;
+    attack1DisplayHeight = 200;
+    attack1AnimationSpeed = 80;
+    lastAttack1FrameTime = Date.now();
+    isAttacking1 = false;
+    attack1Cooldown = 300; // 300ms Cooldown
+    lastAttack1Time = 0;
+    attack1ProjectileSpawned = false; // Flag für Projektil bei Frame 3
+
+    // Attack 2 (E key) - Charge_2 Projektil
+    attack2Image;
+    currentAttack2Frame = 0;
+    attack2FrameWidth = 128; // 1152 / 9 = 128
+    attack2FrameHeight = 128;
+    attack2FrameCount = 9; // 0-8
+    attack2DisplayWidth = 200;
+    attack2DisplayHeight = 200;
+    attack2AnimationSpeed = 80;
+    lastAttack2FrameTime = Date.now();
+    isAttacking2 = false;
+    attack2Cooldown = 500; // 500ms Cooldown
+    lastAttack2Time = 0;
+    attack2ProjectileSpawned = false; // Flag für Projektil bei Frame 6
+
 
     constructor() {
         super();
@@ -91,6 +127,8 @@ class Character extends MovableObject {
         this.loadJumpImage('./assets/wizard_assets/Wanderer Magican/Jump.png');
         this.loadRunImage('./assets/wizard_assets/Wanderer Magican/Run.png');
         this.loadDeathImage('./assets/wizard_assets/Wanderer Magican/Dead.png');
+        this.loadAttack1Image('./assets/wizard_assets/Wanderer Magican/Attack_1.png');
+        this.loadAttack2Image('./assets/wizard_assets/Wanderer Magican/Attack_2.png');
         this.animate();
         this.applyGravity();
     }
@@ -118,6 +156,16 @@ class Character extends MovableObject {
     loadDeathImage(path) {
         this.deathImage = new Image();
         this.deathImage.src = path;
+    }
+
+    loadAttack1Image(path) {
+        this.attack1Image = new Image();
+        this.attack1Image.src = path;
+    }
+
+    loadAttack2Image(path) {
+        this.attack2Image = new Image();
+        this.attack2Image.src = path;
     }
 
     // Update animations
@@ -176,6 +224,52 @@ class Character extends MovableObject {
                 this.deathAnimationFinished = true;
             }
             this.lastDeathFrameTime = now;
+        }
+    }
+
+    updateAttack1Animation() {
+        if (!this.isAttacking1) return;
+
+        let now = Date.now();
+        if (now - this.lastAttack1FrameTime > this.attack1AnimationSpeed) {
+            this.currentAttack1Frame++;
+
+            // Spawne Projektil bei Frame 3
+            if (this.currentAttack1Frame === 3 && !this.attack1ProjectileSpawned) {
+                this.spawnProjectile(1); // Typ 1 = Charge_1
+                this.attack1ProjectileSpawned = true;
+            }
+
+            // Animation beenden
+            if (this.currentAttack1Frame >= this.attack1FrameCount) {
+                this.isAttacking1 = false;
+                this.currentAttack1Frame = 0;
+                this.attack1ProjectileSpawned = false;
+            }
+            this.lastAttack1FrameTime = now;
+        }
+    }
+
+    updateAttack2Animation() {
+        if (!this.isAttacking2) return;
+
+        let now = Date.now();
+        if (now - this.lastAttack2FrameTime > this.attack2AnimationSpeed) {
+            this.currentAttack2Frame++;
+
+            // Spawne Projektil bei Frame 6
+            if (this.currentAttack2Frame === 6 && !this.attack2ProjectileSpawned) {
+                this.spawnProjectile(2); // Typ 2 = Charge_2
+                this.attack2ProjectileSpawned = true;
+            }
+
+            // Animation beenden
+            if (this.currentAttack2Frame >= this.attack2FrameCount) {
+                this.isAttacking2 = false;
+                this.currentAttack2Frame = 0;
+                this.attack2ProjectileSpawned = false;
+            }
+            this.lastAttack2FrameTime = now;
         }
     }
 
@@ -239,6 +333,20 @@ class Character extends MovableObject {
             this.deathDisplayWidth, this.deathDisplayHeight);
     }
 
+    drawAttack1Sprite(ctx) {
+        let frameX = this.currentAttack1Frame * this.attack1FrameWidth;
+        this.drawSprite(ctx, this.attack1Image, frameX,
+            this.attack1FrameWidth, this.attack1FrameHeight,
+            this.attack1DisplayWidth, this.attack1DisplayHeight);
+    }
+
+    drawAttack2Sprite(ctx) {
+        let frameX = this.currentAttack2Frame * this.attack2FrameWidth;
+        this.drawSprite(ctx, this.attack2Image, frameX,
+            this.attack2FrameWidth, this.attack2FrameHeight,
+            this.attack2DisplayWidth, this.attack2DisplayHeight);
+    }
+
     animate() {
         // Movement and controls (60 FPS)
         setInterval(() => {
@@ -254,7 +362,14 @@ class Character extends MovableObject {
             this.updateJumpAnimation();
             this.updateRunAnimation();
             this.updateDeathAnimation();
+            this.updateAttack1Animation();
+            this.updateAttack2Animation();
         }, 100);
+
+        // Mana Regeneration (jede Sekunde)
+        setInterval(() => {
+            this.regenerateMana();
+        }, 1000);
     }
 
     die() {
@@ -271,6 +386,27 @@ handleMovement() {
 
     // Blockiere Bewegung wenn Character tot ist
     if (this.isDead) return;
+
+    // Attack 1 (D key) - nur wenn nicht bereits am Attackieren
+    if (this.world.keyboard.D && !this.isAttacking1 && !this.isAttacking2) {
+        let now = Date.now();
+        if (now - this.lastAttack1Time >= this.attack1Cooldown) {
+            this.attack1();
+            this.lastAttack1Time = now;
+        }
+    }
+
+    // Attack 2 (E key) - nur wenn nicht bereits am Attackieren
+    if (this.world.keyboard.E && !this.isAttacking1 && !this.isAttacking2) {
+        let now = Date.now();
+        if (now - this.lastAttack2Time >= this.attack2Cooldown) {
+            this.attack2();
+            this.lastAttack2Time = now;
+        }
+    }
+
+    // Blockiere Bewegung während Attack
+    if (this.isAttacking1 || this.isAttacking2) return;
 
     // Checken ob irgendwas gedrückt wird
     let isMoving = false;
@@ -289,7 +425,7 @@ handleMovement() {
         isMoving = true;
     }
 
-    // Move left  
+    // Move left
     if (this.world.keyboard.LEFT && this.x > this.world.level.level_start_x) {
         let moveSpeed = isRunning ? this.speed * 2 : this.speed; // Doppelte Geschwindigkeit beim Rennen
         this.x -= moveSpeed;
@@ -359,6 +495,74 @@ handleMovement() {
             this.x += this.knockbackDirection * this.knockbackForce;
             this.knockbackForce *= 0.85; // Abbremsen
         }
+    }
+
+    // Attack 1 initiieren
+    attack1() {
+        if (this.isAttacking1 || this.isAttacking2) return;
+        if (!this.hasMana()) return; // Prüfe Mana
+
+        this.useMana(); // Verbrauche Mana
+        this.isAttacking1 = true;
+        this.currentAttack1Frame = 0;
+        this.attack1ProjectileSpawned = false;
+    }
+
+    // Attack 2 initiieren
+    attack2() {
+        if (this.isAttacking1 || this.isAttacking2) return;
+        if (!this.hasMana()) return; // Prüfe Mana
+
+        this.useMana(); // Verbrauche Mana
+        this.isAttacking2 = true;
+        this.currentAttack2Frame = 0;
+        this.attack2ProjectileSpawned = false;
+    }
+
+    // Mana System Methoden
+    hasMana() {
+        return this.currentMana >= this.manaCostPerSpell;
+    }
+
+    useMana() {
+        if (this.currentMana >= this.manaCostPerSpell) {
+            this.currentMana -= this.manaCostPerSpell;
+            console.log(`Mana used. Current Mana: ${this.currentMana}/${this.maxMana}`);
+        }
+    }
+
+    regenerateMana() {
+        if (this.isDead) return; // Keine Regeneration wenn tot
+
+        if (this.currentMana < this.maxMana) {
+            this.currentMana += this.manaRegenRate;
+
+            // Verhindere dass Mana über Maximum geht
+            if (this.currentMana > this.maxMana) {
+                this.currentMana = this.maxMana;
+            }
+        }
+    }
+
+    // Spawn Projektil
+    spawnProjectile(type) {
+        if (!this.world) return;
+
+        // Bestimme Schaden basierend auf Projektil-Typ
+        let damage = type === 1 ? 15 : 25; // Attack 1: 15 Schaden, Attack 2: 25 Schaden
+
+        // Berechne Spawn-Position (vor dem Character)
+        let projectileX = this.otherDirection ? this.x + 20 : this.x + this.width - 60;
+        let projectileY = this.y + 60; // Ungefähr auf Brusthöhe
+
+        // Richtung: 1 = rechts, -1 = links
+        let direction = this.otherDirection ? -1 : 1;
+
+        // Erstelle Projektil
+        let projectile = new Projectile(projectileX, projectileY, direction, type, damage);
+
+        // Füge zur World hinzu
+        this.world.addProjectile(projectile);
     }
 
     // Debug: Draw collision frame

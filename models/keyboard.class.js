@@ -5,4 +5,6 @@ class Keyboard {
     DOWN = false;
     SPACE = false;
     SHIFT = false;
+    D = false; // Attack 1
+    E = false; // Attack 2
 }
