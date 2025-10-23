@@ -3,7 +3,7 @@ class Character extends MovableObject {
     width = 200;
     height = 200;
     y = 165;
-    speed = 3;
+    speed = 15;
     world;
 
     // Health System

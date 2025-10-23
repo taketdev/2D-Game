@@ -21,6 +21,7 @@ function createBackgroundObjects() {
     // Startet nahtlos bei x=2160
     for (let i = 3; i < 5; i++) {
         let x = i * 720;
+            if (i === 4) x -= 5;
 
         backgroundObjects.push(
             new BackgroundObject(`./assets/background/Battleground3/Bright/sky.png`, x),
@@ -36,36 +37,19 @@ function createBackgroundObjects() {
     // Startet nahtlos bei x=3600
     for (let i = 5; i < 8; i++) {
         let x = i * 720;
+            if (i === 6) x -= 5;
+            if (i === 7) x -= 10;
 
         backgroundObjects.push(
             new BackgroundObject(`./assets/background/Battleground2/Bright/bg.png`, x),
             new BackgroundObject(`./assets/background/Battleground2/Bright/mountaims.png`, x),
             new BackgroundObject(`./assets/background/Battleground2/Bright/wall@windows.png`, x),
-            new BackgroundObject(`./assets/background/Battleground2/Bright/columns&falgs.png`, x),
             new BackgroundObject(`./assets/background/Battleground2/Bright/dragon.png`, x),
-            new BackgroundObject(`./assets/background/Battleground2/Bright/candeliar.png`, x),
             new BackgroundObject(`./assets/background/Battleground2/Bright/floor.png`, x)
         );
     }
 
     return backgroundObjects;
-}
-
-function createForegroundObjects() {
-    let foregroundObjects = [];
-
-    // Battleground3: Vordergrund-Elemente (lianas und fireflys)
-    // Diese werden ÜBER dem Character gerendert
-    for (let i = 3; i < 5; i++) {
-        let x = i * 720;
-
-        foregroundObjects.push(
-            new BackgroundObject(`./assets/background/Battleground3/Bright/lianas.png`, x),
-            new BackgroundObject(`./assets/background/Battleground3/Bright/fireflys.png`, x)
-        );
-    }
-
-    return foregroundObjects;
 }
 
 // Funktion zum Erstellen von Goblins mit spezifischer Position
@@ -119,14 +103,12 @@ const level1 = new Level(
         createSkeletonAt(2700),
         createSkeletonAt(3300),
 
-        // Endboss am Ende
-        new Endboss(),
+        // Endboss wird dynamisch gespawnt wenn Character Battleground2 erreicht
     ],
     [
         new Cloud(),
         new Cloud(),
     ],
     createBackgroundObjects(),
-    [], // Collectibles werden dynamisch gespawnt
-    createForegroundObjects() // Vordergrund-Elemente (über dem Character)
+    [] // Collectibles werden dynamisch gespawnt
 );

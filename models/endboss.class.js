@@ -90,7 +90,7 @@ class Endboss extends MovableObject {
 
     // AI Behavior
     turnTowardsCharacter = false; // Direction wird in updateMovement() gesetzt
-    aggroRange = 400; // 400px Reichweite (erweitert für bessere Sichtbarkeit)
+    aggroRange = 450; // 400px Reichweite (erweitert für bessere Sichtbarkeit)
     isAggro = false;
     baseSpeed = 0.8; // Basis-Geschwindigkeit (erhöht für bessere Verfolgung)
     phase2SpeedMultiplier = 1.5; // 50% schneller in Phase 2

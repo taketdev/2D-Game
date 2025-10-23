@@ -82,7 +82,8 @@ class Projectile extends MovableObject {
         }
 
         // Markiere zum Löschen wenn außerhalb des Bildschirms
-        if (this.x < -200 || this.x > 3000) {
+        // Level-Ende ist bei x=5760 (8 * 720), also erweitere die Grenze
+        if (this.x < -200 || this.x > 6000) {
             this.markedForDeletion = true;
         }
     }

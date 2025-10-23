@@ -20,6 +20,10 @@ class World {
     scrollSpawnCooldown = 10000; // 10 Sekunden Cooldown
     lastScrollSpawnTime = 0;
 
+    // Endboss Spawn System
+    endbossSpawned = false;
+    endbossSpawnX = 3600; // Battleground2 startet bei x=3600
+
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
@@ -89,7 +93,23 @@ class World {
             this.checkCollectibleCollisions();
             this.updateEnemyDirections();
             this.cleanupProjectiles();
+            this.checkEndbossSpawn();
         }, 1000 / 60);
+    }
+
+    checkEndbossSpawn() {
+        // Spawne Endboss nur einmal, wenn Character Battleground2 erreicht
+        if (!this.endbossSpawned && this.character.x >= this.endbossSpawnX) {
+            this.spawnEndboss();
+        }
+    }
+
+    spawnEndboss() {
+        let endboss = new Endboss();
+        endboss.world = this;
+        this.level.enemies.push(endboss);
+        this.endbossSpawned = true;
+        console.log('Endboss spawned at x=' + endboss.x);
     }
 
     updateEnemyDirections() {
@@ -220,11 +240,6 @@ class World {
             projectile.drawProjectileSprite(this.ctx);
             projectile.drawFrame(this.ctx);
         });
-
-        // Draw foreground objects (über Character, z.B. lianas, fireflys)
-        if (this.level.foregroundObjects) {
-            this.addObjectsToMap(this.level.foregroundObjects);
-        }
 
         this.addObjectsToMap(this.level.clouds);
 
