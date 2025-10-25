@@ -85,6 +85,13 @@ function stopMenuLoop() {
  */
 function initGame() {
     world = new World(canvas, keyboard);
+
+    // Initialize touch controls on mobile devices
+    if (typeof isMobileDevice === 'function' && isMobileDevice()) {
+        touchControls = new TouchControls(canvas, keyboard);
+        console.log('Touch controls activated for mobile');
+    }
+
     console.log('Game started! My Character is', world.character);
 }
 
@@ -98,6 +105,13 @@ function cleanup() {
     }
     // Reset world to null so a completely new instance is created
     world = null;
+
+    // Cleanup touch controls
+    if (touchControls && touchControls.cleanup) {
+        touchControls.cleanup();
+        touchControls = null;
+        console.log('Touch controls cleanup completed');
+    }
 }
 
 /**

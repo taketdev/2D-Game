@@ -305,6 +305,11 @@ class World {
         if (!this.isPaused) {
             this.drawPauseButton();
         }
+
+        // Draw touch controls (only on mobile and when not paused)
+        if (typeof isMobileDevice === 'function' && isMobileDevice() && !this.isPaused && touchControls) {
+            touchControls.draw(this.ctx);
+        }
     }
 
     drawPauseButton() {
