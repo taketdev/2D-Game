@@ -577,3 +577,157 @@ canvas {
         padding: 10px 20px;
     }
 }
+/* Mobile Portrait Mode - Show "Tap to Play" overlay on canvas */
+@media screen and (max-width: 768px) and (orientation: portrait) {
+    /* Canvas frame gets overlay */
+    .canvas-frame {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .canvas-frame::before {
+        content: '🔄 Please rotate your device 🔄\A\AThis game is best played in landscape mode\A\A📱 ➜ 📲';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(45, 74, 62, 0.95);
+        color: #a4d4b4;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: 'PixelifySans', monospace, sans-serif;
+        font-size: 1.2em;
+        font-weight: bold;
+        white-space: pre-line;
+        z-index: 100;
+        border: 4px solid #3f6654;
+        box-shadow:
+            inset 2px 2px 0 #5a8a70,
+            inset -2px -2px 0 #1a2f23;
+        text-shadow: 2px 2px 0 #1a2f23;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        pointer-events: none;
+    }
+
+    /* Dim canvas behind overlay */
+    canvas {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+}
+
+/* Fullscreen Mode - Hide UI elements and center canvas */
+.fullscreen-mode {
+    overflow: hidden;
+}
+
+.fullscreen-mode .pixel-footer {
+    display: none;
+}
+
+.fullscreen-mode .game-info {
+    display: none;
+}
+
+.fullscreen-mode .game-header {
+    display: none;
+}
+
+.fullscreen-mode .game-container {
+    padding: 0;
+    margin: 0;
+    max-width: 100%;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    border: none;
+    box-shadow: none;
+    justify-content: center;
+    align-items: center;
+}
+
+.fullscreen-mode .game-container::before {
+    display: none;
+}
+
+.fullscreen-mode .canvas-frame {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-mode .canvas-frame::before {
+    display: none;
+}
+
+.fullscreen-mode .pixel-border {
+    padding: 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-mode .pixel-border::after {
+    display: none;
+}
+
+.fullscreen-mode canvas {
+    /* Keep canvas at original size (720x480) - NO scaling */
+    width: 720px !important;
+    height: 480px !important;
+    max-width: 100vw;
+    max-height: 100vh;
+    object-fit: contain;
+    border: none;
+    box-shadow: none;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+}
+
+/* Portrait Warning in Fullscreen */
+.fullscreen-mode.portrait-warning {
+    background: #1a2f23;
+}
+
+.fullscreen-mode.portrait-warning .canvas-frame::after {
+    content: '🔄 Please rotate your device to landscape mode! 🔄';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #2d4a3e;
+    color: #a4d4b4;
+    padding: 30px;
+    border: 4px solid #3f6654;
+    font-family: 'PixelifySans', monospace, sans-serif;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-align: center;
+    z-index: 10000;
+    box-shadow:
+        inset 2px 2px 0 #5a8a70,
+        inset -2px -2px 0 #1a2f23,
+        4px 4px 0 #000;
+    text-shadow: 2px 2px 0 #1a2f23;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.fullscreen-mode.portrait-warning canvas {
+    opacity: 0.2 !important;
+}

@@ -42,6 +42,11 @@ class Menu {
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
         this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
+
+        // Add touch listeners for mobile
+        this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+        this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: false });
+        this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
     }
 
     /**
@@ -892,5 +897,135 @@ class Menu {
         console.log('Opening settings from pause...');
         this.previousDialog = 'pause';
         this.currentDialog = 'settings';
+    }
+
+    /**
+     * Handle touch start event (similar to mouse down)
+     */
+    handleTouchStart(e) {
+        e.preventDefault();
+
+        if (!this.isActive || !this.imagesLoaded) return;
+
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+
+        // Process all touch points
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            const x = (touch.clientX - rect.left) * scaleX;
+            const y = (touch.clientY - rect.top) * scaleY;
+
+            // Check which button was pressed
+            Object.entries(this.buttonStates).forEach(([name, state]) => {
+                if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
+                    state.pressed = true;
+                }
+            });
+        }
+    }
+
+    /**
+     * Handle touch end event (similar to mouse up + click)
+     */
+    handleTouchEnd(e) {
+        e.preventDefault();
+
+        if (!this.isActive || !this.imagesLoaded) return;
+
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+
+        // Process all ended touches
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            const x = (touch.clientX - rect.left) * scaleX;
+            const y = (touch.clientY - rect.top) * scaleY;
+
+            // Trigger click at touch position
+            this.handleTouchClick(x, y);
+        }
+
+        // Reset all pressed states
+        Object.values(this.buttonStates).forEach(state => {
+            state.pressed = false;
+        });
+    }
+
+    /**
+     * Handle touch move event (for hover effects)
+     */
+    handleTouchMove(e) {
+        e.preventDefault();
+        // Touch move doesn't need special handling for menus
+    }
+
+    /**
+     * Handle touch click (replaces handleClick for touch)
+     */
+    handleTouchClick(x, y) {
+        // Check for pause button click when game is running (not in menu overlay)
+        if (!this.isActive && this.gameStarted && world && world.pauseButtonBounds) {
+            if (this.isPointInButton(x, y, world.pauseButtonBounds)) {
+                this.togglePause();
+                return;
+            }
+        }
+
+        // Only handle menu clicks when menu is active
+        if (!this.isActive) return;
+
+        // Handle settings dialog clicks
+        if (this.currentDialog === 'settings') {
+            this.handleSettingsClick(x, y);
+            return;
+        }
+
+        // Handle controls dialog clicks
+        if (this.currentDialog === 'controls') {
+            this.handleControlsClick(x, y);
+            return;
+        }
+
+        // Handle pause dialog clicks
+        if (this.currentDialog === 'pause') {
+            this.handlePauseClick(x, y);
+            return;
+        }
+
+        // Main menu buttons (different behavior for Game Over and Victory)
+        const playBtn = this.buttonStates.play;
+        if (playBtn.bounds && this.isPointInButton(x, y, playBtn.bounds)) {
+            if (this.isGameOver || this.isVictory) {
+                this.restartGame();
+            } else {
+                this.startGame();
+            }
+            return;
+        }
+
+        const settingsBtn = this.buttonStates.settings;
+        if (settingsBtn.bounds && this.isPointInButton(x, y, settingsBtn.bounds)) {
+            this.openSettings();
+            return;
+        }
+
+        const exitBtn = this.buttonStates.exit;
+        if (exitBtn.bounds && this.isPointInButton(x, y, exitBtn.bounds)) {
+            if (this.isGameOver || this.isVictory) {
+                this.returnToMainMenu();
+            } else {
+                this.exitGame();
+            }
+            return;
+        }
+
+        const questionBtn = this.buttonStates.question;
+        if (questionBtn.bounds && this.isPointInButton(x, y, questionBtn.bounds)) {
+            this.openControls();
+            return;
+        }
     }
 }
