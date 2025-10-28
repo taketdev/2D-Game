@@ -41,7 +41,7 @@ class TouchControls {
         const buttonSize = 60;
         const smallButtonSize = 50;
         const padding = 15;
-        const rightButtonOffset = 50; // Additional offset to move right buttons away from edge
+        const rightButtonOffset = 50;
         const canvasWidth = this.canvas.width;
         const canvasHeight = this.canvas.height;
 

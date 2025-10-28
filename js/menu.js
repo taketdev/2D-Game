@@ -905,7 +905,7 @@ class Menu {
     handleTouchStart(e) {
         e.preventDefault();
 
-        if (!this.isActive || !this.imagesLoaded) return;
+        if (!this.imagesLoaded) return;
 
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = this.canvas.width / rect.width;
@@ -917,12 +917,15 @@ class Menu {
             const x = (touch.clientX - rect.left) * scaleX;
             const y = (touch.clientY - rect.top) * scaleY;
 
-            // Check which button was pressed
-            Object.entries(this.buttonStates).forEach(([name, state]) => {
-                if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
-                    state.pressed = true;
-                }
-            });
+            // Only handle button presses when menu is active
+            if (this.isActive) {
+                // Check which button was pressed
+                Object.entries(this.buttonStates).forEach(([name, state]) => {
+                    if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
+                        state.pressed = true;
+                    }
+                });
+            }
         }
     }
 
@@ -932,7 +935,7 @@ class Menu {
     handleTouchEnd(e) {
         e.preventDefault();
 
-        if (!this.isActive || !this.imagesLoaded) return;
+        if (!this.imagesLoaded) return;
 
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = this.canvas.width / rect.width;
@@ -948,10 +951,12 @@ class Menu {
             this.handleTouchClick(x, y);
         }
 
-        // Reset all pressed states
-        Object.values(this.buttonStates).forEach(state => {
-            state.pressed = false;
-        });
+        // Reset all pressed states (only if menu is active)
+        if (this.isActive) {
+            Object.values(this.buttonStates).forEach(state => {
+                state.pressed = false;
+            });
+        }
     }
 
     /**
