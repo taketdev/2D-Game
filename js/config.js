@@ -1,7 +1,7 @@
 // Game Configuration
 const CONFIG = {
     // Debug Settings
-    SHOW_COLLISION_BOXES: true,  // Setze auf false um Collision-Boxen auszublenden
+    SHOW_COLLISION_BOXES: false,  // Setze auf false um Collision-Boxen auszublenden
 
     // Damage Values
     DAMAGE: {
