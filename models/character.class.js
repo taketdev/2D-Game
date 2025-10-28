@@ -3,7 +3,7 @@ class Character extends MovableObject {
     width = 200;
     height = 200;
     y = 165;
-    speed = 15;
+    speed = 8; // Reduziert von 15 auf 8 für langsamere Bewegung
     world;
 
     // Health System
@@ -502,7 +502,7 @@ handleMovement() {
 
     // Move right
     if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-        let moveSpeed = isRunning ? this.speed * 2 : this.speed; // Doppelte Geschwindigkeit beim Rennen
+        let moveSpeed = isRunning ? this.speed * 1.3 : this.speed; // Nur 30% schneller beim Rennen
         this.x += moveSpeed;
         this.otherDirection = false;
         isMoving = true;
@@ -510,7 +510,7 @@ handleMovement() {
 
     // Move left
     if (this.world.keyboard.LEFT && this.x > this.world.level.level_start_x) {
-        let moveSpeed = isRunning ? this.speed * 2 : this.speed; // Doppelte Geschwindigkeit beim Rennen
+        let moveSpeed = isRunning ? this.speed * 1.3 : this.speed; // Nur 30% schneller beim Rennen
         this.x -= moveSpeed;
         this.otherDirection = true;
         isMoving = true;
@@ -582,8 +582,7 @@ handleMovement() {
             let newX = this.x + this.knockbackDirection * this.knockbackForce;
             
             // Level-Grenzen: nutze die Level-Properties für konsistente Grenzen
-            // Aber für Pushback verwende eine härtere linke Grenze um schwarzen Bereich zu vermeiden
-            let minX = this.world ? this.world.level.level_start_x : 102;
+            let minX = this.world ? this.world.level.level_start_x : 0;
             let maxX = this.world ? this.world.level.level_end_x : 5000;
             
             // Begrenze Position innerhalb der Level-Grenzen
