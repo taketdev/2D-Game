@@ -92,6 +92,12 @@ function initGame() {
         console.log('Touch controls activated for mobile');
     }
 
+    // Start game background music
+    if (typeof audioManager !== 'undefined' && audioManager) {
+        audioManager.playGameMusic();
+        console.log('Game music started');
+    }
+
     console.log('Game started! My Character is', world.character);
 }
 

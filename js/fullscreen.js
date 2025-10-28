@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
             body.classList.add('portrait-warning');
             if (typeof world !== 'undefined' && world && !world.isPaused) {
                 world.isPaused = true;
+                // Pause music when game is paused
+                if (typeof audioManager !== 'undefined' && audioManager) {
+                    audioManager.pauseMusic();
+                }
                 console.log('Game paused: Portrait mode - please rotate device');
             }
         } else {
@@ -23,6 +27,10 @@ document.addEventListener('DOMContentLoaded', function() {
             body.classList.remove('portrait-warning');
             if (typeof world !== 'undefined' && world && world.isPaused && !menu.isActive) {
                 world.isPaused = false;
+                // Resume music when game is resumed
+                if (typeof audioManager !== 'undefined' && audioManager) {
+                    audioManager.resumeMusic();
+                }
                 console.log('Game resumed: Landscape mode');
             }
         }

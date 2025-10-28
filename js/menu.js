@@ -32,7 +32,12 @@ class Menu {
         };
 
         // Settings
-        this.musicEnabled = true;
+        // Sync with audio manager if available
+        if (typeof audioManager !== 'undefined' && audioManager) {
+            this.musicEnabled = audioManager.musicEnabled;
+        } else {
+            this.musicEnabled = true;
+        }
 
         // Load all images
         this.loadImages();
@@ -47,6 +52,21 @@ class Menu {
         this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
         this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: false });
         this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+
+        // Start menu music when menu is created
+        this.startMenuMusic();
+    }
+
+    /**
+     * Start menu background music
+     */
+    startMenuMusic() {
+        setTimeout(() => {
+            if (typeof audioManager !== 'undefined' && audioManager) {
+                audioManager.playMenuMusic();
+                console.log('Menu music started');
+            }
+        }, 500); // Small delay to ensure audio manager is loaded
     }
 
     /**
@@ -673,18 +693,14 @@ class Menu {
      * Toggle music on/off
      */
     toggleMusic() {
-        this.musicEnabled = !this.musicEnabled;
-        console.log('Music toggled:', this.musicEnabled ? 'ON' : 'OFF');
-        
-        // TODO: Implement actual audio control here
-        // You can add audio context control here when you have background music
-        if (this.musicEnabled) {
-            // Enable music
-            // backgroundMusic.play();
+        // Use Audio Manager if available
+        if (typeof audioManager !== 'undefined' && audioManager) {
+            this.musicEnabled = audioManager.toggleMusic();
         } else {
-            // Disable music  
-            // backgroundMusic.pause();
+            this.musicEnabled = !this.musicEnabled;
         }
+        
+        console.log('Music toggled:', this.musicEnabled ? 'ON' : 'OFF');
     }
 
     /**
@@ -714,6 +730,9 @@ class Menu {
         this.currentDialog = null;
         this.gameStarted = false;
         
+        // Start menu music again
+        this.startMenuMusic();
+        
         // Restart menu render loop
         if (typeof startMenuLoop === 'function') {
             startMenuLoop();
@@ -730,6 +749,9 @@ class Menu {
         this.isVictory = true;
         this.currentDialog = null;
         this.gameStarted = false;
+        
+        // Start menu music again
+        this.startMenuMusic();
         
         // Restart menu render loop
         if (typeof startMenuLoop === 'function') {
