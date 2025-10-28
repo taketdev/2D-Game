@@ -621,113 +621,41 @@ canvas {
     }
 }
 
-/* Fullscreen Mode - Hide UI elements and center canvas */
-.fullscreen-mode {
-    overflow: hidden;
+/* Portrait Warning - Show rotation message on mobile portrait mode */
+.portrait-warning {
+    position: relative;
 }
 
-.fullscreen-mode .pixel-footer {
-    display: none;
-}
-
-.fullscreen-mode .game-info {
-    display: none;
-}
-
-.fullscreen-mode .game-header {
-    display: none;
-}
-
-.fullscreen-mode .game-container {
-    padding: 0;
-    margin: 0;
-    max-width: 100%;
-    width: 100vw;
-    height: 100vh;
-    background: #000;
-    border: none;
-    box-shadow: none;
-    justify-content: center;
-    align-items: center;
-}
-
-.fullscreen-mode .game-container::before {
-    display: none;
-}
-
-.fullscreen-mode .canvas-frame {
-    margin: 0;
-    padding: 0;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.fullscreen-mode .canvas-frame::before {
-    display: none;
-}
-
-.fullscreen-mode .pixel-border {
-    padding: 0;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.fullscreen-mode .pixel-border::after {
-    display: none;
-}
-
-.fullscreen-mode canvas {
-    /* Keep canvas at original size (720x480) - NO scaling */
-    width: 720px !important;
-    height: 480px !important;
-    max-width: 100vw;
-    max-height: 100vh;
-    object-fit: contain;
-    border: none;
-    box-shadow: none;
-    opacity: 1 !important;
-    pointer-events: auto !important;
-}
-
-/* Portrait Warning in Fullscreen */
-.fullscreen-mode.portrait-warning {
-    background: #1a2f23;
-}
-
-.fullscreen-mode.portrait-warning .canvas-frame::after {
-    content: '🔄 Please rotate your device to landscape mode! 🔄';
-    position: fixed;
+.portrait-warning .canvas-frame::after {
+    content: '🔄 Please rotate your device to landscape mode';
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #2d4a3e;
-    color: #a4d4b4;
-    padding: 30px;
-    border: 4px solid #3f6654;
-    font-family: 'PixelifySans', monospace, sans-serif;
-    font-size: 1.2em;
+    color: #fff;
+    font-family: 'PixelifySans', monospace;
+    font-size: 18px;
     font-weight: bold;
     text-align: center;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 20px 30px;
+    border-radius: 10px;
+    border: 3px solid #fff;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
     z-index: 10000;
-    box-shadow:
-        inset 2px 2px 0 #5a8a70,
-        inset -2px -2px 0 #1a2f23,
-        4px 4px 0 #000;
-    text-shadow: 2px 2px 0 #1a2f23;
-    white-space: nowrap;
+    animation: pulse 2s infinite;
+    max-width: 80%;
+    line-height: 1.4;
+}
+
+.portrait-warning canvas {
+    filter: blur(3px) brightness(0.4);
     pointer-events: none;
 }
 
-.fullscreen-mode.portrait-warning canvas {
-    opacity: 0.2 !important;
+/* Pulse animation for the rotation message */
+@keyframes pulse {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    50% { transform: translate(-50%, -50%) scale(1.05); }
+    100% { transform: translate(-50%, -50%) scale(1); }
 }
