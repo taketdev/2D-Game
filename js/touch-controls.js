@@ -41,6 +41,7 @@ class TouchControls {
         const buttonSize = 60;
         const smallButtonSize = 50;
         const padding = 15;
+        const rightButtonOffset = 50; // Additional offset to move right buttons away from edge
         const canvasWidth = this.canvas.width;
         const canvasHeight = this.canvas.height;
 
@@ -74,9 +75,9 @@ class TouchControls {
                 color: 'rgba(90, 138, 112, 0.7)'
             },
 
-            // Right side - Action controls
+            // Right side - Action controls (moved further from edge)
             jump: {
-                x: canvasWidth - buttonSize - padding,
+                x: canvasWidth - buttonSize - padding - rightButtonOffset,
                 y: canvasHeight - buttonSize - padding,
                 width: buttonSize,
                 height: buttonSize,
@@ -85,7 +86,7 @@ class TouchControls {
                 color: 'rgba(164, 212, 180, 0.7)'
             },
             attack1: {
-                x: canvasWidth - buttonSize * 2 - padding - 10,
+                x: canvasWidth - buttonSize * 2 - padding - 10 - rightButtonOffset,
                 y: canvasHeight - buttonSize - padding,
                 width: buttonSize,
                 height: buttonSize,
@@ -94,7 +95,7 @@ class TouchControls {
                 color: 'rgba(90, 138, 112, 0.7)'
             },
             attack2: {
-                x: canvasWidth - buttonSize * 3 - padding - 20,
+                x: canvasWidth - buttonSize * 3 - padding - 20 - rightButtonOffset,
                 y: canvasHeight - buttonSize - padding,
                 width: buttonSize,
                 height: buttonSize,
