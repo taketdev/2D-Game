@@ -7,20 +7,26 @@ class Menu {
     constructor(canvas) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        this.initializeMenuState();
+        this.initializeButtonStates();
+        this.syncMusicSettings();
+        this.loadImages();
+        this.attachEventListeners();
+        this.startMenuMusic();
+    }
 
-        // Menu state
+    initializeMenuState() {
         this.isActive = true;
-        this.currentDialog = null; // null, 'controls', 'settings', 'pause'
-        this.previousDialog = null; // Track where settings was opened from
+        this.currentDialog = null;
+        this.previousDialog = null;
         this.gameStarted = false;
         this.isGameOver = false;
         this.isVictory = false;
-
-        // Images
         this.images = {};
         this.imagesLoaded = false;
+    }
 
-        // Button states for animations
+    initializeButtonStates() {
         this.buttonStates = {
             play: { scale: 1, pressed: false },
             settings: { scale: 1, pressed: false },
@@ -30,31 +36,24 @@ class Menu {
             musicToggle: { scale: 1, pressed: false },
             resume: { scale: 1, pressed: false }
         };
+    }
 
-        // Settings
-        // Sync with audio manager if available
+    syncMusicSettings() {
         if (typeof audioManager !== 'undefined' && audioManager) {
             this.musicEnabled = audioManager.musicEnabled;
         } else {
             this.musicEnabled = true;
         }
+    }
 
-        // Load all images
-        this.loadImages();
-
-        // Add click listener
+    attachEventListeners() {
         this.canvas.addEventListener('click', (e) => this.handleClick(e));
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
         this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         this.canvas.addEventListener('mousemove', (e) => this.handleMouseMove(e));
-
-        // Add touch listeners for mobile
         this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
         this.canvas.addEventListener('touchend', (e) => this.handleTouchEnd(e), { passive: false });
         this.canvas.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
-
-        // Start menu music when menu is created
-        this.startMenuMusic();
     }
 
     /**
@@ -231,46 +230,48 @@ class Menu {
     }
 
     drawEndGameMenu(title) {
+        const dimensions = this.getEndGameMenuDimensions();
+        this.drawEndGameTitle(title, dimensions);
+        this.drawEndGameMenuFrame(dimensions);
+        this.drawEndGameButtons(dimensions);
+        this.drawQuestionIcon();
+    }
+
+    getEndGameMenuDimensions() {
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
-
-        // Title text above the menu
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 28px PixelifySans';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText(title, centerX, centerY - 120);
-
-        // Draw blank menu background frame (same as main menu)
         const menuWidth = 200;
         const menuHeight = 250;
         const menuX = centerX - menuWidth / 2;
-        const menuY = centerY - menuHeight / 2 + 20; // Slightly below center
+        const menuY = centerY - menuHeight / 2 + 20;
+        return { centerX, centerY, menuWidth, menuHeight, menuX, menuY };
+    }
 
-        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+    drawEndGameTitle(title, dimensions) {
+        this.ctx.fillStyle = '#ffffff';
+        this.ctx.font = 'bold 28px PixelifySans';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText(title, dimensions.centerX, dimensions.centerY - 120);
+    }
 
-        // Calculate button positions (same as main menu)
+    drawEndGameMenuFrame(dimensions) {
+        this.ctx.drawImage(this.images.menuBlank, dimensions.menuX, dimensions.menuY, dimensions.menuWidth, dimensions.menuHeight);
+    }
+
+    drawEndGameButtons(dimensions) {
         const buttonWidth = 140;
         const buttonHeight = 45;
-        const buttonX = centerX - buttonWidth / 2;
+        const buttonX = dimensions.centerX - buttonWidth / 2;
         const buttonSpacing = 55;
 
-        // Play button (top) - for retry/play again
-        const playY = menuY + 50;
+        const playY = dimensions.menuY + 50;
         this.drawButton('play', buttonX, playY, buttonWidth, buttonHeight, this.images.playBtn);
 
-        // Settings button (middle)
         const settingsY = playY + buttonSpacing;
         this.drawButton('settings', buttonX, settingsY, buttonWidth, buttonHeight, this.images.settingsBtn);
 
-        // Exit button (bottom) - back to main menu
         const exitY = settingsY + buttonSpacing;
         this.drawButton('exit', buttonX, exitY, buttonWidth, buttonHeight, this.images.exitBtn);
-
-        // Question icon (top right)
-        const iconSize = 40;
-        const iconX = this.canvas.width - iconSize - 15;
-        const iconY = 15;
-        this.drawButton('question', iconX, iconY, iconSize, iconSize, this.images.questionIcon);
     }
 
     /**
@@ -357,13 +358,27 @@ class Menu {
     }
 
     drawControlsText(dimensions) {
+        this.setupControlsTextStyle();
+        const textPosition = this.getControlsTextPosition(dimensions);
+        const controls = this.getControlsTextLines();
+        this.renderControlsLines(controls, textPosition);
+    }
+
+    setupControlsTextStyle() {
         this.ctx.font = '14px PixelifySans';
         this.ctx.textAlign = 'left';
-        const textX = dimensions.menuX + 15;
-        let textY = dimensions.menuY + 60;
-        const lineHeight = 20;
+    }
 
-        const controls = [
+    getControlsTextPosition(dimensions) {
+        return {
+            textX: dimensions.menuX + 15,
+            textY: dimensions.menuY + 60,
+            lineHeight: 20
+        };
+    }
+
+    getControlsTextLines() {
+        return [
             '← → Arrow Keys: Move',
             '↑ Arrow Key: Jump',
             'D: Attack 1',
@@ -375,13 +390,16 @@ class Menu {
             '',
             'Defeat all enemies to win!'
         ];
+    }
 
+    renderControlsLines(controls, textPosition) {
+        let textY = textPosition.textY;
         controls.forEach(line => {
             if (line === '') {
-                textY += lineHeight / 2;
+                textY += textPosition.lineHeight / 2;
             } else {
-                this.ctx.fillText(line, textX, textY);
-                textY += lineHeight;
+                this.ctx.fillText(line, textPosition.textX, textY);
+                textY += textPosition.lineHeight;
             }
         });
     }
@@ -559,6 +577,13 @@ class Menu {
     }
 
     handleMainMenuClick(x, y) {
+        if (this.checkPlayButtonClick(x, y)) return;
+        if (this.checkSettingsButtonClick(x, y)) return;
+        if (this.checkExitButtonClick(x, y)) return;
+        if (this.checkQuestionButtonClick(x, y)) return;
+    }
+
+    checkPlayButtonClick(x, y) {
         const playBtn = this.buttonStates.play;
         if (playBtn.bounds && this.isPointInButton(x, y, playBtn.bounds)) {
             if (this.isGameOver || this.isVictory) {
@@ -566,15 +591,21 @@ class Menu {
             } else {
                 this.startGame();
             }
-            return;
+            return true;
         }
+        return false;
+    }
 
+    checkSettingsButtonClick(x, y) {
         const settingsBtn = this.buttonStates.settings;
         if (settingsBtn.bounds && this.isPointInButton(x, y, settingsBtn.bounds)) {
             this.openSettings();
-            return;
+            return true;
         }
+        return false;
+    }
 
+    checkExitButtonClick(x, y) {
         const exitBtn = this.buttonStates.exit;
         if (exitBtn.bounds && this.isPointInButton(x, y, exitBtn.bounds)) {
             if (this.isGameOver || this.isVictory) {
@@ -582,14 +613,18 @@ class Menu {
             } else {
                 this.exitGame();
             }
-            return;
+            return true;
         }
+        return false;
+    }
 
+    checkQuestionButtonClick(x, y) {
         const questionBtn = this.buttonStates.question;
         if (questionBtn.bounds && this.isPointInButton(x, y, questionBtn.bounds)) {
             this.openControls();
-            return;
+            return true;
         }
+        return false;
     }
 
     /**
@@ -1058,36 +1093,9 @@ class Menu {
     }
 
     handleTouchMainMenuClick(x, y) {
-        const playBtn = this.buttonStates.play;
-        if (playBtn.bounds && this.isPointInButton(x, y, playBtn.bounds)) {
-            if (this.isGameOver || this.isVictory) {
-                this.restartGame();
-            } else {
-                this.startGame();
-            }
-            return;
-        }
-
-        const settingsBtn = this.buttonStates.settings;
-        if (settingsBtn.bounds && this.isPointInButton(x, y, settingsBtn.bounds)) {
-            this.openSettings();
-            return;
-        }
-
-        const exitBtn = this.buttonStates.exit;
-        if (exitBtn.bounds && this.isPointInButton(x, y, exitBtn.bounds)) {
-            if (this.isGameOver || this.isVictory) {
-                this.returnToMainMenu();
-            } else {
-                this.exitGame();
-            }
-            return;
-        }
-
-        const questionBtn = this.buttonStates.question;
-        if (questionBtn.bounds && this.isPointInButton(x, y, questionBtn.bounds)) {
-            this.openControls();
-            return;
-        }
+        if (this.checkPlayButtonClick(x, y)) return;
+        if (this.checkSettingsButtonClick(x, y)) return;
+        if (this.checkExitButtonClick(x, y)) return;
+        if (this.checkQuestionButtonClick(x, y)) return;
     }
 }

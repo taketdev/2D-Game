@@ -1,11 +1,14 @@
 function createBackgroundObjects() {
     let backgroundObjects = [];
+    addBattleground1Objects(backgroundObjects);
+    addBattleground3Objects(backgroundObjects);
+    addBattleground2Objects(backgroundObjects);
+    return backgroundObjects;
+}
 
-    // Battleground1: Erste Hälfte des Levels (3x wiederholt = 2160px)
-    // Von x=0 bis x=2160 (kein negativer Bereich mehr)
+function addBattleground1Objects(backgroundObjects) {
     for (let i = 0; i < 3; i++) {
         let x = i * 720;
-
         backgroundObjects.push(
             new BackgroundObject(`./assets/background/Battleground1/Bright/sky.png`, x),
             new BackgroundObject(`./assets/background/Battleground1/Bright/ruins_bg.png`, x),
@@ -16,12 +19,11 @@ function createBackgroundObjects() {
             new BackgroundObject(`./assets/background/Battleground1/Bright/stones&grass.png`, x)
         );
     }
+}
 
-    // Battleground3: Mittlerer Teil des Levels (2x wiederholt = 1440px)
-    // Startet nahtlos bei x=2160
+function addBattleground3Objects(backgroundObjects) {
     for (let i = 3; i < 5; i++) {
         let x = i * 720;
-
         backgroundObjects.push(
             new BackgroundObject(`./assets/background/Battleground3/Bright/sky.png`, x),
             new BackgroundObject(`./assets/background/Battleground3/Bright/grasses.png`, x),
@@ -31,12 +33,11 @@ function createBackgroundObjects() {
             new BackgroundObject(`./assets/background/Battleground3/Bright/grass&road.png`, x)
         );
     }
+}
 
-    // Battleground2: Letzter Teil des Levels (3x wiederholt = 2160px)
-    // Startet nahtlos bei x=3600
+function addBattleground2Objects(backgroundObjects) {
     for (let i = 5; i < 8; i++) {
         let x = i * 720;
-
         backgroundObjects.push(
             new BackgroundObject(`./assets/background/Battleground2/Bright/bg.png`, x),
             new BackgroundObject(`./assets/background/Battleground2/Bright/mountaims.png`, x),
@@ -45,8 +46,6 @@ function createBackgroundObjects() {
             new BackgroundObject(`./assets/background/Battleground2/Bright/floor.png`, x)
         );
     }
-
-    return backgroundObjects;
 }
 
 // Funktion zum Erstellen von Goblins mit spezifischer Position
@@ -107,40 +106,39 @@ function createCloudAt(x, cloudType = 1) {
     return cloud;
 }
 
-// Function to create a fresh level instance
 function createLevel1() {
     return new Level(
-        [
-            // Battleground1 (x=0 bis x=2160): Goblins und Flying Eyes verteilt
-            createGoblinAt(500),
-            createGoblinAt(1000),
-            createGoblinAt(1800),
-            createFlyingEyeAt(700),
-            createFlyingEyeAt(1300),
-            createFlyingEyeAt(1900),
-
-            // Battleground3 (x=2160 bis x=3600): Mushrooms und Skeletons verteilt
-            createMushroomAt(2400),
-            createMushroomAt(3000),
-            createSkeletonAt(2700),
-            createSkeletonAt(3300),
-
-            // Endboss wird dynamisch gespawnt wenn Character Battleground2 erreicht
-        ],
-        [
-            // Nur Battleground1 Wolken (x=0 bis x=2160) für eine schöne Atmosphäre
-            createCloudAt(400, 1),
-            createCloudAt(900, 2),
-            createCloudAt(1400, 3),
-            createCloudAt(1800, 4),
-            
-            // Ein paar zusätzliche für Abwechslung
-            createCloudAt(650, 5),
-            createCloudAt(1150, 1),
-        ],
+        createEnemies(),
+        createClouds(),
         createBackgroundObjects(),
-        [] // Collectibles werden dynamisch gespawnt
+        []
     );
+}
+
+function createEnemies() {
+    return [
+        createGoblinAt(500),
+        createGoblinAt(1000),
+        createGoblinAt(1800),
+        createFlyingEyeAt(700),
+        createFlyingEyeAt(1300),
+        createFlyingEyeAt(1900),
+        createMushroomAt(2400),
+        createMushroomAt(3000),
+        createSkeletonAt(2700),
+        createSkeletonAt(3300),
+    ];
+}
+
+function createClouds() {
+    return [
+        createCloudAt(400, 1),
+        createCloudAt(900, 2),
+        createCloudAt(1400, 3),
+        createCloudAt(1800, 4),
+        createCloudAt(650, 5),
+        createCloudAt(1150, 1),
+    ];
 }
 
 // Create initial level instance for compatibility
