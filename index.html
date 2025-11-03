@@ -8,27 +8,32 @@
     <link rel="stylesheet" href="./style.css">
     <!-- Config -->
     <script src="./js/config.js"></script>
+
     <!-- Basis Klassen zuerst -->
-    <script src="models/movable_object.class.js"></script>
+    <script src="./models/movable_object.class.js"></script>
     <script src="./models/keyboard.class.js"></script>
-    <script src="./models/statusbar.class.js"></script>
-
-    <!-- Alle Objekt-Klassen -->
-    <script src="./models/character.class.js"></script>
-    <script src="./models/projectile.class.js"></script>
-    <script src="./models/goblin.class.js"></script>
-    <script src="./models/flying_eye.class.js"></script>
-    <script src="./models/mushroom.class.js"></script>
-    <script src="./models/skeleton.class.js"></script>
-    <script src="./models/endboss.class.js"></script>
-    <script src="./models/clouds.class.js"></script>
     <script src="./models/background_object.class.js"></script>
-    <script src="./models/scroll.class.js"></script>
 
-    <!-- HUD Elements -->
-    <script src="./models/healthbar.class.js"></script>
-    <script src="./models/manabar.class.js"></script>
-    <script src="./models/bosshealthbar.class.js"></script>
+    <!-- HUD Elements (StatusBar muss vor den spezifischen Bars geladen werden) -->
+    <script src="./models/hud/statusbar.class.js"></script>
+    <script src="./models/hud/healthbar.class.js"></script>
+    <script src="./models/hud/manabar.class.js"></script>
+    <script src="./models/hud/bosshealthbar.class.js"></script>
+
+    <!-- Character -->
+    <script src="./models/character/character.class.js"></script>
+    <script src="./models/character/projectile.class.js"></script>
+
+    <!-- Enemies -->
+    <script src="./models/enemies/goblin.class.js"></script>
+    <script src="./models/enemies/flying_eye.class.js"></script>
+    <script src="./models/enemies/mushroom.class.js"></script>
+    <script src="./models/enemies/skeleton.class.js"></script>
+    <script src="./models/enemies/endboss.class.js"></script>
+
+    <!-- World Objects -->
+    <script src="./models/world/clouds.class.js"></script>
+    <script src="./models/world/scroll.class.js"></script>
     
     <!-- Level System -->
     <script src="./models/level.class.js"></script>
