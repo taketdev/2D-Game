@@ -55,12 +55,13 @@ class Projectile extends MovableObject {
     }
 
     animate() {
-        this.animationIntervalId = setInterval(() => {
+        let self = this; // Explizite Referenz speichern
+        this.animationIntervalId = setInterval(function() {
             // Check if game is paused
-            if (this.world && this.world.isPaused) return;
-            
-            this.updateAnimation();
-            this.move();
+            if (self.world && self.world.isPaused) return;
+
+            self.updateAnimation();
+            self.move();
         }, 1000 / 60);
     }
 

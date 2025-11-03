@@ -503,7 +503,7 @@ class World {
         this.clearIntervals();
         this.cleanupCharacter();
         this.cleanupEnemies();
-        this.cleanupProjectiles();
+        this.stopAllProjectiles();
     }
 
     clearIntervals() {
@@ -531,7 +531,7 @@ class World {
         });
     }
 
-    cleanupProjectiles() {
+    stopAllProjectiles() {
         this.projectiles.forEach(projectile => {
             if (projectile.cleanup) {
                 projectile.cleanup();

@@ -655,6 +655,7 @@ updateMovementStatus(movementState) {
 
         // Erstelle Projektil
         let projectile = new Projectile(projectileX, projectileY, direction, type, damage);
+        projectile.world = this.world; // Setze World-Referenz
 
         // Füge zur World hinzu
         this.world.addProjectile(projectile);
