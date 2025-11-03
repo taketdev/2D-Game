@@ -183,18 +183,26 @@ class Mushroom extends MovableObject {
 
         let now = Date.now();
         if (now - this.lastAttackFrameTime > this.attackAnimationSpeed) {
-            this.currentAttackFrame++;
-
-            if (this.currentAttackFrame === this.attackHitFrame && this.world) {
-                this.dealDamageToCharacter();
-            }
-
-            if (this.currentAttackFrame >= this.attackFrameCount) {
-                this.isAttacking = false;
-                this.currentAttackFrame = 0;
-            }
-            this.lastAttackFrameTime = now;
+            this.advanceAttackFrame(now);
         }
+    }
+
+    advanceAttackFrame(now) {
+        this.currentAttackFrame++;
+
+        if (this.currentAttackFrame === this.attackHitFrame && this.world) {
+            this.dealDamageToCharacter();
+        }
+
+        if (this.currentAttackFrame >= this.attackFrameCount) {
+            this.endAttackAnimation();
+        }
+        this.lastAttackFrameTime = now;
+    }
+
+    endAttackAnimation() {
+        this.isAttacking = false;
+        this.currentAttackFrame = 0;
     }
 
     updateDeathAnimation() {
@@ -217,27 +225,35 @@ class Mushroom extends MovableObject {
         ctx.imageSmoothingEnabled = false;
 
         if (this.otherDirection) {
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.drawImage(
-                image,
-                frameX, 0,
-                frameWidth, frameHeight,
-                -this.x - displayWidth, this.y,
-                displayWidth, displayHeight
-            );
-            ctx.restore();
+            this.drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
         } else {
-            ctx.drawImage(
-                image,
-                frameX, 0,
-                frameWidth, frameHeight,
-                this.x, this.y,
-                displayWidth, displayHeight
-            );
+            this.drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
         }
 
         ctx.imageSmoothingEnabled = true;
+    }
+
+    drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(
+            image,
+            frameX, 0,
+            frameWidth, frameHeight,
+            -this.x - displayWidth, this.y,
+            displayWidth, displayHeight
+        );
+        ctx.restore();
+    }
+
+    drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+        ctx.drawImage(
+            image,
+            frameX, 0,
+            frameWidth, frameHeight,
+            this.x, this.y,
+            displayWidth, displayHeight
+        );
     }
 
     drawIdleSprite(ctx) {
@@ -277,44 +293,54 @@ class Mushroom extends MovableObject {
 
     patrol() {
         setInterval(() => {
-            // Check if game is paused
-            if (this.world && this.world.isPaused) return;
-            
-            if (this.isDead) return;
-
-            if (this.isAttacking) return;
+            if (this.shouldSkipPatrol()) return;
 
             if (this.isAggro) {
-                let distanceToTarget = this.targetCharacterX - this.x;
-                let absDistance = Math.abs(distanceToTarget);
-
-                if (absDistance < 30) {
-                    return;
-                }
-
-                if (distanceToTarget < 0) {
-                    this.x -= this.speed * 0.7;
-                    this.otherDirection = true;
-                } else {
-                    this.x += this.speed * 0.7;
-                    this.otherDirection = false;
-                }
+                this.handleAggroMovement();
             } else {
-                if (this.movingRight) {
-                    this.x += this.speed;
-                    this.otherDirection = false;
-                } else {
-                    this.x -= this.speed;
-                    this.otherDirection = true;
-                }
-
-                if (this.x >= this.patrolEndX) {
-                    this.movingRight = false;
-                } else if (this.x <= this.patrolStartX) {
-                    this.movingRight = true;
-                }
+                this.handlePatrolMovement();
             }
         }, 1000 / 60);
+    }
+
+    shouldSkipPatrol() {
+        if (this.world && this.world.isPaused) return true;
+        if (this.isDead) return true;
+        if (this.isAttacking) return true;
+        return false;
+    }
+
+    handleAggroMovement() {
+        let distanceToTarget = this.targetCharacterX - this.x;
+        let absDistance = Math.abs(distanceToTarget);
+
+        if (absDistance < 30) {
+            return;
+        }
+
+        if (distanceToTarget < 0) {
+            this.x -= this.speed * 0.7;
+            this.otherDirection = true;
+        } else {
+            this.x += this.speed * 0.7;
+            this.otherDirection = false;
+        }
+    }
+
+    handlePatrolMovement() {
+        if (this.movingRight) {
+            this.x += this.speed;
+            this.otherDirection = false;
+        } else {
+            this.x -= this.speed;
+            this.otherDirection = true;
+        }
+
+        if (this.x >= this.patrolEndX) {
+            this.movingRight = false;
+        } else if (this.x <= this.patrolStartX) {
+            this.movingRight = true;
+        }
     }
 
     setAggro(character) {

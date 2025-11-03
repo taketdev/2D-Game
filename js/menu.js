@@ -73,7 +73,12 @@ class Menu {
      * Load all menu images
      */
     loadImages() {
-        const imagePaths = {
+        const imagePaths = this.getImagePaths();
+        this.loadImageSet(imagePaths);
+    }
+
+    getImagePaths() {
+        return {
             background: './assets/menu/wallpapermenu.jpg',
             menuBlank: './assets/menu/menuBlank.png',
             playBtn: './assets/menu/playBtn.png',
@@ -87,7 +92,9 @@ class Menu {
             musicIcon: './assets/icons/musicIcon.png',
             musicMuteIcon: './assets/icons/musicMuteIcon.png'
         };
+    }
 
+    loadImageSet(imagePaths) {
         let loadedCount = 0;
         const totalImages = Object.keys(imagePaths).length;
 
@@ -113,19 +120,27 @@ class Menu {
      */
     draw() {
         if (!this.imagesLoaded) {
-            // Show loading screen
-            this.ctx.fillStyle = '#000';
-            this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-            this.ctx.fillStyle = '#fff';
-            this.ctx.font = '20px PixelifySans';
-            this.ctx.textAlign = 'center';
-            this.ctx.fillText('Loading...', this.canvas.width / 2, this.canvas.height / 2);
+            this.drawLoadingScreen();
             return;
         }
 
         if (!this.isActive) return;
 
-        // Game Over mode: Draw dark overlay instead of background
+        this.drawBackground();
+        this.clearInactiveButtonBounds();
+        this.drawCurrentMenu();
+    }
+
+    drawLoadingScreen() {
+        this.ctx.fillStyle = '#000';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = '20px PixelifySans';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Loading...', this.canvas.width / 2, this.canvas.height / 2);
+    }
+
+    drawBackground() {
         if (this.isGameOver || this.isVictory) {
             // Draw dark overlay over the game
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
@@ -134,11 +149,9 @@ class Menu {
             // Normal mode: Draw background
             this.ctx.drawImage(this.images.background, 0, 0, this.canvas.width, this.canvas.height);
         }
+    }
 
-        // Clear bounds for inactive buttons
-        this.clearInactiveButtonBounds();
-
-        // Draw appropriate menu based on dialog state
+    drawCurrentMenu() {
         if (this.currentDialog === 'settings') {
             this.drawSettingsDialog();
         } else if (this.currentDialog === 'controls') {
@@ -160,36 +173,43 @@ class Menu {
      * Draw main menu
      */
     drawMainMenu() {
+        const dimensions = this.getMainMenuDimensions();
+        this.drawMainMenuBackground(dimensions);
+        this.drawMainMenuButtons(dimensions);
+        this.drawQuestionIcon();
+    }
+
+    getMainMenuDimensions() {
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
-
-        // Draw blank menu background frame
         const menuWidth = 200;
         const menuHeight = 250;
         const menuX = centerX - menuWidth / 2;
-        const menuY = centerY - menuHeight / 2 + 20; // Slightly below center
+        const menuY = centerY - menuHeight / 2 + 20;
+        return { centerX, centerY, menuWidth, menuHeight, menuX, menuY };
+    }
 
-        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+    drawMainMenuBackground(dimensions) {
+        this.ctx.drawImage(this.images.menuBlank, dimensions.menuX, dimensions.menuY, dimensions.menuWidth, dimensions.menuHeight);
+    }
 
-        // Calculate button positions (responsive, centered in the menu frame)
+    drawMainMenuButtons(dimensions) {
         const buttonWidth = 140;
         const buttonHeight = 45;
-        const buttonX = centerX - buttonWidth / 2;
+        const buttonX = dimensions.centerX - buttonWidth / 2;
         const buttonSpacing = 55;
 
-        // Play button (top)
-        const playY = menuY + 50;
+        const playY = dimensions.menuY + 50;
         this.drawButton('play', buttonX, playY, buttonWidth, buttonHeight, this.images.playBtn);
 
-        // Settings button (middle)
         const settingsY = playY + buttonSpacing;
         this.drawButton('settings', buttonX, settingsY, buttonWidth, buttonHeight, this.images.settingsBtn);
 
-        // Exit button (bottom)
         const exitY = settingsY + buttonSpacing;
         this.drawButton('exit', buttonX, exitY, buttonWidth, buttonHeight, this.images.exitBtn);
+    }
 
-        // Question icon (top right)
+    drawQuestionIcon() {
         const iconSize = 40;
         const iconX = this.canvas.width - iconSize - 15;
         const iconY = 15;
@@ -200,60 +220,25 @@ class Menu {
      * Draw game over menu
      */
     drawGameOverMenu() {
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height / 2;
-
-        // "Game Over" text above the menu
-        this.ctx.fillStyle = '#ffffff';
-        this.ctx.font = 'bold 28px PixelifySans';
-        this.ctx.textAlign = 'center';
-        this.ctx.fillText('Game Over', centerX, centerY - 120);
-
-        // Draw blank menu background frame (same as main menu)
-        const menuWidth = 200;
-        const menuHeight = 250;
-        const menuX = centerX - menuWidth / 2;
-        const menuY = centerY - menuHeight / 2 + 20; // Slightly below center
-
-        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
-
-        // Calculate button positions (same as main menu)
-        const buttonWidth = 140;
-        const buttonHeight = 45;
-        const buttonX = centerX - buttonWidth / 2;
-        const buttonSpacing = 55;
-
-        // Play button (top) - for retry
-        const playY = menuY + 50;
-        this.drawButton('play', buttonX, playY, buttonWidth, buttonHeight, this.images.playBtn);
-
-        // Settings button (middle)
-        const settingsY = playY + buttonSpacing;
-        this.drawButton('settings', buttonX, settingsY, buttonWidth, buttonHeight, this.images.settingsBtn);
-
-        // Exit button (bottom) - back to main menu
-        const exitY = settingsY + buttonSpacing;
-        this.drawButton('exit', buttonX, exitY, buttonWidth, buttonHeight, this.images.exitBtn);
-
-        // Question icon (top right)
-        const iconSize = 40;
-        const iconX = this.canvas.width - iconSize - 15;
-        const iconY = 15;
-        this.drawButton('question', iconX, iconY, iconSize, iconSize, this.images.questionIcon);
+        this.drawEndGameMenu('Game Over');
     }
 
     /**
      * Draw victory menu
      */
     drawVictoryMenu() {
+        this.drawEndGameMenu('Victory!');
+    }
+
+    drawEndGameMenu(title) {
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
 
-        // "Victory!" text above the menu
+        // Title text above the menu
         this.ctx.fillStyle = '#ffffff';
         this.ctx.font = 'bold 28px PixelifySans';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('Victory!', centerX, centerY - 120);
+        this.ctx.fillText(title, centerX, centerY - 120);
 
         // Draw blank menu background frame (same as main menu)
         const menuWidth = 200;
@@ -269,7 +254,7 @@ class Menu {
         const buttonX = centerX - buttonWidth / 2;
         const buttonSpacing = 55;
 
-        // Play button (top) - for play again
+        // Play button (top) - for retry/play again
         const playY = menuY + 50;
         this.drawButton('play', buttonX, playY, buttonWidth, buttonHeight, this.images.playBtn);
 
@@ -292,39 +277,50 @@ class Menu {
      * Draw settings dialog
      */
     drawSettingsDialog() {
+        const dimensions = this.getSettingsDialogDimensions();
+        this.drawSettingsBackground(dimensions);
+        this.drawSettingsTitle(dimensions);
+        this.drawMusicSection(dimensions);
+        this.drawSettingsCloseButton(dimensions);
+    }
+
+    getSettingsDialogDimensions() {
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
-
-        // Draw settings menu background frame
         const menuWidth = 250;
         const menuHeight = 200;
         const menuX = centerX - menuWidth / 2;
         const menuY = centerY - menuHeight / 2;
+        return { centerX, centerY, menuWidth, menuHeight, menuX, menuY };
+    }
 
-        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+    drawSettingsBackground(dimensions) {
+        this.ctx.drawImage(this.images.menuBlank, dimensions.menuX, dimensions.menuY, dimensions.menuWidth, dimensions.menuHeight);
+    }
 
-        // Settings title
+    drawSettingsTitle(dimensions) {
         this.ctx.fillStyle = '#d9d9d9ff';
         this.ctx.font = 'bold 24px PixelifySans';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('Settings', centerX, menuY + 40);
+        this.ctx.fillText('Settings', dimensions.centerX, dimensions.menuY + 40);
+    }
 
-        // Music toggle section
+    drawMusicSection(dimensions) {
         this.ctx.font = '18px PixelifySans';
-        this.ctx.fillText('Music:', centerX, menuY + 90);
+        this.ctx.fillText('Music:', dimensions.centerX, dimensions.menuY + 90);
 
-        // Music toggle button
         const musicButtonSize = 25;
-        const musicButtonX = centerX - musicButtonSize / 2;
-        const musicButtonY = menuY + 110;
-        
+        const musicButtonX = dimensions.centerX - musicButtonSize / 2;
+        const musicButtonY = dimensions.menuY + 110;
+
         const musicIconImg = this.musicEnabled ? this.images.musicIcon : this.images.musicMuteIcon;
         this.drawButton('musicToggle', musicButtonX, musicButtonY, musicButtonSize, musicButtonSize, musicIconImg);
+    }
 
-        // Close button (X)
+    drawSettingsCloseButton(dimensions) {
         const closeButtonSize = 30;
-        const closeButtonX = menuX + menuWidth - closeButtonSize - 10;
-        const closeButtonY = menuY + 10;
+        const closeButtonX = dimensions.menuX + dimensions.menuWidth - closeButtonSize - 10;
+        const closeButtonY = dimensions.menuY + 10;
         this.drawButton('close', closeButtonX, closeButtonY, closeButtonSize, closeButtonSize, this.images.xBtn);
     }
 
@@ -332,28 +328,39 @@ class Menu {
      * Draw controls dialog
      */
     drawControlsDialog() {
+        const dimensions = this.getControlsDialogDimensions();
+        this.drawControlsBackground(dimensions);
+        this.drawControlsTitle(dimensions);
+        this.drawControlsText(dimensions);
+        this.drawControlsCloseButton(dimensions);
+    }
+
+    getControlsDialogDimensions() {
         const centerX = this.canvas.width / 2;
         const centerY = this.canvas.height / 2;
-
-        // Draw controls menu background frame (same size as main menu)
         const menuWidth = 200;
         const menuHeight = 250;
         const menuX = centerX - menuWidth / 2;
         const menuY = centerY - menuHeight / 2;
+        return { centerX, centerY, menuWidth, menuHeight, menuX, menuY };
+    }
 
-        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+    drawControlsBackground(dimensions) {
+        this.ctx.drawImage(this.images.menuBlank, dimensions.menuX, dimensions.menuY, dimensions.menuWidth, dimensions.menuHeight);
+    }
 
-        // Controls title
+    drawControlsTitle(dimensions) {
         this.ctx.fillStyle = '#d9d9d9ff';
         this.ctx.font = 'bold 20px PixelifySans';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('How to Play', centerX, menuY + 30);
+        this.ctx.fillText('How to Play', dimensions.centerX, dimensions.menuY + 30);
+    }
 
-        // Controls text
+    drawControlsText(dimensions) {
         this.ctx.font = '14px PixelifySans';
         this.ctx.textAlign = 'left';
-        const textX = menuX + 15;
-        let textY = menuY + 60;
+        const textX = dimensions.menuX + 15;
+        let textY = dimensions.menuY + 60;
         const lineHeight = 20;
 
         const controls = [
@@ -377,11 +384,12 @@ class Menu {
                 textY += lineHeight;
             }
         });
+    }
 
-        // Close button (X)
+    drawControlsCloseButton(dimensions) {
         const closeButtonSize = 30;
-        const closeButtonX = menuX + menuWidth - closeButtonSize - 10;
-        const closeButtonY = menuY + 10;
+        const closeButtonX = dimensions.menuX + dimensions.menuWidth - closeButtonSize - 10;
+        const closeButtonY = dimensions.menuY + 10;
         this.drawButton('close', closeButtonX, closeButtonY, closeButtonSize, closeButtonSize, this.images.xBtn);
     }
 
@@ -413,35 +421,37 @@ class Menu {
      * Clear button bounds for buttons that are not currently visible
      */
     clearInactiveButtonBounds() {
-        if (this.currentDialog === 'settings') {
-            // Clear main menu button bounds
-            ['play', 'settings', 'exit', 'question'].forEach(name => {
-                if (this.buttonStates[name]) {
-                    this.buttonStates[name].bounds = null;
-                }
-            });
-        } else if (this.currentDialog === 'controls') {
-            // Clear main menu button bounds
-            ['play', 'settings', 'exit', 'question'].forEach(name => {
-                if (this.buttonStates[name]) {
-                    this.buttonStates[name].bounds = null;
-                }
-            });
+        if (this.currentDialog === 'settings' || this.currentDialog === 'controls') {
+            this.clearMainMenuBounds();
         } else if (this.currentDialog === 'pause') {
-            // Clear main menu button bounds
-            ['play', 'settings', 'question'].forEach(name => {
-                if (this.buttonStates[name]) {
-                    this.buttonStates[name].bounds = null;
-                }
-            });
+            this.clearPauseMenuBounds();
         } else {
-            // Clear dialog button bounds when in main menu
-            ['musicToggle', 'close', 'resume'].forEach(name => {
-                if (this.buttonStates[name]) {
-                    this.buttonStates[name].bounds = null;
-                }
-            });
+            this.clearDialogBounds();
         }
+    }
+
+    clearMainMenuBounds() {
+        ['play', 'settings', 'exit', 'question'].forEach(name => {
+            if (this.buttonStates[name]) {
+                this.buttonStates[name].bounds = null;
+            }
+        });
+    }
+
+    clearPauseMenuBounds() {
+        ['play', 'settings', 'question'].forEach(name => {
+            if (this.buttonStates[name]) {
+                this.buttonStates[name].bounds = null;
+            }
+        });
+    }
+
+    clearDialogBounds() {
+        ['musicToggle', 'close', 'resume'].forEach(name => {
+            if (this.buttonStates[name]) {
+                this.buttonStates[name].bounds = null;
+            }
+        });
     }
 
 
@@ -516,36 +526,39 @@ class Menu {
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
 
-        // Check for pause button click when game is running (not in menu overlay)
+        if (this.handlePauseButtonClick(x, y)) return;
+        if (!this.isActive) return;
+        if (this.handleDialogClick(x, y)) return;
+        this.handleMainMenuClick(x, y);
+    }
+
+    handlePauseButtonClick(x, y) {
         if (!this.isActive && this.gameStarted && world && world.pauseButtonBounds) {
             if (this.isPointInButton(x, y, world.pauseButtonBounds)) {
                 this.togglePause();
-                return;
+                return true;
             }
         }
+        return false;
+    }
 
-        // Only handle menu clicks when menu is active
-        if (!this.isActive) return;
-
-        // Handle settings dialog clicks
+    handleDialogClick(x, y) {
         if (this.currentDialog === 'settings') {
             this.handleSettingsClick(x, y);
-            return;
+            return true;
         }
-
-        // Handle controls dialog clicks
         if (this.currentDialog === 'controls') {
             this.handleControlsClick(x, y);
-            return;
+            return true;
         }
-
-        // Handle pause dialog clicks
         if (this.currentDialog === 'pause') {
             this.handlePauseClick(x, y);
-            return;
+            return true;
         }
+        return false;
+    }
 
-        // Main menu buttons (different behavior for Game Over and Victory)
+    handleMainMenuClick(x, y) {
         const playBtn = this.buttonStates.play;
         if (playBtn.bounds && this.isPointInButton(x, y, playBtn.bounds)) {
             if (this.isGameOver || this.isVictory) {
@@ -806,42 +819,51 @@ class Menu {
      * Draw pause dialog
      */
     drawPauseDialog() {
-        const centerX = this.canvas.width / 2;
-        const centerY = this.canvas.height / 2;
+        this.drawPauseOverlay();
+        const dimensions = this.getPauseDialogDimensions();
+        this.drawPauseBackground(dimensions);
+        this.drawPauseTitle(dimensions);
+        this.drawPauseButtons(dimensions);
+    }
 
-        // Draw pause menu background frame (similar to game over)
-        // First, draw semi-transparent overlay
+    drawPauseOverlay() {
         this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
 
+    getPauseDialogDimensions() {
+        const centerX = this.canvas.width / 2;
+        const centerY = this.canvas.height / 2;
         const menuWidth = 200;
         const menuHeight = 230;
         const menuX = centerX - menuWidth / 2;
         const menuY = centerY - menuHeight / 2;
+        return { centerX, centerY, menuWidth, menuHeight, menuX, menuY };
+    }
 
-        this.ctx.drawImage(this.images.menuBlank, menuX, menuY, menuWidth, menuHeight);
+    drawPauseBackground(dimensions) {
+        this.ctx.drawImage(this.images.menuBlank, dimensions.menuX, dimensions.menuY, dimensions.menuWidth, dimensions.menuHeight);
+    }
 
-        // Pause title
+    drawPauseTitle(dimensions) {
         this.ctx.fillStyle = '#d9d9d9ff';
         this.ctx.font = 'bold 28px PixelifySans';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('Paused', centerX, menuY + 45);
+        this.ctx.fillText('Paused', dimensions.centerX, dimensions.menuY + 45);
+    }
 
-        // Calculate button positions
+    drawPauseButtons(dimensions) {
         const buttonWidth = 140;
         const buttonHeight = 45;
-        const buttonX = centerX - buttonWidth / 2;
+        const buttonX = dimensions.centerX - buttonWidth / 2;
         const buttonSpacing = 55;
 
-        // Resume button
-        const resumeY = menuY + 75;
+        const resumeY = dimensions.menuY + 75;
         this.drawButton('resume', buttonX, resumeY, buttonWidth, buttonHeight, this.images.playBtn);
 
-        // Settings button
         const settingsY = resumeY + buttonSpacing;
         this.drawButton('settings', buttonX, settingsY, buttonWidth, buttonHeight, this.images.settingsBtn);
 
-        // Exit to main menu button
         const exitY = settingsY + buttonSpacing;
         this.drawButton('exit', buttonX, exitY, buttonWidth, buttonHeight, this.images.exitBtn);
     }
@@ -926,29 +948,38 @@ class Menu {
      */
     handleTouchStart(e) {
         e.preventDefault();
-
         if (!this.imagesLoaded) return;
 
+        const { scaleX, scaleY, rect } = this.getTouchScaleFactors();
+
+        for (let i = 0; i < e.changedTouches.length; i++) {
+            const touch = e.changedTouches[i];
+            this.processTouchStartPoint(touch, scaleX, scaleY, rect);
+        }
+    }
+
+    getTouchScaleFactors() {
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = this.canvas.width / rect.width;
         const scaleY = this.canvas.height / rect.height;
+        return { scaleX, scaleY, rect };
+    }
 
-        // Process all touch points
-        for (let i = 0; i < e.changedTouches.length; i++) {
-            const touch = e.changedTouches[i];
-            const x = (touch.clientX - rect.left) * scaleX;
-            const y = (touch.clientY - rect.top) * scaleY;
+    processTouchStartPoint(touch, scaleX, scaleY, rect) {
+        const x = (touch.clientX - rect.left) * scaleX;
+        const y = (touch.clientY - rect.top) * scaleY;
 
-            // Only handle button presses when menu is active
-            if (this.isActive) {
-                // Check which button was pressed
-                Object.entries(this.buttonStates).forEach(([name, state]) => {
-                    if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
-                        state.pressed = true;
-                    }
-                });
-            }
+        if (this.isActive) {
+            this.checkButtonPress(x, y);
         }
+    }
+
+    checkButtonPress(x, y) {
+        Object.entries(this.buttonStates).forEach(([name, state]) => {
+            if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
+                state.pressed = true;
+            }
+        });
     }
 
     /**
@@ -956,24 +987,25 @@ class Menu {
      */
     handleTouchEnd(e) {
         e.preventDefault();
-
         if (!this.imagesLoaded) return;
 
-        const rect = this.canvas.getBoundingClientRect();
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
+        const { scaleX, scaleY, rect } = this.getTouchScaleFactors();
 
-        // Process all ended touches
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
-            const x = (touch.clientX - rect.left) * scaleX;
-            const y = (touch.clientY - rect.top) * scaleY;
-
-            // Trigger click at touch position
-            this.handleTouchClick(x, y);
+            this.processTouchEndPoint(touch, scaleX, scaleY, rect);
         }
 
-        // Reset all pressed states (only if menu is active)
+        this.resetButtonPressedStates();
+    }
+
+    processTouchEndPoint(touch, scaleX, scaleY, rect) {
+        const x = (touch.clientX - rect.left) * scaleX;
+        const y = (touch.clientY - rect.top) * scaleY;
+        this.handleTouchClick(x, y);
+    }
+
+    resetButtonPressedStates() {
         if (this.isActive) {
             Object.values(this.buttonStates).forEach(state => {
                 state.pressed = false;
@@ -993,36 +1025,39 @@ class Menu {
      * Handle touch click (replaces handleClick for touch)
      */
     handleTouchClick(x, y) {
-        // Check for pause button click when game is running (not in menu overlay)
+        if (this.handleTouchPauseButtonClick(x, y)) return;
+        if (!this.isActive) return;
+        if (this.handleTouchDialogClick(x, y)) return;
+        this.handleTouchMainMenuClick(x, y);
+    }
+
+    handleTouchPauseButtonClick(x, y) {
         if (!this.isActive && this.gameStarted && world && world.pauseButtonBounds) {
             if (this.isPointInButton(x, y, world.pauseButtonBounds)) {
                 this.togglePause();
-                return;
+                return true;
             }
         }
+        return false;
+    }
 
-        // Only handle menu clicks when menu is active
-        if (!this.isActive) return;
-
-        // Handle settings dialog clicks
+    handleTouchDialogClick(x, y) {
         if (this.currentDialog === 'settings') {
             this.handleSettingsClick(x, y);
-            return;
+            return true;
         }
-
-        // Handle controls dialog clicks
         if (this.currentDialog === 'controls') {
             this.handleControlsClick(x, y);
-            return;
+            return true;
         }
-
-        // Handle pause dialog clicks
         if (this.currentDialog === 'pause') {
             this.handlePauseClick(x, y);
-            return;
+            return true;
         }
+        return false;
+    }
 
-        // Main menu buttons (different behavior for Game Over and Victory)
+    handleTouchMainMenuClick(x, y) {
         const playBtn = this.buttonStates.play;
         if (playBtn.bounds && this.isPointInButton(x, y, playBtn.bounds)) {
             if (this.isGameOver || this.isVictory) {

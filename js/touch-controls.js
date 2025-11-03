@@ -38,71 +38,47 @@ class TouchControls {
      * Define all touch button positions and properties
      */
     defineButtons() {
-        const buttonSize = 60;
-        const smallButtonSize = 50;
-        const padding = 15;
-        const rightButtonOffset = 50;
-        const canvasWidth = this.canvas.width;
-        const canvasHeight = this.canvas.height;
+        const sizes = this.getButtonSizes();
+        const positions = this.calculateButtonPositions(sizes);
+        return this.createButtonDefinitions(sizes, positions);
+    }
+
+    getButtonSizes() {
+        return {
+            buttonSize: 60,
+            smallButtonSize: 50,
+            padding: 15,
+            rightButtonOffset: 50,
+            canvasWidth: this.canvas.width,
+            canvasHeight: this.canvas.height
+        };
+    }
+
+    calculateButtonPositions(sizes) {
+        const { buttonSize, smallButtonSize, padding, rightButtonOffset, canvasWidth, canvasHeight } = sizes;
 
         return {
-            // Left side - Movement controls
-            left: {
-                x: padding,
-                y: canvasHeight - buttonSize - padding,
-                width: buttonSize,
-                height: buttonSize,
-                label: '←',
-                key: 'LEFT',
-                color: 'rgba(45, 74, 62, 0.7)'
-            },
-            right: {
-                x: padding + buttonSize + 10,
-                y: canvasHeight - buttonSize - padding,
-                width: buttonSize,
-                height: buttonSize,
-                label: '→',
-                key: 'RIGHT',
-                color: 'rgba(45, 74, 62, 0.7)'
-            },
-            shift: {
-                x: padding + (buttonSize / 2) + 5,
-                y: canvasHeight - buttonSize * 2 - padding - 10,
-                width: smallButtonSize,
-                height: smallButtonSize,
-                label: '⚡',
-                key: 'SHIFT',
-                color: 'rgba(90, 138, 112, 0.7)'
-            },
+            leftX: padding,
+            rightX: padding + buttonSize + 10,
+            shiftX: padding + (buttonSize / 2) + 5,
+            bottomY: canvasHeight - buttonSize - padding,
+            shiftY: canvasHeight - buttonSize * 2 - padding - 10,
+            jumpX: canvasWidth - buttonSize - padding - rightButtonOffset,
+            attack1X: canvasWidth - buttonSize * 2 - padding - 10 - rightButtonOffset,
+            attack2X: canvasWidth - buttonSize * 3 - padding - 20 - rightButtonOffset
+        };
+    }
 
-            // Right side - Action controls (moved further from edge)
-            jump: {
-                x: canvasWidth - buttonSize - padding - rightButtonOffset,
-                y: canvasHeight - buttonSize - padding,
-                width: buttonSize,
-                height: buttonSize,
-                label: '↑',
-                key: 'SPACE',
-                color: 'rgba(164, 212, 180, 0.7)'
-            },
-            attack1: {
-                x: canvasWidth - buttonSize * 2 - padding - 10 - rightButtonOffset,
-                y: canvasHeight - buttonSize - padding,
-                width: buttonSize,
-                height: buttonSize,
-                label: 'D',
-                key: 'D',
-                color: 'rgba(90, 138, 112, 0.7)'
-            },
-            attack2: {
-                x: canvasWidth - buttonSize * 3 - padding - 20 - rightButtonOffset,
-                y: canvasHeight - buttonSize - padding,
-                width: buttonSize,
-                height: buttonSize,
-                label: 'E',
-                key: 'E',
-                color: 'rgba(90, 138, 112, 0.7)'
-            }
+    createButtonDefinitions(sizes, positions) {
+        const { buttonSize, smallButtonSize } = sizes;
+
+        return {
+            left: { x: positions.leftX, y: positions.bottomY, width: buttonSize, height: buttonSize, label: '←', key: 'LEFT', color: 'rgba(45, 74, 62, 0.7)' },
+            right: { x: positions.rightX, y: positions.bottomY, width: buttonSize, height: buttonSize, label: '→', key: 'RIGHT', color: 'rgba(45, 74, 62, 0.7)' },
+            shift: { x: positions.shiftX, y: positions.shiftY, width: smallButtonSize, height: smallButtonSize, label: '⚡', key: 'SHIFT', color: 'rgba(90, 138, 112, 0.7)' },
+            jump: { x: positions.jumpX, y: positions.bottomY, width: buttonSize, height: buttonSize, label: '↑', key: 'SPACE', color: 'rgba(164, 212, 180, 0.7)' },
+            attack1: { x: positions.attack1X, y: positions.bottomY, width: buttonSize, height: buttonSize, label: 'D', key: 'D', color: 'rgba(90, 138, 112, 0.7)' },
+            attack2: { x: positions.attack2X, y: positions.bottomY, width: buttonSize, height: buttonSize, label: 'E', key: 'E', color: 'rgba(90, 138, 112, 0.7)' }
         };
     }
 
@@ -122,30 +98,30 @@ class TouchControls {
     handleTouchStart(e) {
         e.preventDefault();
 
-        const rect = this.canvas.getBoundingClientRect();
+        const { scaleX, scaleY, rect } = this.getCanvasScaleFactors();
 
-        // Calculate scale factors (canvas logical size vs displayed size)
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
-
-        // Process all touch points
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
-            // Convert from displayed coordinates to canvas coordinates
-            const touchX = (touch.clientX - rect.left) * scaleX;
-            const touchY = (touch.clientY - rect.top) * scaleY;
+            this.processTouchStart(touch, scaleX, scaleY, rect);
+        }
+    }
 
-            // Check which button was touched
-            for (let [name, button] of Object.entries(this.buttons)) {
-                if (this.isTouchInButton(touchX, touchY, button)) {
-                    // Activate keyboard key
-                    this.keyboard[button.key] = true;
-                    this.activeTouches[touch.identifier] = name;
-                    console.log(`Touch start: ${name} (${button.key}) at ${touchX.toFixed(0)},${touchY.toFixed(0)}`);
-                    break;
-                }
+    processTouchStart(touch, scaleX, scaleY, rect) {
+        const touchX = (touch.clientX - rect.left) * scaleX;
+        const touchY = (touch.clientY - rect.top) * scaleY;
+
+        for (let [name, button] of Object.entries(this.buttons)) {
+            if (this.isTouchInButton(touchX, touchY, button)) {
+                this.activateTouchButton(touch.identifier, name, button, touchX, touchY);
+                break;
             }
         }
+    }
+
+    activateTouchButton(touchId, buttonName, button, touchX, touchY) {
+        this.keyboard[button.key] = true;
+        this.activeTouches[touchId] = buttonName;
+        console.log(`Touch start: ${buttonName} (${button.key}) at ${touchX.toFixed(0)},${touchY.toFixed(0)}`);
     }
 
     /**
@@ -175,31 +151,39 @@ class TouchControls {
     handleTouchMove(e) {
         e.preventDefault();
 
-        const rect = this.canvas.getBoundingClientRect();
+        const { scaleX, scaleY, rect } = this.getCanvasScaleFactors();
 
-        // Calculate scale factors (canvas logical size vs displayed size)
-        const scaleX = this.canvas.width / rect.width;
-        const scaleY = this.canvas.height / rect.height;
-
-        // Check if active touches moved outside their buttons
         for (let i = 0; i < e.touches.length; i++) {
             const touch = e.touches[i];
-            const buttonName = this.activeTouches[touch.identifier];
+            this.checkTouchMovedOutsideButton(touch, scaleX, scaleY, rect);
+        }
+    }
 
-            if (buttonName) {
-                const button = this.buttons[buttonName];
-                // Convert from displayed coordinates to canvas coordinates
-                const touchX = (touch.clientX - rect.left) * scaleX;
-                const touchY = (touch.clientY - rect.top) * scaleY;
+    getCanvasScaleFactors() {
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.canvas.width / rect.width;
+        const scaleY = this.canvas.height / rect.height;
+        return { scaleX, scaleY, rect };
+    }
 
-                // If touch moved outside button, release it
-                if (!this.isTouchInButton(touchX, touchY, button)) {
-                    this.keyboard[button.key] = false;
-                    delete this.activeTouches[touch.identifier];
-                    console.log(`Touch moved out: ${buttonName} (${button.key})`);
-                }
+    checkTouchMovedOutsideButton(touch, scaleX, scaleY, rect) {
+        const buttonName = this.activeTouches[touch.identifier];
+
+        if (buttonName) {
+            const button = this.buttons[buttonName];
+            const touchX = (touch.clientX - rect.left) * scaleX;
+            const touchY = (touch.clientY - rect.top) * scaleY;
+
+            if (!this.isTouchInButton(touchX, touchY, button)) {
+                this.releaseTouchButton(touch.identifier, buttonName, button);
             }
         }
+    }
+
+    releaseTouchButton(touchId, buttonName, button) {
+        this.keyboard[button.key] = false;
+        delete this.activeTouches[touchId];
+        console.log(`Touch moved out: ${buttonName} (${button.key})`);
     }
 
     /**

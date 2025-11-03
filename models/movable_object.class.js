@@ -81,46 +81,67 @@ class MovableObject {
 
     // Collision Detection
     isColliding(obj) {
-        // Ignoriere Kollision mit toten Objekten
         if (obj.isDead) return false;
 
-        // Verwende die Collision-Box Werte wenn vorhanden
-        let myX = this.x + (this.collisionOffsetX || 0);
-        let myY = this.y + (this.collisionOffsetY || 0);
-        let myWidth = this.collisionWidth || this.width;
-        let myHeight = this.collisionHeight || this.height;
+        const myBox = this.getCollisionBox();
+        const objBox = this.getObjectCollisionBox(obj);
 
-        let objX = obj.x + (obj.collisionOffsetX || 0);
-        let objY = obj.y + (obj.collisionOffsetY || 0);
-        let objWidth = obj.collisionWidth || obj.width;
-        let objHeight = obj.collisionHeight || obj.height;
+        return this.checkBoxesOverlap(myBox, objBox);
+    }
 
-        return myX < objX + objWidth &&
-               myX + myWidth > objX &&
-               myY < objY + objHeight &&
-               myY + myHeight > objY;
+    getCollisionBox() {
+        return {
+            x: this.x + (this.collisionOffsetX || 0),
+            y: this.y + (this.collisionOffsetY || 0),
+            width: this.collisionWidth || this.width,
+            height: this.collisionHeight || this.height
+        };
+    }
+
+    getObjectCollisionBox(obj) {
+        return {
+            x: obj.x + (obj.collisionOffsetX || 0),
+            y: obj.y + (obj.collisionOffsetY || 0),
+            width: obj.collisionWidth || obj.width,
+            height: obj.collisionHeight || obj.height
+        };
+    }
+
+    checkBoxesOverlap(box1, box2) {
+        return box1.x < box2.x + box2.width &&
+               box1.x + box1.width > box2.x &&
+               box1.y < box2.y + box2.height &&
+               box1.y + box1.height > box2.y;
     }
 
     // Damage System
     takeDamage(damage) {
         if (this.isDead) return;
 
-        this.currentHP -= damage;
+        this.applyDamage(damage);
+        this.logDamage(damage);
+        this.playHitAnimationIfAlive();
+        this.checkIfDead();
+    }
 
-        // Verhindere negative HP
+    applyDamage(damage) {
+        this.currentHP -= damage;
         if (this.currentHP < 0) {
             this.currentHP = 0;
         }
+    }
 
-        // Debug-Ausgabe
+    logDamage(damage) {
         console.log(`${this.constructor.name} took ${damage} damage. HP: ${this.currentHP}/${this.maxHP}`);
+    }
 
-        // Trigger Take Hit Animation (wenn verfügbar)
+    playHitAnimationIfAlive() {
         if (this.playTakeHitAnimation && this.currentHP > 0) {
             this.playTakeHitAnimation();
         }
+    }
 
-        // Prüfe ob tot
+    checkIfDead() {
         if (this.currentHP === 0) {
             this.die();
         }

@@ -184,19 +184,26 @@ class Goblin extends MovableObject {
 
         let now = Date.now();
         if (now - this.lastAttackFrameTime > this.attackAnimationSpeed) {
-            this.currentAttackFrame++;
-
-            // Bei attackHitFrame Schaden zufügen
-            if (this.currentAttackFrame === this.attackHitFrame && this.world) {
-                this.dealDamageToCharacter();
-            }
-
-            if (this.currentAttackFrame >= this.attackFrameCount) {
-                this.isAttacking = false;
-                this.currentAttackFrame = 0;
-            }
-            this.lastAttackFrameTime = now;
+            this.advanceAttackFrame(now);
         }
+    }
+
+    advanceAttackFrame(now) {
+        this.currentAttackFrame++;
+
+        if (this.currentAttackFrame === this.attackHitFrame && this.world) {
+            this.dealDamageToCharacter();
+        }
+
+        if (this.currentAttackFrame >= this.attackFrameCount) {
+            this.endAttackAnimation();
+        }
+        this.lastAttackFrameTime = now;
+    }
+
+    endAttackAnimation() {
+        this.isAttacking = false;
+        this.currentAttackFrame = 0;
     }
 
     updateDeathAnimation() {
@@ -216,32 +223,38 @@ class Goblin extends MovableObject {
     drawSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         if (!image || !image.complete) return;
 
-        // Disable image smoothing for crisp pixel art
         ctx.imageSmoothingEnabled = false;
 
         if (this.otherDirection) {
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.drawImage(
-                image,
-                frameX, 0,
-                frameWidth, frameHeight,
-                -this.x - displayWidth, this.y,
-                displayWidth, displayHeight
-            );
-            ctx.restore();
+            this.drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
         } else {
-            ctx.drawImage(
-                image,
-                frameX, 0,
-                frameWidth, frameHeight,
-                this.x, this.y,
-                displayWidth, displayHeight
-            );
+            this.drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
         }
 
-        // Re-enable image smoothing for other objects
         ctx.imageSmoothingEnabled = true;
+    }
+
+    drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(
+            image,
+            frameX, 0,
+            frameWidth, frameHeight,
+            -this.x - displayWidth, this.y,
+            displayWidth, displayHeight
+        );
+        ctx.restore();
+    }
+
+    drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+        ctx.drawImage(
+            image,
+            frameX, 0,
+            frameWidth, frameHeight,
+            this.x, this.y,
+            displayWidth, displayHeight
+        );
     }
 
     drawIdleSprite(ctx) {
@@ -281,51 +294,59 @@ class Goblin extends MovableObject {
 
     patrol() {
         this.patrolIntervalId = setInterval(() => {
-            // Check if game is paused
-            if (this.world && this.world.isPaused) return;
-            
-            if (this.isDead) return;
+            if (this.shouldSkipPatrol()) return;
 
-            // Blockiere Bewegung während Attack
-            if (this.isAttacking) return;
-
-            // Wenn Aggro: Bewege sanft zum Character
             if (this.isAggro) {
-                let distanceToTarget = this.targetCharacterX - this.x;
-                let absDistance = Math.abs(distanceToTarget);
-
-                // Dead Zone: Wenn Character sehr nah ist (±30px), nicht mehr bewegen/drehen
-                if (absDistance < 30) {
-                    return;
-                }
-
-                if (distanceToTarget < 0) {
-                    // Character ist links
-                    this.x -= this.speed * 0.7; // 30% langsamer für sanfte Verfolgung
-                    this.otherDirection = true;
-                } else {
-                    // Character ist rechts
-                    this.x += this.speed * 0.7;
-                    this.otherDirection = false;
-                }
+                this.handleAggroMovement();
             } else {
-                // Normale Patrol-Bewegung
-                if (this.movingRight) {
-                    this.x += this.speed;
-                    this.otherDirection = false;
-                } else {
-                    this.x -= this.speed;
-                    this.otherDirection = true;
-                }
-
-                // Prüfe Patrol-Grenzen und drehe um
-                if (this.x >= this.patrolEndX) {
-                    this.movingRight = false;
-                } else if (this.x <= this.patrolStartX) {
-                    this.movingRight = true;
-                }
+                this.handlePatrolMovement();
             }
         }, 1000 / 60);
+    }
+
+    shouldSkipPatrol() {
+        if (this.world && this.world.isPaused) return true;
+        if (this.isDead) return true;
+        if (this.isAttacking) return true;
+        return false;
+    }
+
+    handleAggroMovement() {
+        let distanceToTarget = this.targetCharacterX - this.x;
+        let absDistance = Math.abs(distanceToTarget);
+
+        // Dead Zone: Wenn Character sehr nah ist (±30px), nicht mehr bewegen/drehen
+        if (absDistance < 30) {
+            return;
+        }
+
+        if (distanceToTarget < 0) {
+            // Character ist links
+            this.x -= this.speed * 0.7; // 30% langsamer für sanfte Verfolgung
+            this.otherDirection = true;
+        } else {
+            // Character ist rechts
+            this.x += this.speed * 0.7;
+            this.otherDirection = false;
+        }
+    }
+
+    handlePatrolMovement() {
+        // Normale Patrol-Bewegung
+        if (this.movingRight) {
+            this.x += this.speed;
+            this.otherDirection = false;
+        } else {
+            this.x -= this.speed;
+            this.otherDirection = true;
+        }
+
+        // Prüfe Patrol-Grenzen und drehe um
+        if (this.x >= this.patrolEndX) {
+            this.movingRight = false;
+        } else if (this.x <= this.patrolStartX) {
+            this.movingRight = true;
+        }
     }
 
     setAggro(character) {

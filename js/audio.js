@@ -132,28 +132,40 @@ class AudioManager {
      */
     playWithFallback(audio) {
         const playPromise = audio.play();
-        
+
         if (playPromise !== undefined) {
-            playPromise.then(() => {
-                console.log('Audio playing:', audio.src.split('/').pop());
-            }).catch((error) => {
-                console.warn('Autoplay prevented - will play after user interaction:', error);
-                
-                // Event listener für erste User-Interaktion
-                const playAfterInteraction = () => {
-                    if (this.musicEnabled && this.currentMusic === audio) {
-                        audio.play().then(() => {
-                            console.log('Audio playing after user interaction:', audio.src.split('/').pop());
-                        });
-                    }
-                    document.removeEventListener('click', playAfterInteraction);
-                    document.removeEventListener('touchstart', playAfterInteraction);
-                };
-                
-                document.addEventListener('click', playAfterInteraction, { once: true });
-                document.addEventListener('touchstart', playAfterInteraction, { once: true });
+            playPromise
+                .then(() => this.logAudioPlaying(audio))
+                .catch((error) => this.handleAutoplayPrevented(audio, error));
+        }
+    }
+
+    logAudioPlaying(audio) {
+        console.log('Audio playing:', audio.src.split('/').pop());
+    }
+
+    handleAutoplayPrevented(audio, error) {
+        console.warn('Autoplay prevented - will play after user interaction:', error);
+        this.setupPlayAfterInteraction(audio);
+    }
+
+    setupPlayAfterInteraction(audio) {
+        const playAfterInteraction = () => {
+            this.tryPlayAfterInteraction(audio, playAfterInteraction);
+        };
+
+        document.addEventListener('click', playAfterInteraction, { once: true });
+        document.addEventListener('touchstart', playAfterInteraction, { once: true });
+    }
+
+    tryPlayAfterInteraction(audio, handler) {
+        if (this.musicEnabled && this.currentMusic === audio) {
+            audio.play().then(() => {
+                console.log('Audio playing after user interaction:', audio.src.split('/').pop());
             });
         }
+        document.removeEventListener('click', handler);
+        document.removeEventListener('touchstart', handler);
     }
     
     /**

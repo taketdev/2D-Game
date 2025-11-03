@@ -147,60 +147,72 @@ class Endboss extends MovableObject {
     }
 
     updateMovement() {
-        // Blockiere Bewegung während Attack
+        if (this.shouldStopMovement()) return;
+
+        if (this.isAggro && this.isWalking) {
+            this.moveTowardsTarget();
+        }
+    }
+
+    shouldStopMovement() {
         if (this.isAttacking2 || this.isAttacking3) {
+            this.isWalking = false;
+            return true;
+        }
+
+        if (this.world && this.world.character && this.world.character.isDead) {
+            this.isWalking = false;
+            return true;
+        }
+
+        return false;
+    }
+
+    moveTowardsTarget() {
+        let distanceToTarget = this.targetCharacterX - this.x;
+        let absDistance = Math.abs(distanceToTarget);
+
+        if (absDistance < 50) {
             this.isWalking = false;
             return;
         }
 
-        // Prüfe ob Character tot ist
-        if (this.world && this.world.character && this.world.character.isDead) {
-            this.isWalking = false;
-            return; // Keine Bewegung wenn Character tot
-        }
-
-        if (this.isAggro && this.isWalking) {
-            let distanceToTarget = this.targetCharacterX - this.x;
-            let absDistance = Math.abs(distanceToTarget);
-
-            // Dead Zone: Wenn Character sehr nah ist (±50px), nicht mehr bewegen/drehen
-            if (absDistance < 50) {
-                this.isWalking = false;
-                return;
-            }
-
-            // Bestimme Bewegungsrichtung zum Character
-            if (distanceToTarget < 0) {
-                // Character ist links vom Boss
-                this.x -= this.speed;
-                this.otherDirection = false; // Schaut nach links (Sprite umgekehrt)
-            } else {
-                // Character ist rechts vom Boss
-                this.x += this.speed;
-                this.otherDirection = true; // Schaut nach rechts (Sprite umgekehrt)
-            }
+        if (distanceToTarget < 0) {
+            this.x -= this.speed;
+            this.otherDirection = false;
+        } else {
+            this.x += this.speed;
+            this.otherDirection = true;
         }
     }
 
     setAggro(character) {
-        // Blockiere Aggro-Update wenn tot
         if (character.isDead) {
-            this.isAggro = false;
-            this.isWalking = false;
+            this.deactivateAggro();
             return;
         }
 
+        this.updateAggroState(character);
+        this.updateWalkingState(character);
+        this.targetCharacterX = character.x;
+    }
+
+    deactivateAggro() {
+        this.isAggro = false;
+        this.isWalking = false;
+    }
+
+    updateAggroState(character) {
         let distance = Math.abs(this.x - character.x);
         this.isAggro = distance <= this.aggroRange;
+    }
 
-        // Nur Walking aktivieren wenn nicht zu nah (Dead Zone)
+    updateWalkingState(character) {
         if (Math.abs(character.x - this.x) >= 50) {
             this.isWalking = this.isAggro;
         } else {
             this.isWalking = false;
         }
-
-        this.targetCharacterX = character.x; // Speichere Character Position
     }
 
     loadIdleImage(path) {
@@ -274,19 +286,26 @@ class Endboss extends MovableObject {
 
         let now = Date.now();
         if (now - this.lastAttack2FrameTime > this.attack2AnimationSpeed) {
-            this.currentAttack2Frame++;
-
-            // Bei attack2HitFrame Schaden zufügen
-            if (this.currentAttack2Frame === this.attack2HitFrame && this.world) {
-                this.dealDamageToCharacter(CONFIG.DAMAGE.ENDBOSS_ATTACK2);
-            }
-
-            if (this.currentAttack2Frame >= this.attack2FrameCount) {
-                this.isAttacking2 = false;
-                this.currentAttack2Frame = 0;
-            }
-            this.lastAttack2FrameTime = now;
+            this.advanceAttack2Frame(now);
         }
+    }
+
+    advanceAttack2Frame(now) {
+        this.currentAttack2Frame++;
+
+        if (this.currentAttack2Frame === this.attack2HitFrame && this.world) {
+            this.dealDamageToCharacter(CONFIG.DAMAGE.ENDBOSS_ATTACK2);
+        }
+
+        if (this.currentAttack2Frame >= this.attack2FrameCount) {
+            this.endAttack2Animation();
+        }
+        this.lastAttack2FrameTime = now;
+    }
+
+    endAttack2Animation() {
+        this.isAttacking2 = false;
+        this.currentAttack2Frame = 0;
     }
 
     updateAttack3Animation() {
@@ -294,19 +313,26 @@ class Endboss extends MovableObject {
 
         let now = Date.now();
         if (now - this.lastAttack3FrameTime > this.attack3AnimationSpeed) {
-            this.currentAttack3Frame++;
-
-            // Bei attack3HitFrame Schaden zufügen
-            if (this.currentAttack3Frame === this.attack3HitFrame && this.world) {
-                this.dealDamageToCharacter(CONFIG.DAMAGE.ENDBOSS_ATTACK3);
-            }
-
-            if (this.currentAttack3Frame >= this.attack3FrameCount) {
-                this.isAttacking3 = false;
-                this.currentAttack3Frame = 0;
-            }
-            this.lastAttack3FrameTime = now;
+            this.advanceAttack3Frame(now);
         }
+    }
+
+    advanceAttack3Frame(now) {
+        this.currentAttack3Frame++;
+
+        if (this.currentAttack3Frame === this.attack3HitFrame && this.world) {
+            this.dealDamageToCharacter(CONFIG.DAMAGE.ENDBOSS_ATTACK3);
+        }
+
+        if (this.currentAttack3Frame >= this.attack3FrameCount) {
+            this.endAttack3Animation();
+        }
+        this.lastAttack3FrameTime = now;
+    }
+
+    endAttack3Animation() {
+        this.isAttacking3 = false;
+        this.currentAttack3Frame = 0;
     }
 
     updateDeathAnimation() {
@@ -326,32 +352,38 @@ class Endboss extends MovableObject {
     drawSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         if (!image || !image.complete) return;
 
-        // Disable image smoothing for crisp pixel art
         ctx.imageSmoothingEnabled = false;
 
         if (this.otherDirection) {
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.drawImage(
-                image,
-                frameX, 0,
-                frameWidth, frameHeight,
-                -this.x - displayWidth, this.y,
-                displayWidth, displayHeight
-            );
-            ctx.restore();
+            this.drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
         } else {
-            ctx.drawImage(
-                image,
-                frameX, 0,
-                frameWidth, frameHeight,
-                this.x, this.y,
-                displayWidth, displayHeight
-            );
+            this.drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
         }
 
-        // Re-enable image smoothing for other objects
         ctx.imageSmoothingEnabled = true;
+    }
+
+    drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(
+            image,
+            frameX, 0,
+            frameWidth, frameHeight,
+            -this.x - displayWidth, this.y,
+            displayWidth, displayHeight
+        );
+        ctx.restore();
+    }
+
+    drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+        ctx.drawImage(
+            image,
+            frameX, 0,
+            frameWidth, frameHeight,
+            this.x, this.y,
+            displayWidth, displayHeight
+        );
     }
 
     drawIdleSprite(ctx) {
@@ -416,25 +448,40 @@ class Endboss extends MovableObject {
         if (this.isDead || this.isAttacking2 || this.isAttacking3) return;
 
         let distance = Math.abs(this.x - character.x);
-        let now = Date.now();
-
-        // Prüfe ob in Attack-Range
         if (distance <= this.attackRange) {
-            // 50% Chance für Attack2 oder Attack3
-            let useAttack3 = Math.random() > 0.5;
-
-            if (useAttack3 && now - this.lastAttack3Time >= this.attack3Cooldown) {
-                // Attack3 (stärkerer Angriff)
-                this.isAttacking3 = true;
-                this.currentAttack3Frame = 0;
-                this.lastAttack3Time = now;
-            } else if (!useAttack3 && now - this.lastAttack2Time >= this.attack2Cooldown) {
-                // Attack2 (schnellerer Angriff)
-                this.isAttacking2 = true;
-                this.currentAttack2Frame = 0;
-                this.lastAttack2Time = now;
-            }
+            this.executeRandomAttack();
         }
+    }
+
+    executeRandomAttack() {
+        let now = Date.now();
+        let useAttack3 = Math.random() > 0.5;
+
+        if (useAttack3 && this.canUseAttack3(now)) {
+            this.startAttack3(now);
+        } else if (!useAttack3 && this.canUseAttack2(now)) {
+            this.startAttack2(now);
+        }
+    }
+
+    canUseAttack3(now) {
+        return now - this.lastAttack3Time >= this.attack3Cooldown;
+    }
+
+    startAttack3(now) {
+        this.isAttacking3 = true;
+        this.currentAttack3Frame = 0;
+        this.lastAttack3Time = now;
+    }
+
+    canUseAttack2(now) {
+        return now - this.lastAttack2Time >= this.attack2Cooldown;
+    }
+
+    startAttack2(now) {
+        this.isAttacking2 = true;
+        this.currentAttack2Frame = 0;
+        this.lastAttack2Time = now;
     }
 
     // Schaden an Character zufügen bei Attack-Frame

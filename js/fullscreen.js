@@ -12,28 +12,40 @@ document.addEventListener('DOMContentLoaded', function() {
         const isLandscape = window.innerWidth > window.innerHeight;
 
         if (isMobile && !isLandscape) {
-            // Mobile in portrait - show rotation message and pause game
-            body.classList.add('portrait-warning');
-            if (typeof world !== 'undefined' && world && !world.isPaused) {
-                world.isPaused = true;
-                // Pause music when game is paused
-                if (typeof audioManager !== 'undefined' && audioManager) {
-                    audioManager.pauseMusic();
-                }
-                console.log('Game paused: Portrait mode - please rotate device');
-            }
+            handlePortraitMode();
         } else {
-            // Landscape or desktop - remove warning and resume game
-            body.classList.remove('portrait-warning');
-            if (typeof world !== 'undefined' && world && world.isPaused && !menu.isActive) {
-                world.isPaused = false;
-                // Resume music when game is resumed
-                if (typeof audioManager !== 'undefined' && audioManager) {
-                    audioManager.resumeMusic();
-                }
-                console.log('Game resumed: Landscape mode');
-            }
+            handleLandscapeMode();
         }
+    }
+
+    function handlePortraitMode() {
+        body.classList.add('portrait-warning');
+        if (typeof world !== 'undefined' && world && !world.isPaused) {
+            pauseGameForPortrait();
+        }
+    }
+
+    function pauseGameForPortrait() {
+        world.isPaused = true;
+        if (typeof audioManager !== 'undefined' && audioManager) {
+            audioManager.pauseMusic();
+        }
+        console.log('Game paused: Portrait mode - please rotate device');
+    }
+
+    function handleLandscapeMode() {
+        body.classList.remove('portrait-warning');
+        if (typeof world !== 'undefined' && world && world.isPaused && !menu.isActive) {
+            resumeGameForLandscape();
+        }
+    }
+
+    function resumeGameForLandscape() {
+        world.isPaused = false;
+        if (typeof audioManager !== 'undefined' && audioManager) {
+            audioManager.resumeMusic();
+        }
+        console.log('Game resumed: Landscape mode');
     }
 
     // Listen for orientation changes

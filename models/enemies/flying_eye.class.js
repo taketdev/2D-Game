@@ -118,19 +118,26 @@ class FlyingEye extends MovableObject {
 
         let now = Date.now();
         if (now - this.lastAttackFrameTime > this.attackAnimationSpeed) {
-            this.currentAttackFrame++;
-
-            // Bei attackHitFrame Schaden zufügen
-            if (this.currentAttackFrame === this.attackHitFrame && this.world) {
-                this.dealDamageToCharacter();
-            }
-
-            if (this.currentAttackFrame >= this.attackFrameCount) {
-                this.isAttacking = false;
-                this.currentAttackFrame = 0;
-            }
-            this.lastAttackFrameTime = now;
+            this.advanceAttackFrame(now);
         }
+    }
+
+    advanceAttackFrame(now) {
+        this.currentAttackFrame++;
+
+        if (this.currentAttackFrame === this.attackHitFrame && this.world) {
+            this.dealDamageToCharacter();
+        }
+
+        if (this.currentAttackFrame >= this.attackFrameCount) {
+            this.endAttackAnimation();
+        }
+        this.lastAttackFrameTime = now;
+    }
+
+    endAttackAnimation() {
+        this.isAttacking = false;
+        this.currentAttackFrame = 0;
     }
 
     updateDeathAnimation() {
@@ -150,32 +157,38 @@ class FlyingEye extends MovableObject {
     drawSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         if (!image || !image.complete) return;
 
-        // Disable image smoothing for crisp pixel art
         ctx.imageSmoothingEnabled = false;
 
         if (this.otherDirection) {
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.drawImage(
-                image,
-                frameX, 0,
-                frameWidth, frameHeight,
-                -this.x - displayWidth, this.y,
-                displayWidth, displayHeight
-            );
-            ctx.restore();
+            this.drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
         } else {
-            ctx.drawImage(
-                image,
-                frameX, 0,
-                frameWidth, frameHeight,
-                this.x, this.y,
-                displayWidth, displayHeight
-            );
+            this.drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
         }
 
-        // Re-enable image smoothing for other objects
         ctx.imageSmoothingEnabled = true;
+    }
+
+    drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(
+            image,
+            frameX, 0,
+            frameWidth, frameHeight,
+            -this.x - displayWidth, this.y,
+            displayWidth, displayHeight
+        );
+        ctx.restore();
+    }
+
+    drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+        ctx.drawImage(
+            image,
+            frameX, 0,
+            frameWidth, frameHeight,
+            this.x, this.y,
+            displayWidth, displayHeight
+        );
     }
 
     drawFlightSprite(ctx) {
@@ -201,39 +214,49 @@ class FlyingEye extends MovableObject {
 
     moveWithWave() {
         setInterval(() => {
-            // Check if game is paused
             if (this.world && this.world.isPaused) return;
-            
-            if (this.isDead && !this.isFalling) {
-                // Start falling when dead
-                this.isFalling = true;
-                this.fallSpeed = 0;
-            }
 
-            if (this.isFalling) {
-                // Fall to ground with gravity
-                if (this.y < this.groundY) {
-                    this.fallSpeed += this.fallAcceleration;
-                    this.y += this.fallSpeed;
-
-                    // Stop at ground
-                    if (this.y >= this.groundY) {
-                        this.y = this.groundY;
-                        this.isFalling = false;
-                    }
-                }
-                return;
-            }
-
+            if (this.handleDeathFalling()) return;
             if (this.isDead) return;
 
-            // Bewege horizontal nach links
-            this.x -= this.speed;
-
-            // Bewege vertikal in Wellenbewegung (Sinus-Kurve)
-            this.waveOffset += this.waveFrequency;
-            this.y = this.startY + Math.sin(this.waveOffset) * this.waveAmplitude;
+            this.updateHorizontalMovement();
+            this.updateWaveMovement();
         }, 1000 / 60);
+    }
+
+    handleDeathFalling() {
+        if (this.isDead && !this.isFalling) {
+            this.isFalling = true;
+            this.fallSpeed = 0;
+        }
+
+        if (this.isFalling) {
+            this.applyFallingGravity();
+            return true;
+        }
+
+        return false;
+    }
+
+    applyFallingGravity() {
+        if (this.y < this.groundY) {
+            this.fallSpeed += this.fallAcceleration;
+            this.y += this.fallSpeed;
+
+            if (this.y >= this.groundY) {
+                this.y = this.groundY;
+                this.isFalling = false;
+            }
+        }
+    }
+
+    updateHorizontalMovement() {
+        this.x -= this.speed;
+    }
+
+    updateWaveMovement() {
+        this.waveOffset += this.waveFrequency;
+        this.y = this.startY + Math.sin(this.waveOffset) * this.waveAmplitude;
     }
 
     animate() {

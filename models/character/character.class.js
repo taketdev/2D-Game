@@ -392,23 +392,27 @@ class Character extends MovableObject {
     }
 
     animate() {
-        // Movement and controls (60 FPS)
+        this.startMovementLoop();
+        this.startAnimationLoop();
+        this.startManaRegenerationLoop();
+    }
+
+    startMovementLoop() {
         this.movementIntervalId = setInterval(() => {
-            // Check if game is paused
             if (this.world && this.world.isPaused) return;
-            
+
             this.updateKnockback();
             this.handleMovement();
             this.updateCamera();
             this.updateAttack1Animation();
             this.updateAttack2Animation();
         }, 1000 / 60);
+    }
 
-        // Animation updates (10 FPS)
+    startAnimationLoop() {
         this.animationIntervalId = setInterval(() => {
-            // Check if game is paused
             if (this.world && this.world.isPaused) return;
-            
+
             this.updateIdleAnimation();
             this.updateWalkAnimation();
             this.updateJumpAnimation();
@@ -416,12 +420,12 @@ class Character extends MovableObject {
             this.updateHurtAnimation();
             this.updateDeathAnimation();
         }, 100);
+    }
 
-        // Mana Regeneration (jede Sekunde)
+    startManaRegenerationLoop() {
         this.manaRegenIntervalId = setInterval(() => {
-            // Check if game is paused
             if (this.world && this.world.isPaused) return;
-            
+
             this.regenerateMana();
         }, 1000);
     }
@@ -465,12 +469,16 @@ class Character extends MovableObject {
     }
 
 handleMovement() {
-    if (!this.world) return;
+    if (!this.world || this.isDead) return;
 
-    // Blockiere Bewegung wenn Character tot ist
-    if (this.isDead) return;
+    this.handleAttackInput();
+    if (this.isAttacking1 || this.isAttacking2) return;
 
-    // Attack 1 (D key) - nur wenn nicht bereits am Attackieren
+    const movementState = this.handleMovementInput();
+    this.updateMovementStatus(movementState);
+}
+
+handleAttackInput() {
     if (this.world.keyboard.D && !this.isAttacking1 && !this.isAttacking2) {
         let now = Date.now();
         if (now - this.lastAttack1Time >= this.attack1Cooldown) {
@@ -479,7 +487,6 @@ handleMovement() {
         }
     }
 
-    // Attack 2 (E key) - nur wenn nicht bereits am Attackieren
     if (this.world.keyboard.E && !this.isAttacking1 && !this.isAttacking2) {
         let now = Date.now();
         if (now - this.lastAttack2Time >= this.attack2Cooldown) {
@@ -487,44 +494,37 @@ handleMovement() {
             this.lastAttack2Time = now;
         }
     }
+}
 
-    // Blockiere Bewegung während Attack
-    if (this.isAttacking1 || this.isAttacking2) return;
-
-    // Checken ob irgendwas gedrückt wird
+handleMovementInput() {
     let isMoving = false;
-    let isRunning = false;
+    let isRunning = this.world.keyboard.SHIFT;
 
-    // Check if Shift is pressed for running
-    if (this.world.keyboard.SHIFT) {
-        isRunning = true;
-    }
-
-    // Move right
     if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-        let moveSpeed = isRunning ? this.speed * 1.3 : this.speed; // Nur 30% schneller beim Rennen
+        let moveSpeed = isRunning ? this.speed * 1.3 : this.speed;
         this.x += moveSpeed;
         this.otherDirection = false;
         isMoving = true;
     }
 
-    // Move left
     if (this.world.keyboard.LEFT && this.x > this.world.level.level_start_x) {
-        let moveSpeed = isRunning ? this.speed * 1.3 : this.speed; // Nur 30% schneller beim Rennen
+        let moveSpeed = isRunning ? this.speed * 1.3 : this.speed;
         this.x -= moveSpeed;
         this.otherDirection = true;
         isMoving = true;
     }
 
-    // Jump (Space or Up arrow)
     if (this.world.keyboard.SPACE || this.world.keyboard.UP) {
         this.jump();
         isMoving = true;
     }
 
-    // Setze Status
-    this.isIdle = !isMoving && !this.isAboveGround();
-    this.isRunning = isRunning && isMoving && !this.isAboveGround();
+    return { isMoving, isRunning };
+}
+
+updateMovementStatus(movementState) {
+    this.isIdle = !movementState.isMoving && !this.isAboveGround();
+    this.isRunning = movementState.isRunning && movementState.isMoving && !this.isAboveGround();
 }
 
     updateCamera() {

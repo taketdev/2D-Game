@@ -165,18 +165,23 @@ class World {
 
     checkProjectileCollisions() {
         this.projectiles.forEach(projectile => {
-            if (projectile.hasHit) return; // Bereits getroffenes Projektil ignorieren
-
-            this.level.enemies.forEach(enemy => {
-                if (enemy.isDead) return; // Tote Enemies ignorieren
-
-                if (projectile.isColliding(enemy)) {
-                    // Projektil hat Gegner getroffen
-                    enemy.takeDamage(projectile.damage);
-                    projectile.hit(); // Markiere Projektil als getroffen
-                }
-            });
+            if (projectile.hasHit) return;
+            this.checkProjectileAgainstEnemies(projectile);
         });
+    }
+
+    checkProjectileAgainstEnemies(projectile) {
+        this.level.enemies.forEach(enemy => {
+            if (enemy.isDead) return;
+            if (projectile.isColliding(enemy)) {
+                this.handleProjectileHit(projectile, enemy);
+            }
+        });
+    }
+
+    handleProjectileHit(projectile, enemy) {
+        enemy.takeDamage(projectile.damage);
+        projectile.hit();
     }
 
     checkCollectibleCollisions() {
@@ -194,19 +199,26 @@ class World {
 
     collectItem(collectible) {
         collectible.collected = true;
+        this.restoreHealth(collectible.healthRestore);
+        this.restoreMana(collectible.manaRestore);
+        this.logCollectionStats();
+    }
 
-        // Restore Health (max 100)
-        this.character.currentHP += collectible.healthRestore;
+    restoreHealth(amount) {
+        this.character.currentHP += amount;
         if (this.character.currentHP > this.character.maxHP) {
             this.character.currentHP = this.character.maxHP;
         }
+    }
 
-        // Restore Mana (max 100)
-        this.character.currentMana += collectible.manaRestore;
+    restoreMana(amount) {
+        this.character.currentMana += amount;
         if (this.character.currentMana > this.character.maxMana) {
             this.character.currentMana = this.character.maxMana;
         }
+    }
 
+    logCollectionStats() {
         console.log(`Scroll collected! HP: ${this.character.currentHP}/${this.character.maxHP}, Mana: ${this.character.currentMana}/${this.character.maxMana}`);
     }
 
@@ -287,68 +299,88 @@ class World {
     }
 
     drawHUD() {
-        // Update StatusBar Prozente basierend auf Character Werten
+        this.updateStatusBars();
+        this.drawStatusBars();
+        this.drawBossHealthBar();
+        this.drawPauseButtonIfNotPaused();
+        this.drawTouchControlsIfMobile();
+    }
+
+    updateStatusBars() {
         let healthPercentage = (this.character.currentHP / this.character.maxHP) * 100;
         let manaPercentage = (this.character.currentMana / this.character.maxMana) * 100;
-
         this.healthBar.setPercentage(healthPercentage);
         this.manaBar.setPercentage(manaPercentage);
+    }
 
-        // Zeichne StatusBars
+    drawStatusBars() {
         this.healthBar.draw(this.ctx);
         this.manaBar.draw(this.ctx);
+    }
 
-        // Zeichne Boss Health Bar nur wenn Endboss in Sichtweite
-        this.drawBossHealthBar();
-
-        // Draw pause button (bottom right) - only when game is not paused
+    drawPauseButtonIfNotPaused() {
         if (!this.isPaused) {
             this.drawPauseButton();
         }
+    }
 
-        // Draw touch controls (only on mobile and when not paused)
+    drawTouchControlsIfMobile() {
         if (typeof isMobileDevice === 'function' && isMobileDevice() && !this.isPaused && touchControls) {
             touchControls.draw(this.ctx);
         }
     }
 
     drawPauseButton() {
+        const dimensions = this.getPauseButtonDimensions();
+        this.drawPauseButtonBackground(dimensions);
+        this.drawPauseIcon(dimensions);
+        this.storePauseButtonBounds(dimensions);
+    }
+
+    getPauseButtonDimensions() {
         const pauseIconSize = 40;
         const pauseIconX = this.canvas.width - pauseIconSize - 15;
         const pauseIconY = this.canvas.height - pauseIconSize - 15;
+        return { pauseIconSize, pauseIconX, pauseIconY };
+    }
 
-        // Simple pause icon using canvas drawing (since we might not have the image loaded)
+    drawPauseButtonBackground(dimensions) {
         this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-        this.ctx.fillRect(pauseIconX, pauseIconY, pauseIconSize, pauseIconSize);
-        
-        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-        this.ctx.fillRect(pauseIconX + 12, pauseIconY + 8, 5, 24);
-        this.ctx.fillRect(pauseIconX + 23, pauseIconY + 8, 5, 24);
+        this.ctx.fillRect(dimensions.pauseIconX, dimensions.pauseIconY, dimensions.pauseIconSize, dimensions.pauseIconSize);
+    }
 
-        // Store bounds for click detection
+    drawPauseIcon(dimensions) {
+        this.ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+        this.ctx.fillRect(dimensions.pauseIconX + 12, dimensions.pauseIconY + 8, 5, 24);
+        this.ctx.fillRect(dimensions.pauseIconX + 23, dimensions.pauseIconY + 8, 5, 24);
+    }
+
+    storePauseButtonBounds(dimensions) {
         this.pauseButtonBounds = {
-            x: pauseIconX,
-            y: pauseIconY,
-            width: pauseIconSize,
-            height: pauseIconSize
+            x: dimensions.pauseIconX,
+            y: dimensions.pauseIconY,
+            width: dimensions.pauseIconSize,
+            height: dimensions.pauseIconSize
         };
     }
 
     drawBossHealthBar() {
-        // Finde Endboss im Level
         let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
-
         if (!endboss || endboss.isDead) return;
-
-        // Prüfe ob Endboss in Sichtweite (innerhalb des Canvas)
-        let endbossScreenX = endboss.x + this.camera_x;
-        let isInView = endbossScreenX + endboss.width > -100 && endbossScreenX < this.canvas.width + 100;
-
-        if (isInView) {
-            let bossHealthPercentage = (endboss.currentHP / endboss.maxHP) * 100;
-            this.bossHealthBar.setPercentage(bossHealthPercentage);
-            this.bossHealthBar.draw(this.ctx);
+        if (this.isBossInView(endboss)) {
+            this.renderBossHealthBar(endboss);
         }
+    }
+
+    isBossInView(endboss) {
+        let endbossScreenX = endboss.x + this.camera_x;
+        return endbossScreenX + endboss.width > -100 && endbossScreenX < this.canvas.width + 100;
+    }
+
+    renderBossHealthBar(endboss) {
+        let bossHealthPercentage = (endboss.currentHP / endboss.maxHP) * 100;
+        this.bossHealthBar.setPercentage(bossHealthPercentage);
+        this.bossHealthBar.draw(this.ctx);
     }
 
     addObjectsToMap(objects) {
@@ -358,88 +390,101 @@ class World {
     }
 
     addToMap(mo) {
-        // Check if object is Endboss with sprite animations
         if (mo instanceof Endboss) {
-            if (mo.isDead) {
-                mo.drawDeathSprite(this.ctx);
-            } else if (mo.isTakingHit) {
-                mo.drawHitSprite(this.ctx);
-            } else if (mo.isAttacking3) {
-                mo.drawAttack3Sprite(this.ctx);
-            } else if (mo.isAttacking2) {
-                mo.drawAttack2Sprite(this.ctx);
-            } else if (mo.isWalking) {
-                mo.drawWalkSprite(this.ctx);
-            } else {
-                mo.drawIdleSprite(this.ctx);
-            }
+            this.drawEndboss(mo);
+        } else if (mo instanceof Goblin) {
+            this.drawGoblin(mo);
+        } else if (mo instanceof FlyingEye) {
+            this.drawFlyingEye(mo);
+        } else if (mo instanceof Mushroom) {
+            this.drawMushroom(mo);
+        } else if (mo instanceof Skeleton) {
+            this.drawSkeleton(mo);
+        } else {
+            this.drawGenericObject(mo);
         }
-        // Check if object is Goblin with sprite animations
-        else if (mo instanceof Goblin) {
-            if (mo.isDead) {
-                mo.drawDeathSprite(this.ctx);
-            } else if (mo.isTakingHit) {
-                mo.drawTakeHitSprite(this.ctx);
-            } else if (mo.isAttacking) {
-                mo.drawAttackSprite(this.ctx);
-            } else if (mo.isRunning) {
-                mo.drawRunSprite(this.ctx);
-            } else {
-                mo.drawIdleSprite(this.ctx);
-            }
+    }
+
+    drawEndboss(mo) {
+        if (mo.isDead) {
+            mo.drawDeathSprite(this.ctx);
+        } else if (mo.isTakingHit) {
+            mo.drawHitSprite(this.ctx);
+        } else if (mo.isAttacking3) {
+            mo.drawAttack3Sprite(this.ctx);
+        } else if (mo.isAttacking2) {
+            mo.drawAttack2Sprite(this.ctx);
+        } else if (mo.isWalking) {
+            mo.drawWalkSprite(this.ctx);
+        } else {
+            mo.drawIdleSprite(this.ctx);
         }
-        // Check if object is Flying Eye with sprite animations
-        else if (mo instanceof FlyingEye) {
-            if (mo.isDead) {
-                mo.drawDeathSprite(this.ctx);
-            } else if (mo.isAttacking) {
-                mo.drawAttackSprite(this.ctx);
-            } else {
-                mo.drawFlightSprite(this.ctx);
-            }
+    }
+
+    drawGoblin(mo) {
+        if (mo.isDead) {
+            mo.drawDeathSprite(this.ctx);
+        } else if (mo.isTakingHit) {
+            mo.drawTakeHitSprite(this.ctx);
+        } else if (mo.isAttacking) {
+            mo.drawAttackSprite(this.ctx);
+        } else if (mo.isRunning) {
+            mo.drawRunSprite(this.ctx);
+        } else {
+            mo.drawIdleSprite(this.ctx);
         }
-        // Check if object is Mushroom with sprite animations
-        else if (mo instanceof Mushroom) {
-            if (mo.isDead) {
-                mo.drawDeathSprite(this.ctx);
-            } else if (mo.isTakingHit) {
-                mo.drawTakeHitSprite(this.ctx);
-            } else if (mo.isAttacking) {
-                mo.drawAttackSprite(this.ctx);
-            } else if (mo.isRunning) {
-                mo.drawRunSprite(this.ctx);
-            } else {
-                mo.drawIdleSprite(this.ctx);
-            }
+    }
+
+    drawFlyingEye(mo) {
+        if (mo.isDead) {
+            mo.drawDeathSprite(this.ctx);
+        } else if (mo.isAttacking) {
+            mo.drawAttackSprite(this.ctx);
+        } else {
+            mo.drawFlightSprite(this.ctx);
         }
-        // Check if object is Skeleton with sprite animations
-        else if (mo instanceof Skeleton) {
-            if (mo.isDead) {
-                mo.drawDeathSprite(this.ctx);
-            } else if (mo.isTakingHit) {
-                mo.drawTakeHitSprite(this.ctx);
-            } else if (mo.isAttacking) {
-                mo.drawAttackSprite(this.ctx);
-            } else if (mo.isWalking) {
-                mo.drawWalkSprite(this.ctx);
-            } else {
-                mo.drawIdleSprite(this.ctx);
-            }
+    }
+
+    drawMushroom(mo) {
+        if (mo.isDead) {
+            mo.drawDeathSprite(this.ctx);
+        } else if (mo.isTakingHit) {
+            mo.drawTakeHitSprite(this.ctx);
+        } else if (mo.isAttacking) {
+            mo.drawAttackSprite(this.ctx);
+        } else if (mo.isRunning) {
+            mo.drawRunSprite(this.ctx);
+        } else {
+            mo.drawIdleSprite(this.ctx);
         }
-        else {
-            // Normal rendering for other objects (Chicken, Clouds, Background)
-            if(mo.otherDirection) {
-                this.ctx.save();
-                this.ctx.translate(mo.x + mo.width, mo.y);
-                this.ctx.scale(-1, 1);
-                if (mo.img) {
-                    this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
-                }
-                this.ctx.restore();
-            } else {
-                if (mo.img) {
-                    this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
-                }
+    }
+
+    drawSkeleton(mo) {
+        if (mo.isDead) {
+            mo.drawDeathSprite(this.ctx);
+        } else if (mo.isTakingHit) {
+            mo.drawTakeHitSprite(this.ctx);
+        } else if (mo.isAttacking) {
+            mo.drawAttackSprite(this.ctx);
+        } else if (mo.isWalking) {
+            mo.drawWalkSprite(this.ctx);
+        } else {
+            mo.drawIdleSprite(this.ctx);
+        }
+    }
+
+    drawGenericObject(mo) {
+        if(mo.otherDirection) {
+            this.ctx.save();
+            this.ctx.translate(mo.x + mo.width, mo.y);
+            this.ctx.scale(-1, 1);
+            if (mo.img) {
+                this.ctx.drawImage(mo.img, 0, 0, mo.width, mo.height);
+            }
+            this.ctx.restore();
+        } else {
+            if (mo.img) {
+                this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
             }
         }
     }
@@ -455,6 +500,13 @@ class World {
 
     // Cleanup method to clear all intervals
     cleanup() {
+        this.clearIntervals();
+        this.cleanupCharacter();
+        this.cleanupEnemies();
+        this.cleanupProjectiles();
+    }
+
+    clearIntervals() {
         if (this.scrollSpawnIntervalId) {
             clearInterval(this.scrollSpawnIntervalId);
             this.scrollSpawnIntervalId = null;
@@ -463,20 +515,23 @@ class World {
             clearInterval(this.collisionCheckIntervalId);
             this.collisionCheckIntervalId = null;
         }
-        
-        // Cleanup character
+    }
+
+    cleanupCharacter() {
         if (this.character && this.character.cleanup) {
             this.character.cleanup();
         }
-        
-        // Cleanup all enemies
+    }
+
+    cleanupEnemies() {
         this.level.enemies.forEach(enemy => {
             if (enemy.cleanup) {
                 enemy.cleanup();
             }
         });
-        
-        // Cleanup all projectiles
+    }
+
+    cleanupProjectiles() {
         this.projectiles.forEach(projectile => {
             if (projectile.cleanup) {
                 projectile.cleanup();
