@@ -172,20 +172,6 @@ class Goblin extends MovableObject {
         }
     }
 
-    updateTakeHitAnimation() {
-        if (!this.isTakingHit) return;
-
-        let now = Date.now();
-        if (now - this.lastTakeHitFrameTime > this.takeHitAnimationSpeed) {
-            this.currentTakeHitFrame++;
-            if (this.currentTakeHitFrame >= this.takeHitFrameCount) {
-                this.isTakingHit = false;
-                this.currentTakeHitFrame = 0;
-            }
-            this.lastTakeHitFrameTime = now;
-        }
-    }
-
     updateAttackAnimation() {
         if (!this.isAttacking) return;
 
@@ -193,75 +179,6 @@ class Goblin extends MovableObject {
         if (now - this.lastAttackFrameTime > this.attackAnimationSpeed) {
             this.advanceAttackFrame(now);
         }
-    }
-
-    advanceAttackFrame(now) {
-        this.currentAttackFrame++;
-
-        if (this.currentAttackFrame === this.attackHitFrame && this.world) {
-            this.dealDamageToCharacter();
-        }
-
-        if (this.currentAttackFrame >= this.attackFrameCount) {
-            this.endAttackAnimation();
-        }
-        this.lastAttackFrameTime = now;
-    }
-
-    endAttackAnimation() {
-        this.isAttacking = false;
-        this.currentAttackFrame = 0;
-    }
-
-    updateDeathAnimation() {
-        if (this.deathAnimationFinished) return;
-
-        let now = Date.now();
-        if (now - this.lastDeathFrameTime > this.deathAnimationSpeed) {
-            this.currentDeathFrame++;
-            if (this.currentDeathFrame >= this.deathFrameCount) {
-                this.currentDeathFrame = this.deathFrameCount - 1;
-                this.deathAnimationFinished = true;
-            }
-            this.lastDeathFrameTime = now;
-        }
-    }
-
-    drawSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
-        if (!image || !image.complete) return;
-
-        ctx.imageSmoothingEnabled = false;
-
-        if (this.otherDirection) {
-            this.drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
-        } else {
-            this.drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
-        }
-
-        ctx.imageSmoothingEnabled = true;
-    }
-
-    drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
-        ctx.save();
-        ctx.scale(-1, 1);
-        ctx.drawImage(
-            image,
-            frameX, 0,
-            frameWidth, frameHeight,
-            -this.x - displayWidth, this.y,
-            displayWidth, displayHeight
-        );
-        ctx.restore();
-    }
-
-    drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
-        ctx.drawImage(
-            image,
-            frameX, 0,
-            frameWidth, frameHeight,
-            this.x, this.y,
-            displayWidth, displayHeight
-        );
     }
 
     drawIdleSprite(ctx) {
@@ -311,90 +228,18 @@ class Goblin extends MovableObject {
         }, 1000 / 60);
     }
 
-    shouldSkipPatrol() {
-        if (this.world && this.world.isPaused) return true;
-        if (this.isDead) return true;
-        if (this.isAttacking) return true;
-        return false;
-    }
-
-    handleAggroMovement() {
-        let distanceToTarget = this.targetCharacterX - this.x;
-        let absDistance = Math.abs(distanceToTarget);
-
-        // Dead Zone: Wenn Character sehr nah ist (±30px), nicht mehr bewegen/drehen
-        if (absDistance < 30) {
-            return;
-        }
-
-        if (distanceToTarget < 0) {
-            // Character ist links
-            this.x -= this.speed * 0.7; // 30% langsamer für sanfte Verfolgung
-            this.otherDirection = true;
-        } else {
-            // Character ist rechts
-            this.x += this.speed * 0.7;
-            this.otherDirection = false;
-        }
-    }
-
-    handlePatrolMovement() {
-        // Normale Patrol-Bewegung
-        if (this.movingRight) {
-            this.x += this.speed;
-            this.otherDirection = false;
-        } else {
-            this.x -= this.speed;
-            this.otherDirection = true;
-        }
-
-        // Prüfe Patrol-Grenzen und drehe um
-        if (this.x >= this.patrolEndX) {
-            this.movingRight = false;
-        } else if (this.x <= this.patrolStartX) {
-            this.movingRight = true;
-        }
-    }
-
-    setAggro(character) {
-        // Kein Aggro wenn Character tot
-        if (character.isDead) {
-            this.isAggro = false;
-            return;
-        }
-
-        let distance = Math.abs(this.x - character.x);
-        this.isAggro = distance <= this.aggroRange;
-        this.targetCharacterX = character.x;
-    }
-
     animate() {
         // Animation updates (60 FPS for smoother animations)
         this.animationIntervalId = setInterval(() => {
             // Check if game is paused
             if (this.world && this.world.isPaused) return;
-            
+
             this.updateIdleAnimation();
             this.updateRunAnimation();
             this.updateTakeHitAnimation();
             this.updateAttackAnimation();
             this.updateDeathAnimation();
         }, 1000 / 60);
-    }
-
-    // Attack Character wenn in Reichweite
-    tryAttack(character) {
-        if (this.isDead || this.isAttacking) return;
-
-        let distance = Math.abs(this.x - character.x);
-        let now = Date.now();
-
-        // Prüfe ob in Attack-Range und Cooldown abgelaufen
-        if (distance <= this.attackRange && now - this.lastAttackTime >= this.attackCooldown) {
-            this.isAttacking = true;
-            this.currentAttackFrame = 0;
-            this.lastAttackTime = now;
-        }
     }
 
     // Schaden an Character zufügen bei Attack-Frame
@@ -408,12 +253,6 @@ class Goblin extends MovableObject {
             this.world.character.takeAttackDamage(CONFIG.DAMAGE.GOBLIN_ATTACK);
             console.log('Goblin dealt damage to character!');
         }
-    }
-
-    playTakeHitAnimation() {
-        if (this.isDead || this.isTakingHit) return;
-        this.isTakingHit = true;
-        this.currentTakeHitFrame = 0;
     }
 
     die() {
