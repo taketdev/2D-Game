@@ -5,39 +5,36 @@
 
 class AudioManager {
     constructor() {
-        this.volume = 0.45; // 45% Lautstärke
+        this.volume = 0.45;
         this.musicEnabled = true;
         this.currentMusic = null;
         
-        // Audio-Dateien laden
         this.audio = {
             menuMusic: new Audio('./assets/audio/16 - The Calm Before The Storm.wav'),
             gameMusic: new Audio('./assets/audio/05 - Battle 1.wav')
         };
         
-        // Audio-Eigenschaften konfigurieren
         this.setupAudio();
         
         console.log('Audio Manager initialized');
     }
     
     /**
-     * Audio-Eigenschaften konfigurieren
+     * Configures audio properties for all audio files including volume, loop settings and event handlers
+     * @function setupAudio
+     * @returns {void}
      */
     setupAudio() {
         Object.values(this.audio).forEach(audio => {
             audio.volume = this.volume;
             audio.loop = true;
             
-            // Preload audio
             audio.preload = 'auto';
             
-            // Error handling
             audio.addEventListener('error', (e) => {
                 console.warn('Audio loading error:', e);
             });
             
-            // Loaded event
             audio.addEventListener('loadeddata', () => {
                 console.log('Audio loaded:', audio.src);
             });
@@ -45,7 +42,9 @@ class AudioManager {
     }
     
     /**
-     * Menu-Musik abspielen
+     * Plays menu background music and stops any currently playing music
+     * @function playMenuMusic
+     * @returns {void}
      */
     playMenuMusic() {
         if (!this.musicEnabled) return;
@@ -53,12 +52,13 @@ class AudioManager {
         this.stopCurrentMusic();
         this.currentMusic = this.audio.menuMusic;
         
-        // Play with user interaction handling
         this.playWithFallback(this.currentMusic);
     }
     
     /**
-     * Game-Musik abspielen
+     * Plays game background music and stops any currently playing music
+     * @function playGameMusic
+     * @returns {void}
      */
     playGameMusic() {
         if (!this.musicEnabled) return;
@@ -66,12 +66,13 @@ class AudioManager {
         this.stopCurrentMusic();
         this.currentMusic = this.audio.gameMusic;
         
-        // Play with user interaction handling
         this.playWithFallback(this.currentMusic);
     }
     
     /**
-     * Aktuelle Musik stoppen
+     * Stops and resets the currently playing music to the beginning
+     * @function stopCurrentMusic
+     * @returns {void}
      */
     stopCurrentMusic() {
         if (this.currentMusic) {
@@ -81,7 +82,9 @@ class AudioManager {
     }
     
     /**
-     * Musik pausieren
+     * Pauses the currently playing music without resetting its position
+     * @function pauseMusic
+     * @returns {void}
      */
     pauseMusic() {
         if (this.currentMusic && !this.currentMusic.paused) {
@@ -90,7 +93,9 @@ class AudioManager {
     }
     
     /**
-     * Musik fortsetzen
+     * Resumes paused music if music is enabled
+     * @function resumeMusic
+     * @returns {void}
      */
     resumeMusic() {
         if (this.currentMusic && this.currentMusic.paused && this.musicEnabled) {
@@ -99,7 +104,9 @@ class AudioManager {
     }
     
     /**
-     * Musik an/aus schalten
+     * Toggles music on or off and returns the new music state
+     * @function toggleMusic
+     * @returns {boolean} The new music enabled state
      */
     toggleMusic() {
         this.musicEnabled = !this.musicEnabled;
@@ -115,7 +122,10 @@ class AudioManager {
     }
     
     /**
-     * Lautstärke setzen (0.0 - 1.0)
+     * Sets the volume for all audio files with a value between 0.0 and 1.0
+     * @function setVolume
+     * @param {number} volume - Volume level between 0.0 (muted) and 1.0 (full volume)
+     * @returns {void}
      */
     setVolume(volume) {
         this.volume = Math.max(0, Math.min(1, volume));
@@ -128,7 +138,10 @@ class AudioManager {
     }
     
     /**
-     * Audio mit Fallback abspielen (für Browser-Autoplay-Policy)
+     * Plays audio with fallback handling for browser autoplay restrictions
+     * @function playWithFallback
+     * @param {HTMLAudioElement} audio - The audio element to play
+     * @returns {void}
      */
     playWithFallback(audio) {
         const playPromise = audio.play();
@@ -140,15 +153,34 @@ class AudioManager {
         }
     }
 
+    /**
+     * Logs successful audio playback to console
+     * @function logAudioPlaying
+     * @param {HTMLAudioElement} audio - The audio element that started playing
+     * @returns {void}
+     */
     logAudioPlaying(audio) {
         console.log('Audio playing:', audio.src.split('/').pop());
     }
 
+    /**
+     * Handles browser autoplay prevention by setting up user interaction listeners
+     * @function handleAutoplayPrevented
+     * @param {HTMLAudioElement} audio - The audio element that failed to play
+     * @param {Error} error - The autoplay prevention error
+     * @returns {void}
+     */
     handleAutoplayPrevented(audio, error) {
         console.warn('Autoplay prevented - will play after user interaction:', error);
         this.setupPlayAfterInteraction(audio);
     }
 
+    /**
+     * Sets up event listeners to play audio after user interaction
+     * @function setupPlayAfterInteraction
+     * @param {HTMLAudioElement} audio - The audio element to play after interaction
+     * @returns {void}
+     */
     setupPlayAfterInteraction(audio) {
         const playAfterInteraction = () => {
             this.tryPlayAfterInteraction(audio, playAfterInteraction);
@@ -158,6 +190,13 @@ class AudioManager {
         document.addEventListener('touchstart', playAfterInteraction, { once: true });
     }
 
+    /**
+     * Attempts to play audio after user interaction and removes event listeners
+     * @function tryPlayAfterInteraction
+     * @param {HTMLAudioElement} audio - The audio element to play
+     * @param {Function} handler - The event handler function to remove
+     * @returns {void}
+     */
     tryPlayAfterInteraction(audio, handler) {
         if (this.musicEnabled && this.currentMusic === audio) {
             audio.play().then(() => {
@@ -169,7 +208,9 @@ class AudioManager {
     }
     
     /**
-     * Cleanup
+     * Cleans up audio resources by stopping music and clearing audio sources
+     * @function cleanup
+     * @returns {void}
      */
     cleanup() {
         this.stopCurrentMusic();
@@ -180,13 +221,15 @@ class AudioManager {
     }
 }
 
-// Global Audio Manager Instance
 let audioManager = null;
 
-// Initialize Audio Manager after DOM is loaded
+/**
+ * Initializes the AudioManager instance after DOM content is loaded
+ * @function DOMContentLoaded
+ * @returns {void}
+ */
 document.addEventListener('DOMContentLoaded', function() {
     audioManager = new AudioManager();
     
-    // Make it globally available
     window.audioManager = audioManager;
 });

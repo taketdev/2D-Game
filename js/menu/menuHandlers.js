@@ -3,7 +3,12 @@
  * Contains all event handling and interaction methods for the menu system
  */
 
-// Mouse Event Handlers
+/**
+ * Handles mouse down events and sets button pressed states
+ * @function handleMouseDown
+ * @param {MouseEvent} e - Mouse event object
+ * @returns {void}
+ */
 Menu.prototype.handleMouseDown = function(e) {
     if (!this.isActive || !this.imagesLoaded) return;
 
@@ -11,7 +16,6 @@ Menu.prototype.handleMouseDown = function(e) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    // Check which button was pressed
     Object.entries(this.buttonStates).forEach(([name, state]) => {
         if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
             state.pressed = true;
@@ -19,15 +23,26 @@ Menu.prototype.handleMouseDown = function(e) {
     });
 };
 
+/**
+ * Handles mouse up events and resets button pressed states
+ * @function handleMouseUp
+ * @param {MouseEvent} e - Mouse event object
+ * @returns {void}
+ */
 Menu.prototype.handleMouseUp = function(e) {
     if (!this.isActive || !this.imagesLoaded) return;
 
-    // Reset all pressed states
     Object.values(this.buttonStates).forEach(state => {
         state.pressed = false;
     });
 };
 
+/**
+ * Handles mouse move events and updates cursor style based on button hover
+ * @function handleMouseMove
+ * @param {MouseEvent} e - Mouse event object
+ * @returns {void}
+ */
 Menu.prototype.handleMouseMove = function(e) {
     if (!this.imagesLoaded) return;
 
@@ -37,14 +52,12 @@ Menu.prototype.handleMouseMove = function(e) {
 
     let overButton = false;
 
-    // Check pause button when game is running
     if (!this.isActive && this.gameStarted && world && world.pauseButtonBounds) {
         if (this.isPointInButton(x, y, world.pauseButtonBounds)) {
             overButton = true;
         }
     }
 
-    // Check if hovering over any menu button that has valid bounds
     if (this.isActive) {
         Object.entries(this.buttonStates).forEach(([name, state]) => {
             if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
@@ -56,7 +69,12 @@ Menu.prototype.handleMouseMove = function(e) {
     this.canvas.style.cursor = overButton ? 'pointer' : 'default';
 };
 
-// Click Event Handlers
+/**
+ * Main click handler that delegates to appropriate sub-handlers
+ * @function handleClick
+ * @param {MouseEvent} e - Mouse event object
+ * @returns {void}
+ */
 Menu.prototype.handleClick = function(e) {
     if (!this.imagesLoaded) return;
 
@@ -147,16 +165,20 @@ Menu.prototype.checkQuestionButtonClick = function(x, y) {
     return false;
 };
 
-// Dialog Click Handlers
+/**
+ * Handles clicks on settings dialog elements
+ * @function handleSettingsClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {void}
+ */
 Menu.prototype.handleSettingsClick = function(x, y) {
-    // Music toggle button
     const musicToggleBtn = this.buttonStates.musicToggle;
     if (musicToggleBtn.bounds && this.isPointInButton(x, y, musicToggleBtn.bounds)) {
         this.toggleMusic();
         return;
     }
 
-    // Close button
     const closeBtn = this.buttonStates.close;
     if (closeBtn.bounds && this.isPointInButton(x, y, closeBtn.bounds)) {
         this.closeSettings();
@@ -164,8 +186,14 @@ Menu.prototype.handleSettingsClick = function(x, y) {
     }
 };
 
+/**
+ * Handles clicks on controls dialog elements
+ * @function handleControlsClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {void}
+ */
 Menu.prototype.handleControlsClick = function(x, y) {
-    // Close button
     const closeBtn = this.buttonStates.close;
     if (closeBtn.bounds && this.isPointInButton(x, y, closeBtn.bounds)) {
         this.closeControls();
@@ -173,22 +201,26 @@ Menu.prototype.handleControlsClick = function(x, y) {
     }
 };
 
+/**
+ * Handles clicks on pause dialog elements
+ * @function handlePauseClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {void}
+ */
 Menu.prototype.handlePauseClick = function(x, y) {
-    // Resume button
     const resumeBtn = this.buttonStates.resume;
     if (resumeBtn.bounds && this.isPointInButton(x, y, resumeBtn.bounds)) {
         this.resumeGame();
         return;
     }
 
-    // Settings button
     const settingsBtn = this.buttonStates.settings;
     if (settingsBtn.bounds && this.isPointInButton(x, y, settingsBtn.bounds)) {
         this.openSettingsFromPause();
         return;
     }
 
-    // Exit to main menu button
     const exitBtn = this.buttonStates.exit;
     if (exitBtn.bounds && this.isPointInButton(x, y, exitBtn.bounds)) {
         this.exitToMainMenu();
@@ -196,7 +228,12 @@ Menu.prototype.handlePauseClick = function(x, y) {
     }
 };
 
-// Touch Event Handlers
+/**
+ * Handles touch start events and processes touch points
+ * @function handleTouchStart
+ * @param {TouchEvent} e - Touch event object
+ * @returns {void}
+ */
 Menu.prototype.handleTouchStart = function(e) {
     e.preventDefault();
     if (!this.imagesLoaded) return;
@@ -261,9 +298,14 @@ Menu.prototype.resetButtonPressedStates = function() {
     }
 };
 
+/**
+ * Handles touch move events with simple prevention
+ * @function handleTouchMove
+ * @param {TouchEvent} e - Touch event object
+ * @returns {void}
+ */
 Menu.prototype.handleTouchMove = function(e) {
     e.preventDefault();
-    // Touch move doesn't need special handling for menus
 };
 
 Menu.prototype.handleTouchClick = function(x, y) {
@@ -306,7 +348,14 @@ Menu.prototype.handleTouchMainMenuClick = function(x, y) {
     if (this.checkQuestionButtonClick(x, y)) return;
 };
 
-// Helper Methods
+/**
+ * Checks if a point is within button boundaries
+ * @function isPointInButton
+ * @param {number} x - Point X coordinate
+ * @param {number} y - Point Y coordinate
+ * @param {Object} bounds - Button bounds object with x, y, width, height
+ * @returns {boolean} True if point is inside button bounds
+ */
 Menu.prototype.isPointInButton = function(x, y, bounds) {
     return x >= bounds.x && x <= bounds.x + bounds.width &&
            y >= bounds.y && y <= bounds.y + bounds.height;

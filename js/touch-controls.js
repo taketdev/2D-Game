@@ -3,13 +3,16 @@
  * Handles all touch input for game controls
  */
 
-// Mobile Detection
+/**
+ * Detects if the current device is a mobile device based on user agent or screen width
+ * @function isMobileDevice
+ * @returns {boolean} True if device is mobile, false otherwise
+ */
 function isMobileDevice() {
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
         || window.innerWidth <= 768;
 }
 
-// Global instance (will be initialized when game starts)
 let touchControls = null;
 
 /**
@@ -22,20 +25,19 @@ class TouchControls {
         this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
 
-        // Active touch tracking
         this.activeTouches = {};
 
-        // Button definitions
         this.buttons = this.defineButtons();
 
-        // Register touch event listeners
         this.registerTouchEvents();
 
         console.log('Touch Controls initialized');
     }
 
     /**
-     * Define all touch button positions and properties
+     * Defines all touch button positions and properties by calculating sizes and positions
+     * @function defineButtons
+     * @returns {Object} Object containing button definitions with position and styling data
      */
     defineButtons() {
         const sizes = this.getButtonSizes();
@@ -43,6 +45,11 @@ class TouchControls {
         return this.createButtonDefinitions(sizes, positions);
     }
 
+    /**
+     * Calculates button sizes based on canvas dimensions
+     * @function getButtonSizes
+     * @returns {Object} Object containing size and spacing values for buttons
+     */
     getButtonSizes() {
         return {
             buttonSize: 60,
@@ -54,6 +61,12 @@ class TouchControls {
         };
     }
 
+    /**
+     * Calculates button positions based on size parameters and canvas dimensions
+     * @function calculateButtonPositions
+     * @param {Object} sizes - Size configuration object
+     * @returns {Object} Object containing calculated x,y positions for all buttons
+     */
     calculateButtonPositions(sizes) {
         const { buttonSize, smallButtonSize, padding, rightButtonOffset, canvasWidth, canvasHeight } = sizes;
 
@@ -69,6 +82,13 @@ class TouchControls {
         };
     }
 
+    /**
+     * Creates button definition objects with all necessary properties for rendering and touch detection
+     * @function createButtonDefinitions
+     * @param {Object} sizes - Size configuration object
+     * @param {Object} positions - Position configuration object
+     * @returns {Object} Complete button definitions with coordinates, labels, keys and colors
+     */
     createButtonDefinitions(sizes, positions) {
         const { buttonSize, smallButtonSize } = sizes;
 
@@ -83,7 +103,9 @@ class TouchControls {
     }
 
     /**
-     * Register touch event listeners on canvas
+     * Registers touch event listeners on canvas with passive false for preventDefault
+     * @function registerTouchEvents
+     * @returns {void}
      */
     registerTouchEvents() {
         this.canvas.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
@@ -93,7 +115,10 @@ class TouchControls {
     }
 
     /**
-     * Handle touch start event
+     * Handles touch start events by processing all changed touches and activating buttons
+     * @function handleTouchStart
+     * @param {TouchEvent} e - Touch event object
+     * @returns {void}
      */
     handleTouchStart(e) {
         e.preventDefault();
@@ -106,6 +131,15 @@ class TouchControls {
         }
     }
 
+    /**
+     * Processes individual touch start by checking button collision and activating if hit
+     * @function processTouchStart
+     * @param {Touch} touch - Individual touch object
+     * @param {number} scaleX - Canvas scale factor X
+     * @param {number} scaleY - Canvas scale factor Y
+     * @param {DOMRect} rect - Canvas bounding rectangle
+     * @returns {void}
+     */
     processTouchStart(touch, scaleX, scaleY, rect) {
         const touchX = (touch.clientX - rect.left) * scaleX;
         const touchY = (touch.clientY - rect.top) * scaleY;
@@ -118,6 +152,16 @@ class TouchControls {
         }
     }
 
+    /**
+     * Activates a touch button by setting keyboard state and tracking the touch
+     * @function activateTouchButton
+     * @param {number} touchId - Touch identifier
+     * @param {string} buttonName - Name of the button
+     * @param {Object} button - Button definition object
+     * @param {number} touchX - Touch X coordinate
+     * @param {number} touchY - Touch Y coordinate
+     * @returns {void}
+     */
     activateTouchButton(touchId, buttonName, button, touchX, touchY) {
         this.keyboard[button.key] = true;
         this.activeTouches[touchId] = buttonName;
@@ -125,19 +169,20 @@ class TouchControls {
     }
 
     /**
-     * Handle touch end event
+     * Handles touch end events by deactivating all ended touches and their corresponding buttons
+     * @function handleTouchEnd
+     * @param {TouchEvent} e - Touch event object
+     * @returns {void}
      */
     handleTouchEnd(e) {
         e.preventDefault();
 
-        // Process all ended touches
         for (let i = 0; i < e.changedTouches.length; i++) {
             const touch = e.changedTouches[i];
             const buttonName = this.activeTouches[touch.identifier];
 
             if (buttonName) {
                 const button = this.buttons[buttonName];
-                // Deactivate keyboard key
                 this.keyboard[button.key] = false;
                 delete this.activeTouches[touch.identifier];
                 console.log(`Touch end: ${buttonName} (${button.key})`);
@@ -146,7 +191,10 @@ class TouchControls {
     }
 
     /**
-     * Handle touch move event (for detecting when finger leaves button)
+     * Handles touch move events to detect when finger moves outside button area
+     * @function handleTouchMove
+     * @param {TouchEvent} e - Touch event object
+     * @returns {void}
      */
     handleTouchMove(e) {
         e.preventDefault();
@@ -159,6 +207,11 @@ class TouchControls {
         }
     }
 
+    /**
+     * Calculates canvas scale factors and bounding rectangle for touch coordinate conversion
+     * @function getCanvasScaleFactors
+     * @returns {Object} Object containing scaleX, scaleY and rect properties
+     */
     getCanvasScaleFactors() {
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = this.canvas.width / rect.width;
@@ -166,6 +219,15 @@ class TouchControls {
         return { scaleX, scaleY, rect };
     }
 
+    /**
+     * Checks if a touch has moved outside its button area and releases it if so
+     * @function checkTouchMovedOutsideButton
+     * @param {Touch} touch - Touch object to check
+     * @param {number} scaleX - Canvas scale factor X
+     * @param {number} scaleY - Canvas scale factor Y
+     * @param {DOMRect} rect - Canvas bounding rectangle
+     * @returns {void}
+     */
     checkTouchMovedOutsideButton(touch, scaleX, scaleY, rect) {
         const buttonName = this.activeTouches[touch.identifier];
 
@@ -180,6 +242,14 @@ class TouchControls {
         }
     }
 
+    /**
+     * Releases a touch button by deactivating keyboard state and removing from active touches
+     * @function releaseTouchButton
+     * @param {number} touchId - Touch identifier
+     * @param {string} buttonName - Name of the button
+     * @param {Object} button - Button definition object
+     * @returns {void}
+     */
     releaseTouchButton(touchId, buttonName, button) {
         this.keyboard[button.key] = false;
         delete this.activeTouches[touchId];
@@ -187,7 +257,12 @@ class TouchControls {
     }
 
     /**
-     * Check if touch coordinates are inside a button
+     * Checks if touch coordinates are within a button's boundaries
+     * @function isTouchInButton
+     * @param {number} x - Touch X coordinate
+     * @param {number} y - Touch Y coordinate
+     * @param {Object} button - Button definition object with position and dimensions
+     * @returns {boolean} True if touch is inside button, false otherwise
      */
     isTouchInButton(x, y, button) {
         return x >= button.x &&
@@ -197,7 +272,10 @@ class TouchControls {
     }
 
     /**
-     * Draw all touch control buttons on canvas
+     * Draws all touch control buttons on the canvas with active state highlighting
+     * @function draw
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
      */
     draw(ctx) {
         for (let [name, button] of Object.entries(this.buttons)) {
@@ -206,23 +284,55 @@ class TouchControls {
         }
     }
 
+    /**
+     * Draws a single button with background, border and label
+     * @function drawButton
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Object} button - Button definition object
+     * @param {boolean} isActive - Whether button is currently pressed
+     * @returns {void}
+     */
     drawButton(ctx, button, isActive) {
         this.drawButtonBackground(ctx, button, isActive);
         this.drawButtonBorder(ctx, button, isActive);
         this.drawButtonLabel(ctx, button, isActive);
     }
 
+    /**
+     * Draws button background with active state color change
+     * @function drawButtonBackground
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Object} button - Button definition object
+     * @param {boolean} isActive - Whether button is currently pressed
+     * @returns {void}
+     */
     drawButtonBackground(ctx, button, isActive) {
         ctx.fillStyle = isActive ? 'rgba(164, 212, 180, 0.9)' : button.color;
         ctx.fillRect(button.x, button.y, button.width, button.height);
     }
 
+    /**
+     * Draws button border with active state color change
+     * @function drawButtonBorder
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Object} button - Button definition object
+     * @param {boolean} isActive - Whether button is currently pressed
+     * @returns {void}
+     */
     drawButtonBorder(ctx, button, isActive) {
         ctx.strokeStyle = isActive ? '#a4d4b4' : '#3f6654';
         ctx.lineWidth = 3;
         ctx.strokeRect(button.x, button.y, button.width, button.height);
     }
 
+    /**
+     * Draws button label text with active state color change
+     * @function drawButtonLabel
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Object} button - Button definition object
+     * @param {boolean} isActive - Whether button is currently pressed
+     * @returns {void}
+     */
     drawButtonLabel(ctx, button, isActive) {
         ctx.fillStyle = isActive ? '#1a2f23' : '#a4d4b4';
         ctx.font = 'bold 24px PixelifySans';
@@ -232,17 +342,17 @@ class TouchControls {
     }
 
     /**
-     * Cleanup touch controls
+     * Cleans up touch controls by releasing active touches and removing event listeners
+     * @function cleanup
+     * @returns {void}
      */
     cleanup() {
-        // Release all active touches
         for (let [touchId, buttonName] of Object.entries(this.activeTouches)) {
             const button = this.buttons[buttonName];
             this.keyboard[button.key] = false;
         }
         this.activeTouches = {};
 
-        // Remove event listeners
         this.canvas.removeEventListener('touchstart', this.handleTouchStart);
         this.canvas.removeEventListener('touchend', this.handleTouchEnd);
         this.canvas.removeEventListener('touchmove', this.handleTouchMove);

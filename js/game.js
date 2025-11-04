@@ -1,10 +1,8 @@
-// Global Variables
 let canvas;
 let world;
 let keyboard = new Keyboard();
 let menu;
 
-// Key Codes
 const KEYS = {
     LEFT: 37,
     UP: 38,
@@ -12,12 +10,14 @@ const KEYS = {
     DOWN: 40,
     SPACE: 32,
     SHIFT: 16,
-    D: 68,      // Attack 1
-    E: 69       // Attack 2
+    D: 68,
+    E: 69
 };
 
 /**
- * Preload fonts before initializing the game
+ * Preloads fonts before initializing the game to ensure proper text rendering
+ * @function preloadFonts
+ * @returns {Promise} Promise that resolves when fonts are loaded
  */
 function preloadFonts() {
     return new Promise((resolve) => {
@@ -28,11 +28,21 @@ function preloadFonts() {
     });
 }
 
+/**
+ * Creates a temporary canvas context for font preloading
+ * @function createTempCanvas
+ * @returns {CanvasRenderingContext2D} Temporary canvas context
+ */
 function createTempCanvas() {
     const tempCanvas = document.createElement('canvas');
     return tempCanvas.getContext('2d');
 }
 
+/**
+ * Returns array of font variants to preload
+ * @function getFontVariants
+ * @returns {string[]} Array of font variant strings
+ */
 function getFontVariants() {
     return [
         '16px PixelifySans',
@@ -42,6 +52,13 @@ function getFontVariants() {
     ];
 }
 
+/**
+ * Loads fonts on canvas context to trigger font loading
+ * @function loadFontsOnCanvas
+ * @param {CanvasRenderingContext2D} ctx - Canvas context to load fonts on
+ * @param {string[]} fonts - Array of font variant strings
+ * @returns {void}
+ */
 function loadFontsOnCanvas(ctx, fonts) {
     fonts.forEach(font => {
         ctx.font = font;
@@ -49,26 +66,34 @@ function loadFontsOnCanvas(ctx, fonts) {
     });
 }
 
+/**
+ * Waits for fonts to load with a short delay before resolving
+ * @function waitForFontsToLoad
+ * @param {Function} resolve - Promise resolve function
+ * @returns {void}
+ */
 function waitForFontsToLoad(resolve) {
     setTimeout(resolve, 100);
 }
 
 /**
- * Initialize the menu (called on page load)
+ * Initializes the menu system after preloading fonts and setting up canvas
+ * @function init
+ * @returns {Promise<void>}
  */
 async function init() {
-    // Preload fonts first
     await preloadFonts();
     
     canvas = document.getElementById('canvas');
     menu = new Menu(canvas);
 
-    // Start menu render loop
     startMenuLoop();
 }
 
 /**
- * Menu render loop
+ * Starts the menu render loop that continues until game starts
+ * @function startMenuLoop
+ * @returns {void}
  */
 function startMenuLoop() {
     function menuRender() {
@@ -76,33 +101,32 @@ function startMenuLoop() {
             menu.draw();
             requestAnimationFrame(menuRender);
         } else if (menu && menu.gameStarted) {
-            // Menu closed, game started - do nothing, world loop handles rendering
         }
     }
     requestAnimationFrame(menuRender);
 }
 
 /**
- * Stop menu render loop
+ * Stops the menu render loop automatically when menu becomes inactive
+ * @function stopMenuLoop
+ * @returns {void}
  */
 function stopMenuLoop() {
-    // The loop will stop automatically when menu.isActive becomes false
-    // This function exists for consistency with startMenuLoop calls
 }
 
 /**
- * Initialize the actual game (called from menu when Play is clicked)
+ * Initializes the actual game world, touch controls and game music
+ * @function initGame
+ * @returns {void}
  */
 function initGame() {
     world = new World(canvas, keyboard);
 
-    // Initialize touch controls on mobile devices
     if (typeof isMobileDevice === 'function' && isMobileDevice()) {
         touchControls = new TouchControls(canvas, keyboard);
         console.log('Touch controls activated for mobile');
     }
 
-    // Start game background music
     if (typeof audioManager !== 'undefined' && audioManager) {
         audioManager.playGameMusic();
         console.log('Game music started');
@@ -112,17 +136,17 @@ function initGame() {
 }
 
 /**
- * Cleanup game when needed (e.g., on game over or restart)
+ * Cleans up game resources including world and touch controls
+ * @function cleanup
+ * @returns {void}
  */
 function cleanup() {
     if (world && world.cleanup) {
         world.cleanup();
         console.log('Game cleanup completed');
     }
-    // Reset world to null so a completely new instance is created
     world = null;
 
-    // Cleanup touch controls
     if (touchControls && touchControls.cleanup) {
         touchControls.cleanup();
         touchControls = null;
@@ -131,7 +155,9 @@ function cleanup() {
 }
 
 /**
- * Handle keydown events
+ * Handles keydown events and updates keyboard state accordingly
+ * @function keydown
+ * @returns {void}
  */
 window.addEventListener('keydown', (event) => {
     switch(event.keyCode) {
@@ -163,7 +189,9 @@ window.addEventListener('keydown', (event) => {
 });
 
 /**
- * Handle keyup events
+ * Handles keyup events and updates keyboard state accordingly
+ * @function keyup
+ * @returns {void}
  */
 window.addEventListener('keyup', (event) => {
     switch(event.keyCode) {

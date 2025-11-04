@@ -1,25 +1,23 @@
-// Game Configuration
+/**
+ * Game Configuration
+ * Central configuration object containing all game settings and constants
+ */
 const CONFIG = {
-    // Debug Settings
-    SHOW_COLLISION_BOXES: false,  // Setze auf false um Collision-Boxen auszublenden
+    SHOW_COLLISION_BOXES: false,
 
-    // Damage Values
     DAMAGE: {
-        // Character Damage
-        CHARACTER_MELEE: 15,      // Nahkampf-Schaden
-        CHARACTER_SPELL: 25,      // Zauber-Schaden
+        CHARACTER_MELEE: 15,
+        CHARACTER_SPELL: 25,
 
-        // Enemy Contact Damage (nicht mehr verwendet - nur Pushback)
-        GOBLIN_CONTACT: 0,        // Kein Schaden bei Kontakt
-        FLYING_EYE_CONTACT: 0,    // Kein Schaden bei Kontakt
-        ENDBOSS_CONTACT: 0,       // Kein Schaden bei Kontakt
+        GOBLIN_CONTACT: 0,
+        FLYING_EYE_CONTACT: 0,
+        ENDBOSS_CONTACT: 0,
 
-        // Enemy Attack Damage
-        GOBLIN_ATTACK: 12,        // Goblin Attack-Schaden
-        FLYING_EYE_ATTACK: 10,    // Flying Eye Attack-Schaden
-        MUSHROOM_ATTACK: 10,      // Mushroom Attack-Schaden
-        SKELETON_ATTACK: 15,      // Skeleton Attack-Schaden
-        ENDBOSS_ATTACK2: 25,      // Endboss Attack2-Schaden
-        ENDBOSS_ATTACK3: 35       // Endboss Attack3-Schaden
+        GOBLIN_ATTACK: 12,
+        FLYING_EYE_ATTACK: 10,
+        MUSHROOM_ATTACK: 10,
+        SKELETON_ATTACK: 15,
+        ENDBOSS_ATTACK2: 25,
+        ENDBOSS_ATTACK3: 35
     }
 };

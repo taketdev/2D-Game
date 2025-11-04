@@ -15,6 +15,11 @@ class Menu {
         this.startMenuMusic();
     }
 
+    /**
+     * Initializes the menu state properties
+     * @function initializeMenuState
+     * @returns {void}
+     */
     initializeMenuState() {
         this.isActive = true;
         this.currentDialog = null;
@@ -26,6 +31,11 @@ class Menu {
         this.imagesLoaded = false;
     }
 
+    /**
+     * Initializes button state objects with default scale and pressed values
+     * @function initializeButtonStates
+     * @returns {void}
+     */
     initializeButtonStates() {
         this.buttonStates = {
             play: { scale: 1, pressed: false },
@@ -38,6 +48,11 @@ class Menu {
         };
     }
 
+    /**
+     * Synchronizes music settings with audio manager
+     * @function syncMusicSettings
+     * @returns {void}
+     */
     syncMusicSettings() {
         if (typeof audioManager !== 'undefined' && audioManager) {
             this.musicEnabled = audioManager.musicEnabled;
@@ -46,6 +61,11 @@ class Menu {
         }
     }
 
+    /**
+     * Attaches event listeners for mouse and touch interactions
+     * @function attachEventListeners
+     * @returns {void}
+     */
     attachEventListeners() {
         this.canvas.addEventListener('click', (e) => this.handleClick(e));
         this.canvas.addEventListener('mousedown', (e) => this.handleMouseDown(e));
@@ -57,7 +77,9 @@ class Menu {
     }
 
     /**
-     * Start menu background music
+     * Starts menu background music with a delay to ensure audio manager is loaded
+     * @function startMenuMusic
+     * @returns {void}
      */
     startMenuMusic() {
         setTimeout(() => {
@@ -65,17 +87,24 @@ class Menu {
                 audioManager.playMenuMusic();
                 console.log('Menu music started');
             }
-        }, 500); // Small delay to ensure audio manager is loaded
+        }, 500);
     }
 
     /**
-     * Load all menu images
+     * Loads all menu images by getting paths and starting the loading process
+     * @function loadImages
+     * @returns {void}
      */
     loadImages() {
         const imagePaths = this.getImagePaths();
         this.loadImageSet(imagePaths);
     }
 
+    /**
+     * Returns object with all image paths for menu assets
+     * @function getImagePaths
+     * @returns {Object} Object containing all image file paths
+     */
     getImagePaths() {
         return {
             background: './assets/menu/wallpapermenu.jpg',
@@ -93,6 +122,12 @@ class Menu {
         };
     }
 
+    /**
+     * Loads a set of images and tracks loading progress
+     * @function loadImageSet
+     * @param {Object} imagePaths - Object with image keys and file paths
+     * @returns {void}
+     */
     loadImageSet(imagePaths) {
         let loadedCount = 0;
         const totalImages = Object.keys(imagePaths).length;
@@ -115,7 +150,9 @@ class Menu {
     }
 
     /**
-     * Draw the menu
+     * Main draw function that handles loading screen and active menu rendering
+     * @function draw
+     * @returns {void}
      */
     draw() {
         if (!this.imagesLoaded) {
@@ -130,6 +167,11 @@ class Menu {
         this.drawCurrentMenu();
     }
 
+    /**
+     * Draws a simple loading screen while images are being loaded
+     * @function drawLoadingScreen
+     * @returns {void}
+     */
     drawLoadingScreen() {
         this.ctx.fillStyle = '#000';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -139,17 +181,25 @@ class Menu {
         this.ctx.fillText('Loading...', this.canvas.width / 2, this.canvas.height / 2);
     }
 
+    /**
+     * Draws the background based on current menu state
+     * @function drawBackground
+     * @returns {void}
+     */
     drawBackground() {
         if (this.isGameOver || this.isVictory) {
-            // Draw dark overlay over the game
             this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         } else {
-            // Normal mode: Draw background
             this.ctx.drawImage(this.images.background, 0, 0, this.canvas.width, this.canvas.height);
         }
     }
 
+    /**
+     * Draws the appropriate menu based on current dialog and game state
+     * @function drawCurrentMenu
+     * @returns {void}
+     */
     drawCurrentMenu() {
         if (this.currentDialog === 'settings') {
             this.drawSettingsDialog();
@@ -169,7 +219,9 @@ class Menu {
     }
 
     /**
-     * Clear button bounds for buttons that are not currently visible
+     * Clears button bounds for buttons that are not currently visible
+     * @function clearInactiveButtonBounds
+     * @returns {void}
      */
     clearInactiveButtonBounds() {
         if (this.currentDialog === 'settings' || this.currentDialog === 'controls') {
@@ -181,6 +233,11 @@ class Menu {
         }
     }
 
+    /**
+     * Clears bounds for main menu buttons
+     * @function clearMainMenuBounds
+     * @returns {void}
+     */
     clearMainMenuBounds() {
         ['play', 'settings', 'exit', 'question'].forEach(name => {
             if (this.buttonStates[name]) {
@@ -189,6 +246,11 @@ class Menu {
         });
     }
 
+    /**
+     * Clears bounds for pause menu buttons
+     * @function clearPauseMenuBounds
+     * @returns {void}
+     */
     clearPauseMenuBounds() {
         ['play', 'settings', 'question'].forEach(name => {
             if (this.buttonStates[name]) {
@@ -197,6 +259,11 @@ class Menu {
         });
     }
 
+    /**
+     * Clears bounds for dialog buttons
+     * @function clearDialogBounds
+     * @returns {void}
+     */
     clearDialogBounds() {
         ['musicToggle', 'close', 'resume'].forEach(name => {
             if (this.buttonStates[name]) {
