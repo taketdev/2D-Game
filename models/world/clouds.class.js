@@ -4,7 +4,11 @@ class Cloud extends MovableObject{
     width = 72;
     height = 64;
 
-
+    /**
+     * Creates a new cloud object with random position and starts animation
+     * @function constructor
+     * @returns {void}
+     */
     constructor() {
         super();
         this.loadImage('./assets/clouds/Cloud1.png');
@@ -13,6 +17,11 @@ class Cloud extends MovableObject{
         this.animate();
     }
 
+    /**
+     * Starts the cloud animation by moving it to the left
+     * @function animate
+     * @returns {void}
+     */
     animate() {
         this.moveLeft();
     }
