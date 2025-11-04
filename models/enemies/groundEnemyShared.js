@@ -3,8 +3,25 @@
  * These functions are identical across all three enemy types
  */
 
-// Drawing Functions (shared by Goblin, Skeleton, Mushroom)
+/**
+ * Assigns shared drawing functions to an enemy class
+ * @function assignSharedDrawingFunctions
+ * @param {Function} enemyClass - The enemy class to assign functions to
+ * @returns {void}
+ */
 function assignSharedDrawingFunctions(enemyClass) {
+    /**
+     * Draws a sprite frame from a sprite sheet with direction handling
+     * @function drawSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Image} image - Sprite sheet image
+     * @param {number} frameX - X position of the frame in sprite sheet
+     * @param {number} frameWidth - Width of each frame
+     * @param {number} frameHeight - Height of each frame
+     * @param {number} displayWidth - Width to display the sprite
+     * @param {number} displayHeight - Height to display the sprite
+     * @returns {void}
+     */
     enemyClass.prototype.drawSprite = function(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         if (!image || !image.complete) return;
 
@@ -19,6 +36,18 @@ function assignSharedDrawingFunctions(enemyClass) {
         ctx.imageSmoothingEnabled = true;
     };
 
+    /**
+     * Draws a horizontally flipped sprite
+     * @function drawFlippedSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Image} image - Sprite sheet image
+     * @param {number} frameX - X position of the frame in sprite sheet
+     * @param {number} frameWidth - Width of each frame
+     * @param {number} frameHeight - Height of each frame
+     * @param {number} displayWidth - Width to display the sprite
+     * @param {number} displayHeight - Height to display the sprite
+     * @returns {void}
+     */
     enemyClass.prototype.drawFlippedSprite = function(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         ctx.save();
         ctx.scale(-1, 1);
@@ -32,6 +61,18 @@ function assignSharedDrawingFunctions(enemyClass) {
         ctx.restore();
     };
 
+    /**
+     * Draws a normal (non-flipped) sprite
+     * @function drawNormalSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Image} image - Sprite sheet image
+     * @param {number} frameX - X position of the frame in sprite sheet
+     * @param {number} frameWidth - Width of each frame
+     * @param {number} frameHeight - Height of each frame
+     * @param {number} displayWidth - Width to display the sprite
+     * @param {number} displayHeight - Height to display the sprite
+     * @returns {void}
+     */
     enemyClass.prototype.drawNormalSprite = function(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         ctx.drawImage(
             image,
@@ -43,8 +84,18 @@ function assignSharedDrawingFunctions(enemyClass) {
     };
 }
 
-// Patrol/Movement Functions (shared by Goblin, Skeleton, Mushroom)
+/**
+ * Assigns shared patrol and movement functions to an enemy class
+ * @function assignSharedPatrolFunctions
+ * @param {Function} enemyClass - The enemy class to assign functions to
+ * @returns {void}
+ */
 function assignSharedPatrolFunctions(enemyClass) {
+    /**
+     * Checks if patrol behavior should be skipped
+     * @function shouldSkipPatrol
+     * @returns {boolean} True if patrol should be skipped
+     */
     enemyClass.prototype.shouldSkipPatrol = function() {
         if (this.world && this.world.isPaused) return true;
         if (this.isDead) return true;
@@ -52,6 +103,11 @@ function assignSharedPatrolFunctions(enemyClass) {
         return false;
     };
 
+    /**
+     * Handles movement when enemy is in aggro mode towards character
+     * @function handleAggroMovement
+     * @returns {void}
+     */
     enemyClass.prototype.handleAggroMovement = function() {
         let distanceToTarget = this.targetCharacterX - this.x;
         let absDistance = Math.abs(distanceToTarget);
@@ -69,6 +125,11 @@ function assignSharedPatrolFunctions(enemyClass) {
         }
     };
 
+    /**
+     * Handles standard patrol movement between boundaries
+     * @function handlePatrolMovement
+     * @returns {void}
+     */
     enemyClass.prototype.handlePatrolMovement = function() {
         if (this.movingRight) {
             this.x += this.speed;
@@ -85,6 +146,12 @@ function assignSharedPatrolFunctions(enemyClass) {
         }
     };
 
+    /**
+     * Sets aggro state based on character proximity
+     * @function setAggro
+     * @param {Character} character - The character to check distance to
+     * @returns {void}
+     */
     enemyClass.prototype.setAggro = function(character) {
         if (character.isDead) {
             this.isAggro = false;
@@ -97,8 +164,18 @@ function assignSharedPatrolFunctions(enemyClass) {
     };
 }
 
-// Animation Functions (shared by Goblin, Skeleton, Mushroom)
+/**
+ * Assigns shared animation functions to an enemy class
+ * @function assignSharedAnimationFunctions
+ * @param {Function} enemyClass - The enemy class to assign functions to
+ * @returns {void}
+ */
 function assignSharedAnimationFunctions(enemyClass) {
+    /**
+     * Updates take hit animation frame cycling
+     * @function updateTakeHitAnimation
+     * @returns {void}
+     */
     enemyClass.prototype.updateTakeHitAnimation = function() {
         if (!this.isTakingHit) return;
 
@@ -113,6 +190,11 @@ function assignSharedAnimationFunctions(enemyClass) {
         }
     };
 
+    /**
+     * Updates death animation frame cycling
+     * @function updateDeathAnimation
+     * @returns {void}
+     */
     enemyClass.prototype.updateDeathAnimation = function() {
         if (this.deathAnimationFinished) return;
 
@@ -127,6 +209,12 @@ function assignSharedAnimationFunctions(enemyClass) {
         }
     };
 
+    /**
+     * Advances attack animation frame and handles attack logic
+     * @function advanceAttackFrame
+     * @param {number} now - Current timestamp
+     * @returns {void}
+     */
     enemyClass.prototype.advanceAttackFrame = function(now) {
         this.currentAttackFrame++;
 
@@ -140,14 +228,30 @@ function assignSharedAnimationFunctions(enemyClass) {
         this.lastAttackFrameTime = now;
     };
 
+    /**
+     * Ends the attack animation and resets state
+     * @function endAttackAnimation
+     * @returns {void}
+     */
     enemyClass.prototype.endAttackAnimation = function() {
         this.isAttacking = false;
         this.currentAttackFrame = 0;
     };
 }
 
-// Combat Functions (shared by Goblin, Skeleton, Mushroom)
+/**
+ * Assigns shared combat functions to an enemy class
+ * @function assignSharedCombatFunctions
+ * @param {Function} enemyClass - The enemy class to assign functions to
+ * @returns {void}
+ */
 function assignSharedCombatFunctions(enemyClass) {
+    /**
+     * Attempts to attack character if within range
+     * @function tryAttack
+     * @param {Character} character - The character to attack
+     * @returns {void}
+     */
     enemyClass.prototype.tryAttack = function(character) {
         if (this.isDead || this.isAttacking) return;
 
@@ -161,6 +265,11 @@ function assignSharedCombatFunctions(enemyClass) {
         }
     };
 
+    /**
+     * Plays take hit animation when enemy receives damage
+     * @function playTakeHitAnimation
+     * @returns {void}
+     */
     enemyClass.prototype.playTakeHitAnimation = function() {
         if (this.isDead || this.isTakingHit) return;
         this.isTakingHit = true;
@@ -168,7 +277,12 @@ function assignSharedCombatFunctions(enemyClass) {
     };
 }
 
-// Assign all shared functions to an enemy class
+/**
+ * Assigns all shared functions to an enemy class
+ * @function assignAllSharedFunctions
+ * @param {Function} enemyClass - The enemy class to assign all functions to
+ * @returns {void}
+ */
 function assignAllSharedFunctions(enemyClass) {
     assignSharedDrawingFunctions(enemyClass);
     assignSharedPatrolFunctions(enemyClass);

@@ -1,21 +1,17 @@
 class Goblin extends MovableObject {
-    // Position and Size
     y = 190;
     height = 250;
     width = 250;
 
-    // Health System
     maxHP = 30;
     currentHP = 30;
     isDead = false;
 
-    // Collision Box (angepasst an tatsächlichen Körper - zentriert)
     collisionOffsetX = 90;
     collisionOffsetY = 80;
     collisionWidth = 65;
     collisionHeight = 100;
 
-    // Idle Animation Properties
     idleImage;
     currentIdleFrame = 0;
     idleSpriteWidth = 150;
@@ -26,7 +22,6 @@ class Goblin extends MovableObject {
     idleAnimationSpeed = 150;
     lastIdleFrameTime = Date.now();
 
-    // Run Animation Properties
     runImage;
     currentRunFrame = 0;
     runSpriteWidth = 150;
@@ -34,10 +29,9 @@ class Goblin extends MovableObject {
     runFrameCount = 8;
     runDisplayWidth = 250;
     runDisplayHeight = 250;
-    runAnimationSpeed = 120; // Verlangsamt von 80 auf 120ms
+    runAnimationSpeed = 120;
     lastRunFrameTime = Date.now();
 
-    // Take Hit Animation Properties
     takeHitImage;
     currentTakeHitFrame = 0;
     takeHitSpriteWidth = 150;
@@ -49,7 +43,6 @@ class Goblin extends MovableObject {
     lastTakeHitFrameTime = Date.now();
     isTakingHit = false;
 
-    // Attack Animation Properties
     attackImage;
     currentAttackFrame = 0;
     attackSpriteWidth = 150;
@@ -60,9 +53,8 @@ class Goblin extends MovableObject {
     attackAnimationSpeed = 80;
     lastAttackFrameTime = Date.now();
     isAttacking = false;
-    attackHitFrame = 4; // Frame bei dem der Treffer registriert wird
+    attackHitFrame = 4;
 
-    // Death Animation Properties
     deathImage;
     currentDeathFrame = 0;
     deathSpriteWidth = 150;
@@ -74,28 +66,29 @@ class Goblin extends MovableObject {
     lastDeathFrameTime = Date.now();
     deathAnimationFinished = false;
 
-    // State
     isRunning = true;
 
-    // Patrol System
     patrolStartX;
     patrolEndX;
-    patrolRange = 300; // 300px Patrol-Bereich
+    patrolRange = 300;
     movingRight = false;
 
-    // AI Behavior
-    turnTowardsCharacter = false; // Direction wird in patrol() gesetzt
-    aggroRange = 300; // 300px Reichweite für Aggro
+    turnTowardsCharacter = false;
+    aggroRange = 300;
     isAggro = false;
     targetCharacterX = 0;
-    attackRange = 80; // 80px Reichweite für Attack
-    attackCooldown = 2000; // 2 Sekunden Cooldown zwischen Attacks
+    attackRange = 80;
+    attackCooldown = 2000;
     lastAttackTime = 0;
 
-    // Interval IDs für Cleanup
     patrolIntervalId;
     animationIntervalId;
 
+    /**
+     * Initializes a new Goblin enemy with animations and patrol behavior
+     * @function constructor
+     * @returns {void}
+     */
     constructor() {
         super();
         this.loadAllImages();
@@ -105,6 +98,11 @@ class Goblin extends MovableObject {
         this.patrol();
     }
 
+    /**
+     * Loads all sprite sheet images for different animation states
+     * @function loadAllImages
+     * @returns {void}
+     */
     loadAllImages() {
         this.loadIdleImage('./assets/monsters/Goblin/Idle.png');
         this.loadRunImage('./assets/monsters/Goblin/Run.png');
@@ -113,11 +111,21 @@ class Goblin extends MovableObject {
         this.loadDeathImage('./assets/monsters/Goblin/Death.png');
     }
 
+    /**
+     * Sets initial position and movement speed with random variation
+     * @function initializePosition
+     * @returns {void}
+     */
     initializePosition() {
         this.x = 200 + Math.random() * 500;
         this.speed = 0.5 + Math.random() * 0.5;
     }
 
+    /**
+     * Configures patrol area boundaries and initial direction
+     * @function setupPatrolArea
+     * @returns {void}
+     */
     setupPatrolArea() {
         this.patrolStartX = this.x;
         this.patrolEndX = this.x + this.patrolRange;
@@ -125,31 +133,66 @@ class Goblin extends MovableObject {
         this.otherDirection = !this.movingRight;
     }
 
+    /**
+     * Loads the idle animation sprite sheet
+     * @function loadIdleImage
+     * @param {string} path - Path to the idle image file
+     * @returns {void}
+     */
     loadIdleImage(path) {
         this.idleImage = new Image();
         this.idleImage.src = path;
     }
 
+    /**
+     * Loads the run animation sprite sheet
+     * @function loadRunImage
+     * @param {string} path - Path to the run image file
+     * @returns {void}
+     */
     loadRunImage(path) {
         this.runImage = new Image();
         this.runImage.src = path;
     }
 
+    /**
+     * Loads the take hit animation sprite sheet
+     * @function loadTakeHitImage
+     * @param {string} path - Path to the take hit image file
+     * @returns {void}
+     */
     loadTakeHitImage(path) {
         this.takeHitImage = new Image();
         this.takeHitImage.src = path;
     }
 
+    /**
+     * Loads the attack animation sprite sheet
+     * @function loadAttackImage
+     * @param {string} path - Path to the attack image file
+     * @returns {void}
+     */
     loadAttackImage(path) {
         this.attackImage = new Image();
         this.attackImage.src = path;
     }
 
+    /**
+     * Loads the death animation sprite sheet
+     * @function loadDeathImage
+     * @param {string} path - Path to the death image file
+     * @returns {void}
+     */
     loadDeathImage(path) {
         this.deathImage = new Image();
         this.deathImage.src = path;
     }
 
+    /**
+     * Updates idle animation frame cycling
+     * @function updateIdleAnimation
+     * @returns {void}
+     */
     updateIdleAnimation() {
         let now = Date.now();
         if (now - this.lastIdleFrameTime > this.idleAnimationSpeed) {
@@ -161,6 +204,11 @@ class Goblin extends MovableObject {
         }
     }
 
+    /**
+     * Updates run animation frame cycling
+     * @function updateRunAnimation
+     * @returns {void}
+     */
     updateRunAnimation() {
         let now = Date.now();
         if (now - this.lastRunFrameTime > this.runAnimationSpeed) {
@@ -172,6 +220,11 @@ class Goblin extends MovableObject {
         }
     }
 
+    /**
+     * Updates attack animation frame cycling
+     * @function updateAttackAnimation
+     * @returns {void}
+     */
     updateAttackAnimation() {
         if (!this.isAttacking) return;
 
@@ -181,6 +234,12 @@ class Goblin extends MovableObject {
         }
     }
 
+    /**
+     * Draws the idle animation sprite
+     * @function drawIdleSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawIdleSprite(ctx) {
         let frameX = this.currentIdleFrame * this.idleSpriteWidth;
         this.drawSprite(ctx, this.idleImage, frameX,
@@ -188,6 +247,12 @@ class Goblin extends MovableObject {
             this.idleDisplayWidth, this.idleDisplayHeight);
     }
 
+    /**
+     * Draws the run animation sprite
+     * @function drawRunSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawRunSprite(ctx) {
         let frameX = this.currentRunFrame * this.runSpriteWidth;
         this.drawSprite(ctx, this.runImage, frameX,
@@ -195,6 +260,12 @@ class Goblin extends MovableObject {
             this.runDisplayWidth, this.runDisplayHeight);
     }
 
+    /**
+     * Draws the take hit animation sprite
+     * @function drawTakeHitSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawTakeHitSprite(ctx) {
         let frameX = this.currentTakeHitFrame * this.takeHitSpriteWidth;
         this.drawSprite(ctx, this.takeHitImage, frameX,
@@ -202,6 +273,12 @@ class Goblin extends MovableObject {
             this.takeHitDisplayWidth, this.takeHitDisplayHeight);
     }
 
+    /**
+     * Draws the attack animation sprite
+     * @function drawAttackSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawAttackSprite(ctx) {
         let frameX = this.currentAttackFrame * this.attackSpriteWidth;
         this.drawSprite(ctx, this.attackImage, frameX,
@@ -209,6 +286,12 @@ class Goblin extends MovableObject {
             this.attackDisplayWidth, this.attackDisplayHeight);
     }
 
+    /**
+     * Draws the death animation sprite
+     * @function drawDeathSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawDeathSprite(ctx) {
         let frameX = this.currentDeathFrame * this.deathSpriteWidth;
         this.drawSprite(ctx, this.deathImage, frameX,
@@ -216,6 +299,11 @@ class Goblin extends MovableObject {
             this.deathDisplayWidth, this.deathDisplayHeight);
     }
 
+    /**
+     * Initiates patrol behavior with movement logic
+     * @function patrol
+     * @returns {void}
+     */
     patrol() {
         this.patrolIntervalId = setInterval(() => {
             if (this.shouldSkipPatrol()) return;
@@ -228,10 +316,13 @@ class Goblin extends MovableObject {
         }, 1000 / 60);
     }
 
+    /**
+     * Starts animation intervals for all animations
+     * @function animate
+     * @returns {void}
+     */
     animate() {
-        // Animation updates (60 FPS for smoother animations)
         this.animationIntervalId = setInterval(() => {
-            // Check if game is paused
             if (this.world && this.world.isPaused) return;
 
             this.updateIdleAnimation();
@@ -242,31 +333,43 @@ class Goblin extends MovableObject {
         }, 1000 / 60);
     }
 
-    // Schaden an Character zufügen bei Attack-Frame
+    /**
+     * Deals damage to character during attack frame
+     * @function dealDamageToCharacter
+     * @returns {void}
+     */
     dealDamageToCharacter() {
         if (!this.world || !this.world.character) return;
 
         let distance = Math.abs(this.x - this.world.character.x);
 
-        // Prüfe ob Character noch in Reichweite ist
-        if (distance <= this.attackRange + 20) { // +20px Toleranz
+        if (distance <= this.attackRange + 20) {
             this.world.character.takeAttackDamage(CONFIG.DAMAGE.GOBLIN_ATTACK);
             console.log('Goblin dealt damage to character!');
         }
     }
 
+    /**
+     * Handles death state and animation
+     * @function die
+     * @returns {void}
+     */
     die() {
         if (this.isDead) return;
 
         this.isDead = true;
         this.currentDeathFrame = 0;
         this.deathAnimationFinished = false;
-        this.speed = 0; // Stop movement
+        this.speed = 0;
         console.log('Goblin died!');
         this.cleanup();
     }
 
-    // Cleanup method to clear all intervals
+    /**
+     * Clears all active intervals to prevent memory leaks
+     * @function cleanup
+     * @returns {void}
+     */
     cleanup() {
         if (this.patrolIntervalId) {
             clearInterval(this.patrolIntervalId);
@@ -278,11 +381,15 @@ class Goblin extends MovableObject {
         }
     }
 
-    // Debug: Draw collision frame
+    /**
+     * Draws collision frame for debugging
+     * @function drawFrame
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawFrame(ctx) {
         if (!CONFIG.SHOW_COLLISION_BOXES) return;
 
-        // Collision box (blau)
         ctx.beginPath();
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'blue';

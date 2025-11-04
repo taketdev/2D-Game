@@ -1,21 +1,17 @@
 class Endboss extends MovableObject {
-    // Position and Size
     y = 160;
     height = 400;
     width = 350;
 
-    // Health System
     maxHP = 500;
     currentHP = 500;
     isDead = false;
 
-    // Collision Box (angepasst an tatsächlichen Körper - zentriert)
     collisionOffsetX = 100;
     collisionOffsetY = 70;
     collisionWidth = 150;
     collisionHeight = 210;
 
-    // Idle Animation Properties
     idleImage;
     currentIdleFrame = 0;
     idleSpriteWidth = 176;
@@ -26,7 +22,6 @@ class Endboss extends MovableObject {
     idleAnimationSpeed = 80;
     lastIdleFrameTime = Date.now();
 
-    // Walk Animation Properties
     walkImage;
     currentWalkFrame = 0;
     walkSpriteWidth = 176;
@@ -37,7 +32,6 @@ class Endboss extends MovableObject {
     walkAnimationSpeed = 60;
     lastWalkFrameTime = Date.now();
 
-    // Hit Animation Properties
     hitImage;
     currentHitFrame = 0;
     hitSpriteWidth = 176;
@@ -49,7 +43,6 @@ class Endboss extends MovableObject {
     lastHitFrameTime = Date.now();
     isTakingHit = false;
 
-    // Attack 2 Animation Properties
     attack2Image;
     currentAttack2Frame = 0;
     attack2SpriteWidth = 176;
@@ -61,7 +54,6 @@ class Endboss extends MovableObject {
     lastAttack2FrameTime = Date.now();
     isAttacking2 = false;
 
-    // Attack 3 Animation Properties
     attack3Image;
     currentAttack3Frame = 0;
     attack3SpriteWidth = 176;
@@ -73,7 +65,6 @@ class Endboss extends MovableObject {
     lastAttack3FrameTime = Date.now();
     isAttacking3 = false;
 
-    // Death Animation Properties
     deathImage;
     currentDeathFrame = 0;
     deathSpriteWidth = 176;
@@ -85,26 +76,28 @@ class Endboss extends MovableObject {
     lastDeathFrameTime = Date.now();
     deathAnimationFinished = false;
 
-    // State
     isWalking = false;
 
-    // AI Behavior
-    turnTowardsCharacter = false; // Direction wird in updateMovement() gesetzt
-    aggroRange = 450; // 400px Reichweite (erweitert für bessere Sichtbarkeit)
+    turnTowardsCharacter = false;
+    aggroRange = 450;
     isAggro = false;
-    baseSpeed = 0.8; // Basis-Geschwindigkeit (erhöht für bessere Verfolgung)
-    phase2SpeedMultiplier = 1.5; // 50% schneller in Phase 2
-    targetCharacterX = 0; // Gespeicherte Character X-Position
+    baseSpeed = 0.8;
+    phase2SpeedMultiplier = 1.5;
+    targetCharacterX = 0;
 
-    // Attack System
-    attackRange = 120; // 120px Reichweite für Attacks
-    attack2Cooldown = 3000; // 3 Sekunden Cooldown für Attack2
-    attack3Cooldown = 4000; // 4 Sekunden Cooldown für Attack3
+    attackRange = 120;
+    attack2Cooldown = 3000;
+    attack3Cooldown = 4000;
     lastAttack2Time = 0;
     lastAttack3Time = 0;
-    attack2HitFrame = 6; // Frame bei dem Attack2 Schaden macht
-    attack3HitFrame = 6; // Frame bei dem Attack3 Schaden macht
+    attack2HitFrame = 6;
+    attack3HitFrame = 6;
 
+    /**
+     * Creates a new endboss with all properties and starts animations
+     * @function constructor
+     * @returns {void}
+     */
     constructor(){
         super();
         this.loadIdleImage('./assets/werwolf boss/Idle.png');
@@ -113,46 +106,85 @@ class Endboss extends MovableObject {
         this.loadAttack2Image('./assets/werwolf boss/Attack2.png');
         this.loadAttack3Image('./assets/werwolf boss/Attack3.png');
         this.loadDeathImage('./assets/werwolf boss/Death.png');
-        this.x = 4700; // Endboss am Ende von Battleground2 platziert (Battleground2 endet bei ~5040)
+        this.x = 4700;
         this.speed = this.baseSpeed;
         this.animate();
         this.updateAI();
     }
 
+    /**
+     * Loads the idle animation sprite sheet
+     * @function loadIdleImage
+     * @param {string} path - Path to the idle image file
+     * @returns {void}
+     */
     loadIdleImage(path) {
         this.idleImage = new Image();
         this.idleImage.src = path;
     }
 
+    /**
+     * Loads the walking animation sprite sheet
+     * @function loadWalkImage
+     * @param {string} path - Path to the walk image file
+     * @returns {void}
+     */
     loadWalkImage(path) {
         this.walkImage = new Image();
         this.walkImage.src = path;
     }
 
+    /**
+     * Loads the hit animation sprite sheet
+     * @function loadHitImage
+     * @param {string} path - Path to the hit image file
+     * @returns {void}
+     */
     loadHitImage(path) {
         this.hitImage = new Image();
         this.hitImage.src = path;
     }
 
+    /**
+     * Loads the attack 2 animation sprite sheet
+     * @function loadAttack2Image
+     * @param {string} path - Path to the attack 2 image file
+     * @returns {void}
+     */
     loadAttack2Image(path) {
         this.attack2Image = new Image();
         this.attack2Image.src = path;
     }
 
+    /**
+     * Loads the attack 3 animation sprite sheet
+     * @function loadAttack3Image
+     * @param {string} path - Path to the attack 3 image file
+     * @returns {void}
+     */
     loadAttack3Image(path) {
         this.attack3Image = new Image();
         this.attack3Image.src = path;
     }
 
+    /**
+     * Loads the death animation sprite sheet
+     * @function loadDeathImage
+     * @param {string} path - Path to the death image file
+     * @returns {void}
+     */
     loadDeathImage(path) {
         this.deathImage = new Image();
         this.deathImage.src = path;
     }
 
+    /**
+     * Starts all animation update loops for the endboss
+     * @function animate
+     * @returns {void}
+     */
     animate() {
-        // Animation updates (60 FPS for smoother animations)
         setInterval(() => {
-            // Check if game is paused
             if (this.world && this.world.isPaused) return;
 
             this.updateIdleAnimation();
@@ -164,6 +196,18 @@ class Endboss extends MovableObject {
         }, 1000 / 60);
     }
 
+    /**
+     * Draws a sprite with optional direction flipping and anti-aliasing
+     * @function drawSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {HTMLImageElement} image - Image to draw
+     * @param {number} frameX - X position of frame in sprite sheet
+     * @param {number} frameWidth - Width of single frame
+     * @param {number} frameHeight - Height of single frame
+     * @param {number} displayWidth - Display width on canvas
+     * @param {number} displayHeight - Display height on canvas
+     * @returns {void}
+     */
     drawSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         if (!image || !image.complete) return;
 
@@ -178,6 +222,18 @@ class Endboss extends MovableObject {
         ctx.imageSmoothingEnabled = true;
     }
 
+    /**
+     * Draws sprite flipped horizontally for opposite direction
+     * @function drawFlippedSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {HTMLImageElement} image - Image to draw
+     * @param {number} frameX - X position of frame in sprite sheet
+     * @param {number} frameWidth - Width of single frame
+     * @param {number} frameHeight - Height of single frame
+     * @param {number} displayWidth - Display width on canvas
+     * @param {number} displayHeight - Display height on canvas
+     * @returns {void}
+     */
     drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         ctx.save();
         ctx.scale(-1, 1);
@@ -191,6 +247,18 @@ class Endboss extends MovableObject {
         ctx.restore();
     }
 
+    /**
+     * Draws sprite in normal orientation
+     * @function drawNormalSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {HTMLImageElement} image - Image to draw
+     * @param {number} frameX - X position of frame in sprite sheet
+     * @param {number} frameWidth - Width of single frame
+     * @param {number} frameHeight - Height of single frame
+     * @param {number} displayWidth - Display width on canvas
+     * @param {number} displayHeight - Display height on canvas
+     * @returns {void}
+     */
     drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         ctx.drawImage(
             image,
@@ -201,6 +269,12 @@ class Endboss extends MovableObject {
         );
     }
 
+    /**
+     * Draws the idle animation sprite
+     * @function drawIdleSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawIdleSprite(ctx) {
         let frameX = this.currentIdleFrame * this.idleSpriteWidth;
         this.drawSprite(ctx, this.idleImage, frameX,
@@ -208,6 +282,12 @@ class Endboss extends MovableObject {
             this.idleDisplayWidth, this.idleDisplayHeight);
     }
 
+    /**
+     * Draws the walking animation sprite
+     * @function drawWalkSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawWalkSprite(ctx) {
         let frameX = this.currentWalkFrame * this.walkSpriteWidth;
         this.drawSprite(ctx, this.walkImage, frameX,
@@ -215,6 +295,12 @@ class Endboss extends MovableObject {
             this.walkDisplayWidth, this.walkDisplayHeight);
     }
 
+    /**
+     * Draws the hit animation sprite
+     * @function drawHitSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawHitSprite(ctx) {
         let frameX = this.currentHitFrame * this.hitSpriteWidth;
         this.drawSprite(ctx, this.hitImage, frameX,
@@ -222,6 +308,12 @@ class Endboss extends MovableObject {
             this.hitDisplayWidth, this.hitDisplayHeight);
     }
 
+    /**
+     * Draws the attack 2 animation sprite
+     * @function drawAttack2Sprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawAttack2Sprite(ctx) {
         let frameX = this.currentAttack2Frame * this.attack2SpriteWidth;
         this.drawSprite(ctx, this.attack2Image, frameX,
@@ -229,6 +321,12 @@ class Endboss extends MovableObject {
             this.attack2DisplayWidth, this.attack2DisplayHeight);
     }
 
+    /**
+     * Draws the attack 3 animation sprite
+     * @function drawAttack3Sprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawAttack3Sprite(ctx) {
         let frameX = this.currentAttack3Frame * this.attack3SpriteWidth;
         this.drawSprite(ctx, this.attack3Image, frameX,
@@ -236,6 +334,12 @@ class Endboss extends MovableObject {
             this.attack3DisplayWidth, this.attack3DisplayHeight);
     }
 
+    /**
+     * Draws the death animation sprite
+     * @function drawDeathSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawDeathSprite(ctx) {
         let frameX = this.currentDeathFrame * this.deathSpriteWidth;
         this.drawSprite(ctx, this.deathImage, frameX,
@@ -243,7 +347,12 @@ class Endboss extends MovableObject {
             this.deathDisplayWidth, this.deathDisplayHeight);
     }
 
-    // Debug: Draw collision frame
+    /**
+     * Draws debug collision frame for development purposes
+     * @function drawFrame
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawFrame(ctx) {
         if (!CONFIG.SHOW_COLLISION_BOXES) return;
 

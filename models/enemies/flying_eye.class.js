@@ -1,21 +1,17 @@
 class FlyingEye extends MovableObject {
-    // Position and Size (höher als Goblin, da fliegend)
     y = 50;
     height = 250;
     width = 250;
 
-    // Health System
     maxHP = 20;
     currentHP = 20;
     isDead = false;
 
-    // Collision Box (angepasst an tatsächlichen Körper - zentriert)
     collisionOffsetX = 85;
     collisionOffsetY = 90;
     collisionWidth = 70;
     collisionHeight = 70;
 
-    // Flight Animation Properties
     flightImage;
     currentFlightFrame = 0;
     flightSpriteWidth = 150;
@@ -26,7 +22,6 @@ class FlyingEye extends MovableObject {
     flightAnimationSpeed = 80;
     lastFlightFrameTime = Date.now();
 
-    // Attack Animation Properties
     attackImage;
     currentAttackFrame = 0;
     attackSpriteWidth = 150;
@@ -37,9 +32,8 @@ class FlyingEye extends MovableObject {
     attackAnimationSpeed = 80;
     lastAttackFrameTime = Date.now();
     isAttacking = false;
-    attackHitFrame = 4; // Frame bei dem der Treffer registriert wird
+    attackHitFrame = 4;
 
-    // Death Animation Properties
     deathImage;
     currentDeathFrame = 0;
     deathSpriteWidth = 150;
@@ -51,57 +45,81 @@ class FlyingEye extends MovableObject {
     lastDeathFrameTime = Date.now();
     deathAnimationFinished = false;
 
-    // Wave Movement (Sinus-Kurve)
-    startY; // Ursprüngliche Y-Position
-    waveAmplitude = 50; // Höhe der Welle (50px hoch/runter)
-    waveFrequency = 0.03; // Geschwindigkeit der Welle
-    waveOffset = 0; // Aktueller Offset für Sinus
+    startY;
+    waveAmplitude = 50;
+    waveFrequency = 0.03;
+    waveOffset = 0;
 
-    // AI Behavior
-    turnTowardsCharacter = true; // Aktiviert automatisches Drehen zum Character
-    attackRange = 100; // 100px Reichweite für Attack
-    attackCooldown = 2500; // 2.5 Sekunden Cooldown zwischen Attacks
+    turnTowardsCharacter = true;
+    attackRange = 100;
+    attackCooldown = 2500;
     lastAttackTime = 0;
 
-    // Death Physics
     isFalling = false;
     fallSpeed = 0;
     fallAcceleration = 0.5;
-    groundY = 250; // Boden-Position (gleich wie Goblin y-Position)
+    groundY = 250;
 
+    /**
+     * Creates a new flying eye enemy with random position and wave movement
+     * @function constructor
+     * @returns {void}
+     */
     constructor() {
         super();
         this.loadFlightImage('./assets/monsters/Flying eye/Flight.png');
         this.loadAttackImage('./assets/monsters/Flying eye/Attack.png');
         this.loadDeathImage('./assets/monsters/Flying eye/Death.png');
 
-        // Random position and speed (langsamer, angepasst an Character)
         this.x = 300 + Math.random() * 600;
-        this.startY = 50 + Math.random() * 100; // Random Höhe zwischen 50-150
+        this.startY = 50 + Math.random() * 100;
         this.y = this.startY;
         this.speed = 0.6 + Math.random() * 0.6;
-        this.waveOffset = Math.random() * Math.PI * 2; // Random start in wave
-        this.otherDirection = true; // Sprite spiegeln, damit er richtig herum fliegt
+        this.waveOffset = Math.random() * Math.PI * 2;
+        this.otherDirection = true;
 
         this.animate();
         this.moveWithWave();
     }
 
+    /**
+     * Loads the flight animation sprite sheet
+     * @function loadFlightImage
+     * @param {string} path - Path to the flight image file
+     * @returns {void}
+     */
     loadFlightImage(path) {
         this.flightImage = new Image();
         this.flightImage.src = path;
     }
 
+    /**
+     * Loads the attack animation sprite sheet
+     * @function loadAttackImage
+     * @param {string} path - Path to the attack image file
+     * @returns {void}
+     */
     loadAttackImage(path) {
         this.attackImage = new Image();
         this.attackImage.src = path;
     }
 
+    /**
+     * Loads the death animation sprite sheet
+     * @function loadDeathImage
+     * @param {string} path - Path to the death image file
+     * @returns {void}
+     */
     loadDeathImage(path) {
         this.deathImage = new Image();
         this.deathImage.src = path;
     }
 
+    /**
+     * Updates flight animation frame cycling
+     * @function updateFlightAnimation
+     * @returns {void}
+     */
     updateFlightAnimation() {
         let now = Date.now();
         if (now - this.lastFlightFrameTime > this.flightAnimationSpeed) {
@@ -113,6 +131,11 @@ class FlyingEye extends MovableObject {
         }
     }
 
+    /**
+     * Updates attack animation frame cycling
+     * @function updateAttackAnimation
+     * @returns {void}
+     */
     updateAttackAnimation() {
         if (!this.isAttacking) return;
 
@@ -122,6 +145,12 @@ class FlyingEye extends MovableObject {
         }
     }
 
+    /**
+     * Advances attack animation frame and handles attack logic
+     * @function advanceAttackFrame
+     * @param {number} now - Current timestamp
+     * @returns {void}
+     */
     advanceAttackFrame(now) {
         this.currentAttackFrame++;
 
@@ -135,11 +164,21 @@ class FlyingEye extends MovableObject {
         this.lastAttackFrameTime = now;
     }
 
+    /**
+     * Ends the attack animation and resets state
+     * @function endAttackAnimation
+     * @returns {void}
+     */
     endAttackAnimation() {
         this.isAttacking = false;
         this.currentAttackFrame = 0;
     }
 
+    /**
+     * Updates death animation frame cycling
+     * @function updateDeathAnimation
+     * @returns {void}
+     */
     updateDeathAnimation() {
         if (this.deathAnimationFinished) return;
 
@@ -154,6 +193,18 @@ class FlyingEye extends MovableObject {
         }
     }
 
+    /**
+     * Draws a sprite frame from a sprite sheet
+     * @function drawSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Image} image - Sprite sheet image
+     * @param {number} frameX - X position of the frame in sprite sheet
+     * @param {number} frameWidth - Width of each frame
+     * @param {number} frameHeight - Height of each frame
+     * @param {number} displayWidth - Width to display the sprite
+     * @param {number} displayHeight - Height to display the sprite
+     * @returns {void}
+     */
     drawSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         if (!image || !image.complete) return;
 
@@ -168,6 +219,18 @@ class FlyingEye extends MovableObject {
         ctx.imageSmoothingEnabled = true;
     }
 
+    /**
+     * Draws a horizontally flipped sprite
+     * @function drawFlippedSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Image} image - Sprite sheet image
+     * @param {number} frameX - X position of the frame in sprite sheet
+     * @param {number} frameWidth - Width of each frame
+     * @param {number} frameHeight - Height of each frame
+     * @param {number} displayWidth - Width to display the sprite
+     * @param {number} displayHeight - Height to display the sprite
+     * @returns {void}
+     */
     drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         ctx.save();
         ctx.scale(-1, 1);
@@ -181,6 +244,18 @@ class FlyingEye extends MovableObject {
         ctx.restore();
     }
 
+    /**
+     * Draws a normal (non-flipped) sprite
+     * @function drawNormalSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {Image} image - Sprite sheet image
+     * @param {number} frameX - X position of the frame in sprite sheet
+     * @param {number} frameWidth - Width of each frame
+     * @param {number} frameHeight - Height of each frame
+     * @param {number} displayWidth - Width to display the sprite
+     * @param {number} displayHeight - Height to display the sprite
+     * @returns {void}
+     */
     drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
         ctx.drawImage(
             image,
@@ -191,6 +266,12 @@ class FlyingEye extends MovableObject {
         );
     }
 
+    /**
+     * Draws the flight animation sprite
+     * @function drawFlightSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawFlightSprite(ctx) {
         let frameX = this.currentFlightFrame * this.flightSpriteWidth;
         this.drawSprite(ctx, this.flightImage, frameX,
@@ -198,6 +279,12 @@ class FlyingEye extends MovableObject {
             this.flightDisplayWidth, this.flightDisplayHeight);
     }
 
+    /**
+     * Draws the attack animation sprite
+     * @function drawAttackSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawAttackSprite(ctx) {
         let frameX = this.currentAttackFrame * this.attackSpriteWidth;
         this.drawSprite(ctx, this.attackImage, frameX,
@@ -205,6 +292,12 @@ class FlyingEye extends MovableObject {
             this.attackDisplayWidth, this.attackDisplayHeight);
     }
 
+    /**
+     * Draws the death animation sprite
+     * @function drawDeathSprite
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawDeathSprite(ctx) {
         let frameX = this.currentDeathFrame * this.deathSpriteWidth;
         this.drawSprite(ctx, this.deathImage, frameX,
@@ -212,6 +305,11 @@ class FlyingEye extends MovableObject {
             this.deathDisplayWidth, this.deathDisplayHeight);
     }
 
+    /**
+     * Initiates wave-based movement animation
+     * @function moveWithWave
+     * @returns {void}
+     */
     moveWithWave() {
         setInterval(() => {
             if (this.world && this.world.isPaused) return;
@@ -224,6 +322,11 @@ class FlyingEye extends MovableObject {
         }, 1000 / 60);
     }
 
+    /**
+     * Handles death falling physics and state
+     * @function handleDeathFalling
+     * @returns {boolean} - Returns true if currently falling
+     */
     handleDeathFalling() {
         if (this.isDead && !this.isFalling) {
             this.isFalling = true;
@@ -238,6 +341,11 @@ class FlyingEye extends MovableObject {
         return false;
     }
 
+    /**
+     * Applies falling gravity physics
+     * @function applyFallingGravity
+     * @returns {void}
+     */
     applyFallingGravity() {
         if (this.y < this.groundY) {
             this.fallSpeed += this.fallAcceleration;
@@ -250,19 +358,32 @@ class FlyingEye extends MovableObject {
         }
     }
 
+    /**
+     * Updates horizontal movement position
+     * @function updateHorizontalMovement
+     * @returns {void}
+     */
     updateHorizontalMovement() {
         this.x -= this.speed;
     }
 
+    /**
+     * Updates wave-based vertical movement
+     * @function updateWaveMovement
+     * @returns {void}
+     */
     updateWaveMovement() {
         this.waveOffset += this.waveFrequency;
         this.y = this.startY + Math.sin(this.waveOffset) * this.waveAmplitude;
     }
 
+    /**
+     * Starts animation intervals for all animations
+     * @function animate
+     * @returns {void}
+     */
     animate() {
-        // Animation updates (60 FPS for smoother animations)
         setInterval(() => {
-            // Check if game is paused
             if (this.world && this.world.isPaused) return;
             
             this.updateFlightAnimation();
@@ -271,14 +392,18 @@ class FlyingEye extends MovableObject {
         }, 1000 / 60);
     }
 
-    // Attack Character wenn in Reichweite
+    /**
+     * Attempts to attack character if within range
+     * @function tryAttack
+     * @param {Character} character - The character to attack
+     * @returns {void}
+     */
     tryAttack(character) {
         if (this.isDead || this.isAttacking) return;
 
         let distance = Math.abs(this.x - character.x);
         let now = Date.now();
 
-        // Prüfe ob in Attack-Range und Cooldown abgelaufen
         if (distance <= this.attackRange && now - this.lastAttackTime >= this.attackCooldown) {
             this.isAttacking = true;
             this.currentAttackFrame = 0;
@@ -286,34 +411,46 @@ class FlyingEye extends MovableObject {
         }
     }
 
-    // Schaden an Character zufügen bei Attack-Frame
+    /**
+     * Deals damage to character during attack frame
+     * @function dealDamageToCharacter
+     * @returns {void}
+     */
     dealDamageToCharacter() {
         if (!this.world || !this.world.character) return;
 
         let distance = Math.abs(this.x - this.world.character.x);
 
-        // Prüfe ob Character noch in Reichweite ist
-        if (distance <= this.attackRange + 20) { // +20px Toleranz
+        if (distance <= this.attackRange + 20) {
             this.world.character.takeAttackDamage(CONFIG.DAMAGE.FLYING_EYE_ATTACK);
             console.log('Flying Eye dealt damage to character!');
         }
     }
 
+    /**
+     * Handles death state and animation
+     * @function die
+     * @returns {void}
+     */
     die() {
         if (this.isDead) return;
 
         this.isDead = true;
         this.currentDeathFrame = 0;
         this.deathAnimationFinished = false;
-        this.speed = 0; // Stop movement
+        this.speed = 0;
         console.log('Flying Eye died!');
     }
 
-    // Debug: Draw collision frame
+    /**
+     * Draws collision frame for debugging
+     * @function drawFrame
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawFrame(ctx) {
         if (!CONFIG.SHOW_COLLISION_BOXES) return;
 
-        // Collision box (cyan)
         ctx.beginPath();
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'cyan';

@@ -3,34 +3,43 @@
  * Contains AI behavior, combat logic, and animation updates
  */
 
-// AI System
+/**
+ * Updates the endboss AI behavior including phase and movement
+ * @function updateAI
+ * @returns {void}
+ */
 Endboss.prototype.updateAI = function() {
     setInterval(() => {
-        // Check if game is paused
         if (this.world && this.world.isPaused) return;
 
         if (this.isDead) return;
 
-        // Update Phase basierend auf HP
         this.updatePhase();
 
-        // Update Aggro basierend auf Character-Distanz (wird von world.class.js gesetzt)
         this.updateMovement();
     }, 1000 / 60);
 };
 
+/**
+ * Updates the endboss combat phase based on current HP percentage
+ * @function updatePhase
+ * @returns {void}
+ */
 Endboss.prototype.updatePhase = function() {
     let hpPercentage = (this.currentHP / this.maxHP) * 100;
 
     if (hpPercentage <= 50) {
-        // Phase 2: 50%-0% HP - Schnellere Bewegung
         this.speed = this.baseSpeed * this.phase2SpeedMultiplier;
     } else {
-        // Phase 1: 100%-50% HP - Langsame Bewegung
         this.speed = this.baseSpeed;
     }
 };
 
+/**
+ * Updates endboss movement based on aggro and walking state
+ * @function updateMovement
+ * @returns {void}
+ */
 Endboss.prototype.updateMovement = function() {
     if (this.shouldStopMovement()) return;
 
@@ -39,6 +48,11 @@ Endboss.prototype.updateMovement = function() {
     }
 };
 
+/**
+ * Checks if movement should be stopped due to attacks or character death
+ * @function shouldStopMovement
+ * @returns {boolean} True if movement should stop
+ */
 Endboss.prototype.shouldStopMovement = function() {
     if (this.isAttacking2 || this.isAttacking3) {
         this.isWalking = false;
@@ -53,6 +67,11 @@ Endboss.prototype.shouldStopMovement = function() {
     return false;
 };
 
+/**
+ * Moves the endboss towards the target character
+ * @function moveTowardsTarget
+ * @returns {void}
+ */
 Endboss.prototype.moveTowardsTarget = function() {
     let distanceToTarget = this.targetCharacterX - this.x;
     let absDistance = Math.abs(distanceToTarget);
@@ -71,6 +90,12 @@ Endboss.prototype.moveTowardsTarget = function() {
     }
 };
 
+/**
+ * Sets aggro state and walking behavior based on character position
+ * @function setAggro
+ * @param {Object} character - The character object to target
+ * @returns {void}
+ */
 Endboss.prototype.setAggro = function(character) {
     if (character.isDead) {
         this.deactivateAggro();
@@ -82,16 +107,33 @@ Endboss.prototype.setAggro = function(character) {
     this.targetCharacterX = character.x;
 };
 
+/**
+ * Deactivates aggro and walking state
+ * @function deactivateAggro
+ * @returns {void}
+ */
 Endboss.prototype.deactivateAggro = function() {
     this.isAggro = false;
     this.isWalking = false;
 };
 
+/**
+ * Updates aggro state based on distance to character
+ * @function updateAggroState
+ * @param {Object} character - The character object to check distance to
+ * @returns {void}
+ */
 Endboss.prototype.updateAggroState = function(character) {
     let distance = Math.abs(this.x - character.x);
     this.isAggro = distance <= this.aggroRange;
 };
 
+/**
+ * Updates walking state based on distance to character
+ * @function updateWalkingState
+ * @param {Object} character - The character object to check distance to
+ * @returns {void}
+ */
 Endboss.prototype.updateWalkingState = function(character) {
     if (Math.abs(character.x - this.x) >= 50) {
         this.isWalking = this.isAggro;
@@ -100,7 +142,12 @@ Endboss.prototype.updateWalkingState = function(character) {
     }
 };
 
-// Combat System
+/**
+ * Attempts to attack the character if within range
+ * @function tryAttack
+ * @param {Object} character - The character to potentially attack
+ * @returns {void}
+ */
 Endboss.prototype.tryAttack = function(character) {
     if (this.isDead || this.isAttacking2 || this.isAttacking3) return;
 
@@ -110,6 +157,11 @@ Endboss.prototype.tryAttack = function(character) {
     }
 };
 
+/**
+ * Executes a random attack (attack 2 or attack 3)
+ * @function executeRandomAttack
+ * @returns {void}
+ */
 Endboss.prototype.executeRandomAttack = function() {
     let now = Date.now();
     let useAttack3 = Math.random() > 0.5;
@@ -121,45 +173,83 @@ Endboss.prototype.executeRandomAttack = function() {
     }
 };
 
+/**
+ * Checks if attack 3 can be used based on cooldown
+ * @function canUseAttack3
+ * @param {number} now - Current timestamp
+ * @returns {boolean} True if attack 3 is available
+ */
 Endboss.prototype.canUseAttack3 = function(now) {
     return now - this.lastAttack3Time >= this.attack3Cooldown;
 };
 
+/**
+ * Starts attack 3 animation and sets state
+ * @function startAttack3
+ * @param {number} now - Current timestamp
+ * @returns {void}
+ */
 Endboss.prototype.startAttack3 = function(now) {
     this.isAttacking3 = true;
     this.currentAttack3Frame = 0;
     this.lastAttack3Time = now;
 };
 
+/**
+ * Checks if attack 2 can be used based on cooldown
+ * @function canUseAttack2
+ * @param {number} now - Current timestamp
+ * @returns {boolean} True if attack 2 is available
+ */
 Endboss.prototype.canUseAttack2 = function(now) {
     return now - this.lastAttack2Time >= this.attack2Cooldown;
 };
 
+/**
+ * Starts attack 2 animation and sets state
+ * @function startAttack2
+ * @param {number} now - Current timestamp
+ * @returns {void}
+ */
 Endboss.prototype.startAttack2 = function(now) {
     this.isAttacking2 = true;
     this.currentAttack2Frame = 0;
     this.lastAttack2Time = now;
 };
 
-// Schaden an Character zufügen bei Attack-Frame
+/**
+ * Deals damage to the character if within attack range
+ * @function dealDamageToCharacter
+ * @param {number} damage - Amount of damage to deal
+ * @returns {void}
+ */
 Endboss.prototype.dealDamageToCharacter = function(damage) {
     if (!this.world || !this.world.character) return;
 
     let distance = Math.abs(this.x - this.world.character.x);
 
-    // Prüfe ob Character noch in Reichweite ist
-    if (distance <= this.attackRange + 30) { // +30px Toleranz
+    if (distance <= this.attackRange + 30) {
         this.world.character.takeAttackDamage(damage);
         console.log(`Endboss dealt ${damage} damage to character!`);
     }
 };
 
+/**
+ * Triggers the take hit animation if not already playing
+ * @function playTakeHitAnimation
+ * @returns {void}
+ */
 Endboss.prototype.playTakeHitAnimation = function() {
     if (this.isDead || this.isTakingHit) return;
     this.isTakingHit = true;
     this.currentHitFrame = 0;
 };
 
+/**
+ * Handles endboss death and starts death animation
+ * @function die
+ * @returns {void}
+ */
 Endboss.prototype.die = function() {
     if (this.isDead) return;
 
@@ -169,7 +259,11 @@ Endboss.prototype.die = function() {
     console.log('Endboss died!');
 };
 
-// Animation Updates
+/**
+ * Updates idle animation frame cycling
+ * @function updateIdleAnimation
+ * @returns {void}
+ */
 Endboss.prototype.updateIdleAnimation = function() {
     let now = Date.now();
     if (now - this.lastIdleFrameTime > this.idleAnimationSpeed) {
@@ -181,6 +275,11 @@ Endboss.prototype.updateIdleAnimation = function() {
     }
 };
 
+/**
+ * Updates walking animation frame cycling
+ * @function updateWalkAnimation
+ * @returns {void}
+ */
 Endboss.prototype.updateWalkAnimation = function() {
     let now = Date.now();
     if (now - this.lastWalkFrameTime > this.walkAnimationSpeed) {
@@ -192,6 +291,11 @@ Endboss.prototype.updateWalkAnimation = function() {
     }
 };
 
+/**
+ * Updates hit animation and manages animation completion
+ * @function updateHitAnimation
+ * @returns {void}
+ */
 Endboss.prototype.updateHitAnimation = function() {
     if (!this.isTakingHit) return;
 
@@ -206,6 +310,11 @@ Endboss.prototype.updateHitAnimation = function() {
     }
 };
 
+/**
+ * Updates attack 2 animation and handles damage timing
+ * @function updateAttack2Animation
+ * @returns {void}
+ */
 Endboss.prototype.updateAttack2Animation = function() {
     if (!this.isAttacking2) return;
 
@@ -215,6 +324,12 @@ Endboss.prototype.updateAttack2Animation = function() {
     }
 };
 
+/**
+ * Advances attack 2 animation frame and handles damage timing
+ * @function advanceAttack2Frame
+ * @param {number} now - Current timestamp
+ * @returns {void}
+ */
 Endboss.prototype.advanceAttack2Frame = function(now) {
     this.currentAttack2Frame++;
 
@@ -228,11 +343,21 @@ Endboss.prototype.advanceAttack2Frame = function(now) {
     this.lastAttack2FrameTime = now;
 };
 
+/**
+ * Ends attack 2 animation and resets state
+ * @function endAttack2Animation
+ * @returns {void}
+ */
 Endboss.prototype.endAttack2Animation = function() {
     this.isAttacking2 = false;
     this.currentAttack2Frame = 0;
 };
 
+/**
+ * Updates attack 3 animation and handles damage timing
+ * @function updateAttack3Animation
+ * @returns {void}
+ */
 Endboss.prototype.updateAttack3Animation = function() {
     if (!this.isAttacking3) return;
 
@@ -242,6 +367,12 @@ Endboss.prototype.updateAttack3Animation = function() {
     }
 };
 
+/**
+ * Advances attack 3 animation frame and handles damage timing
+ * @function advanceAttack3Frame
+ * @param {number} now - Current timestamp
+ * @returns {void}
+ */
 Endboss.prototype.advanceAttack3Frame = function(now) {
     this.currentAttack3Frame++;
 
@@ -255,11 +386,21 @@ Endboss.prototype.advanceAttack3Frame = function(now) {
     this.lastAttack3FrameTime = now;
 };
 
+/**
+ * Ends attack 3 animation and resets state
+ * @function endAttack3Animation
+ * @returns {void}
+ */
 Endboss.prototype.endAttack3Animation = function() {
     this.isAttacking3 = false;
     this.currentAttack3Frame = 0;
 };
 
+/**
+ * Updates death animation and manages completion state
+ * @function updateDeathAnimation
+ * @returns {void}
+ */
 Endboss.prototype.updateDeathAnimation = function() {
     if (this.deathAnimationFinished) return;
 
