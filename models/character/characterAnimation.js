@@ -3,7 +3,11 @@
  * Contains all animation update and sprite drawing functions
  */
 
-// Animation Update Functions
+/**
+ * Updates idle animation frame cycling
+ * @function updateIdleAnimation
+ * @returns {void}
+ */
 Character.prototype.updateIdleAnimation = function() {
     let now = Date.now();
     if (now - this.lastIdleFrameTime > this.idleAnimationSpeed) {
@@ -15,6 +19,11 @@ Character.prototype.updateIdleAnimation = function() {
     }
 };
 
+/**
+ * Updates walking animation frame cycling
+ * @function updateWalkAnimation
+ * @returns {void}
+ */
 Character.prototype.updateWalkAnimation = function() {
     let now = Date.now();
     if (now - this.lastWalkFrameTime > this.walkAnimationSpeed) {
@@ -26,17 +35,26 @@ Character.prototype.updateWalkAnimation = function() {
     }
 };
 
+/**
+ * Updates jump animation frame cycling with limited frame count
+ * @function updateJumpAnimation
+ * @returns {void}
+ */
 Character.prototype.updateJumpAnimation = function() {
     let now = Date.now();
     if (now - this.lastJumpFrameTime > this.jumpAnimationSpeed) {
-        if (this.currentJumpFrame < 5) {  // Nur bis Frame 5 animieren
+        if (this.currentJumpFrame < 5) {
             this.currentJumpFrame++;
         }
-        // stop at frame 7 - not other animations
         this.lastJumpFrameTime = now;
     }
 };
 
+/**
+ * Updates running animation frame cycling
+ * @function updateRunAnimation
+ * @returns {void}
+ */
 Character.prototype.updateRunAnimation = function() {
     let now = Date.now();
     if (now - this.lastRunFrameTime > this.runAnimationSpeed) {
@@ -48,6 +66,11 @@ Character.prototype.updateRunAnimation = function() {
     }
 };
 
+/**
+ * Updates hurt animation and manages hurt state
+ * @function updateHurtAnimation
+ * @returns {void}
+ */
 Character.prototype.updateHurtAnimation = function() {
     if (!this.isHurt) return;
 
@@ -62,6 +85,11 @@ Character.prototype.updateHurtAnimation = function() {
     }
 };
 
+/**
+ * Updates death animation and manages completion state
+ * @function updateDeathAnimation
+ * @returns {void}
+ */
 Character.prototype.updateDeathAnimation = function() {
     if (this.deathAnimationFinished) return;
 
@@ -69,13 +97,18 @@ Character.prototype.updateDeathAnimation = function() {
     if (now - this.lastDeathFrameTime > this.deathAnimationSpeed) {
         this.currentDeathFrame++;
         if (this.currentDeathFrame >= this.deathFrameCount) {
-            this.currentDeathFrame = this.deathFrameCount - 1; // Letzten Frame halten
+            this.currentDeathFrame = this.deathFrameCount - 1;
             this.deathAnimationFinished = true;
         }
         this.lastDeathFrameTime = now;
     }
 };
 
+/**
+ * Updates attack 1 animation and handles projectile spawning
+ * @function updateAttack1Animation
+ * @returns {void}
+ */
 Character.prototype.updateAttack1Animation = function() {
     if (!this.isAttacking1) return;
 
@@ -99,6 +132,11 @@ Character.prototype.updateAttack1Animation = function() {
     }
 };
 
+/**
+ * Updates attack 2 animation and handles projectile spawning
+ * @function updateAttack2Animation
+ * @returns {void}
+ */
 Character.prototype.updateAttack2Animation = function() {
     if (!this.isAttacking2) return;
 
@@ -106,13 +144,11 @@ Character.prototype.updateAttack2Animation = function() {
     if (now - this.lastAttack2FrameTime > this.attack2AnimationSpeed) {
         this.currentAttack2Frame++;
 
-        // Spawne Projektil bei Frame 6
         if (this.currentAttack2Frame === 6 && !this.attack2ProjectileSpawned) {
-            this.spawnProjectile(2); // Typ 2 = Charge_2
+            this.spawnProjectile(2);
             this.attack2ProjectileSpawned = true;
         }
 
-        // Animation beenden
         if (this.currentAttack2Frame >= this.attack2FrameCount) {
             this.isAttacking2 = false;
             this.currentAttack2Frame = 0;
@@ -122,7 +158,18 @@ Character.prototype.updateAttack2Animation = function() {
     }
 };
 
-// Sprite Drawing Functions
+/**
+ * Draws a sprite with optional direction flipping
+ * @function drawSprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {HTMLImageElement} image - Image to draw
+ * @param {number} frameX - X position of frame in sprite sheet
+ * @param {number} frameWidth - Width of single frame
+ * @param {number} frameHeight - Height of single frame
+ * @param {number} displayWidth - Display width on canvas
+ * @param {number} displayHeight - Display height on canvas
+ * @returns {void}
+ */
 Character.prototype.drawSprite = function(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
     if (!image || !image.complete) return;
 
@@ -148,6 +195,12 @@ Character.prototype.drawSprite = function(ctx, image, frameX, frameWidth, frameH
     }
 };
 
+/**
+ * Draws idle animation sprite
+ * @function drawIdleSprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @returns {void}
+ */
 Character.prototype.drawIdleSprite = function(ctx) {
     let frameX = this.currentIdleFrame * this.idleSpriteWidth;
     this.drawSprite(ctx, this.idleImage, frameX,
@@ -155,6 +208,12 @@ Character.prototype.drawIdleSprite = function(ctx) {
         this.idleDisplayWidth, this.idleDisplayHeight);
 };
 
+/**
+ * Draws walking animation sprite
+ * @function drawWalkSprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @returns {void}
+ */
 Character.prototype.drawWalkSprite = function(ctx) {
     let frameX = this.currentWalkFrame * this.walkFrameWidth;
     this.drawSprite(ctx, this.walkImage, frameX,
@@ -162,6 +221,12 @@ Character.prototype.drawWalkSprite = function(ctx) {
         this.walkDisplayWidth, this.walkDisplayHeight);
 };
 
+/**
+ * Draws jumping animation sprite
+ * @function drawJumpSprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @returns {void}
+ */
 Character.prototype.drawJumpSprite = function(ctx) {
     let frameX = this.currentJumpFrame * this.jumpFrameWidth;
     this.drawSprite(ctx, this.jumpImage, frameX,
@@ -169,6 +234,12 @@ Character.prototype.drawJumpSprite = function(ctx) {
         this.jumpDisplayWidth, this.jumpDisplayHeight);
 };
 
+/**
+ * Draws running animation sprite
+ * @function drawRunSprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @returns {void}
+ */
 Character.prototype.drawRunSprite = function(ctx) {
     let frameX = this.currentRunFrame * this.runFrameWidth;
     this.drawSprite(ctx, this.runImage, frameX,
@@ -176,6 +247,12 @@ Character.prototype.drawRunSprite = function(ctx) {
         this.runDisplayWidth, this.runDisplayHeight);
 };
 
+/**
+ * Draws hurt animation sprite
+ * @function drawHurtSprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @returns {void}
+ */
 Character.prototype.drawHurtSprite = function(ctx) {
     let frameX = this.currentHurtFrame * this.hurtFrameWidth;
     this.drawSprite(ctx, this.hurtImage, frameX,
@@ -183,6 +260,12 @@ Character.prototype.drawHurtSprite = function(ctx) {
         this.hurtDisplayWidth, this.hurtDisplayHeight);
 };
 
+/**
+ * Draws death animation sprite
+ * @function drawDeathSprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @returns {void}
+ */
 Character.prototype.drawDeathSprite = function(ctx) {
     let frameX = this.currentDeathFrame * this.deathFrameWidth;
     this.drawSprite(ctx, this.deathImage, frameX,
@@ -190,6 +273,12 @@ Character.prototype.drawDeathSprite = function(ctx) {
         this.deathDisplayWidth, this.deathDisplayHeight);
 };
 
+/**
+ * Draws attack 1 animation sprite
+ * @function drawAttack1Sprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @returns {void}
+ */
 Character.prototype.drawAttack1Sprite = function(ctx) {
     let frameX = this.currentAttack1Frame * this.attack1FrameWidth;
     this.drawSprite(ctx, this.attack1Image, frameX,
@@ -197,6 +286,12 @@ Character.prototype.drawAttack1Sprite = function(ctx) {
         this.attack1DisplayWidth, this.attack1DisplayHeight);
 };
 
+/**
+ * Draws attack 2 animation sprite
+ * @function drawAttack2Sprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @returns {void}
+ */
 Character.prototype.drawAttack2Sprite = function(ctx) {
     let frameX = this.currentAttack2Frame * this.attack2FrameWidth;
     this.drawSprite(ctx, this.attack2Image, frameX,
@@ -204,7 +299,11 @@ Character.prototype.drawAttack2Sprite = function(ctx) {
         this.attack2DisplayWidth, this.attack2DisplayHeight);
 };
 
-// Animation Loop Management
+/**
+ * Starts the animation loop that updates all character animations
+ * @function startAnimationLoop
+ * @returns {void}
+ */
 Character.prototype.startAnimationLoop = function() {
     this.animationIntervalId = setInterval(() => {
         if (this.world && this.world.isPaused) return;

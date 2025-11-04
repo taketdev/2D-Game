@@ -1,42 +1,35 @@
 class Character extends MovableObject {
-    // Character Properties
     width = 200;
     height = 200;
     y = 165;
-    speed = 8; // Reduziert von 15 auf 8 für langsamere Bewegung
+    speed = 8;
     world;
 
-    // Health System
     maxHP = 100;
     currentHP = 100;
     isDead = false;
 
-    // Mana System
     maxMana = 100;
     currentMana = 100;
-    manaCostPerSpell = 20; // 20 Mana pro Zauber
-    manaRegenRate = 5; // 5 Mana pro Sekunde
+    manaCostPerSpell = 20;
+    manaRegenRate = 5;
 
-    // Collision Box (angepasst an tatsächlichen Körper - zentriert)
     collisionOffsetX = 60;
     collisionOffsetY = 90;
     collisionWidth = 80;
     collisionHeight = 115;
 
-    // Interval IDs für Cleanup
     movementIntervalId;
     animationIntervalId;
     manaRegenIntervalId;
 
-    // Knockback Properties
     isKnockedBack = false;
     knockbackForce = 0;
-    knockbackDirection = 1; // 1 = rechts, -1 = links
+    knockbackDirection = 1;
     invulnerable = false;
-    invulnerableTime = 1000; // 1 Sekunde Unverwundbarkeit
+    invulnerableTime = 1000;
     lastHitTime = 0;
 
-    // Idle
     idleFrame;
     currentIdleFrame = 1;
     idleSpriteWidth = 128;
@@ -48,7 +41,6 @@ class Character extends MovableObject {
     isIdle = true;
     isRunning = false;
 
-    // Walk
     walkImage;
     currentWalkFrame = 0;
     walkFrameWidth = 128;
@@ -60,7 +52,6 @@ class Character extends MovableObject {
     walkDisplayWidth = 200;
     walkDisplayHeight = 200;
 
-    // Jump
     jumpImage;
     currentJumpFrame = 3;
     jumpFrameWidth = 128;
@@ -71,18 +62,16 @@ class Character extends MovableObject {
     jumpDisplayWidth = 200;
     jumpDisplayHeight = 200;
 
-    // Run
     runImage;
     currentRunFrame = 0;
     runFrameWidth = 128;
     runFrameHeight = 128;
-    runFrameCount = 8;  // Anzahl der Frames im Run-Spritesheet
-    runAnimationSpeed = 80;  // Schneller als Walk (80ms statt 100ms)
+    runFrameCount = 8;
+    runAnimationSpeed = 80;
     lastRunFrameTime = Date.now();
     runDisplayWidth = 200;
     runDisplayHeight = 200;
 
-    // Hurt
     hurtImage;
     currentHurtFrame = 0;
     hurtFrameWidth = 128;
@@ -94,7 +83,6 @@ class Character extends MovableObject {
     lastHurtFrameTime = Date.now();
     isHurt = false;
 
-    // Death
     deathImage;
     currentDeathFrame = 0;
     deathFrameWidth = 128;
@@ -106,37 +94,40 @@ class Character extends MovableObject {
     lastDeathFrameTime = Date.now();
     deathAnimationFinished = false;
 
-    // Attack 1 (D key) - Charge_1 Projektil
     attack1Image;
     currentAttack1Frame = 0;
-    attack1FrameWidth = 128; // 896 / 7 = 128
+    attack1FrameWidth = 128;
     attack1FrameHeight = 128;
-    attack1FrameCount = 7; // 0-6
+    attack1FrameCount = 7;
     attack1DisplayWidth = 200;
     attack1DisplayHeight = 200;
     attack1AnimationSpeed = 80;
     lastAttack1FrameTime = Date.now();
     isAttacking1 = false;
-    attack1Cooldown = 300; // 300ms Cooldown
+    attack1Cooldown = 300;
     lastAttack1Time = 0;
-    attack1ProjectileSpawned = false; // Flag für Projektil bei Frame 3
+    attack1ProjectileSpawned = false;
 
-    // Attack 2 (E key) - Charge_2 Projektil
     attack2Image;
     currentAttack2Frame = 0;
-    attack2FrameWidth = 128; // 1152 / 9 = 128
+    attack2FrameWidth = 128;
     attack2FrameHeight = 128;
-    attack2FrameCount = 9; // 0-8
+    attack2FrameCount = 9;
     attack2DisplayWidth = 200;
     attack2DisplayHeight = 200;
     attack2AnimationSpeed = 80;
     lastAttack2FrameTime = Date.now();
     isAttacking2 = false;
-    attack2Cooldown = 500; // 500ms Cooldown
+    attack2Cooldown = 500;
     lastAttack2Time = 0;
-    attack2ProjectileSpawned = false; // Flag für Projektil bei Frame 6
+    attack2ProjectileSpawned = false;
 
 
+    /**
+     * Creates a new character with default properties and loads all sprites
+     * @function constructor
+     * @returns {void}
+     */
     constructor() {
         super();
         this.loadIdleImage('./assets/wizard_assets/Wanderer Magican/Idle.png');
@@ -151,53 +142,110 @@ class Character extends MovableObject {
         this.applyGravity();
     }
 
+    /**
+     * Loads the idle animation sprite sheet
+     * @function loadIdleImage
+     * @param {string} path - Path to the idle image file
+     * @returns {void}
+     */
     loadIdleImage(path) {
         this.idleImage = new Image();
         this.idleImage.src = path;
     }
 
+    /**
+     * Loads the walking animation sprite sheet
+     * @function loadWalkImage
+     * @param {string} path - Path to the walk image file
+     * @returns {void}
+     */
     loadWalkImage(path) {
         this.walkImage = new Image();
         this.walkImage.src = path;
     }
 
+    /**
+     * Loads the jumping animation sprite sheet
+     * @function loadJumpImage
+     * @param {string} path - Path to the jump image file
+     * @returns {void}
+     */
     loadJumpImage(path) {
         this.jumpImage = new Image();
         this.jumpImage.src = path;
     }
 
+    /**
+     * Loads the running animation sprite sheet
+     * @function loadRunImage
+     * @param {string} path - Path to the run image file
+     * @returns {void}
+     */
     loadRunImage(path) {
         this.runImage = new Image();
         this.runImage.src = path;
     }
 
+    /**
+     * Loads the hurt animation sprite sheet
+     * @function loadHurtImage
+     * @param {string} path - Path to the hurt image file
+     * @returns {void}
+     */
     loadHurtImage(path) {
         this.hurtImage = new Image();
         this.hurtImage.src = path;
     }
 
+    /**
+     * Loads the death animation sprite sheet
+     * @function loadDeathImage
+     * @param {string} path - Path to the death image file
+     * @returns {void}
+     */
     loadDeathImage(path) {
         this.deathImage = new Image();
         this.deathImage.src = path;
     }
 
+    /**
+     * Loads the attack 1 animation sprite sheet
+     * @function loadAttack1Image
+     * @param {string} path - Path to the attack 1 image file
+     * @returns {void}
+     */
     loadAttack1Image(path) {
         this.attack1Image = new Image();
         this.attack1Image.src = path;
     }
 
+    /**
+     * Loads the attack 2 animation sprite sheet
+     * @function loadAttack2Image
+     * @param {string} path - Path to the attack 2 image file
+     * @returns {void}
+     */
     loadAttack2Image(path) {
         this.attack2Image = new Image();
         this.attack2Image.src = path;
     }
 
+    /**
+     * Starts all character animation and movement loops
+     * @function animate
+     * @returns {void}
+     */
     animate() {
         this.startMovementLoop();
         this.startAnimationLoop();
         this.startManaRegenerationLoop();
     }
 
-    // Cleanup method to clear all intervals
+    /**
+     * Cleans up all active intervals to prevent memory leaks
+     * @function cleanup
+     * @returns {void}
+     */
     cleanup() {
         if (this.movementIntervalId) {
             clearInterval(this.movementIntervalId);
@@ -213,7 +261,12 @@ class Character extends MovableObject {
         }
     }
 
-    // Debug: Draw collision frame
+    /**
+     * Draws debug collision frame for development purposes
+     * @function drawFrame
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @returns {void}
+     */
     drawFrame(ctx) {
         if (!CONFIG.SHOW_COLLISION_BOXES) return;
 

@@ -1,3 +1,8 @@
+/**
+ * Creates background objects for all battlegrounds and returns them as an array
+ * @function createBackgroundObjects
+ * @returns {Array} Array of background objects for the level
+ */
 function createBackgroundObjects() {
     let backgroundObjects = [];
     addBattleground1Objects(backgroundObjects);
@@ -6,6 +11,12 @@ function createBackgroundObjects() {
     return backgroundObjects;
 }
 
+/**
+ * Adds battleground 1 background objects to the provided array
+ * @function addBattleground1Objects
+ * @param {Array} backgroundObjects - Array to add background objects to
+ * @returns {void}
+ */
 function addBattleground1Objects(backgroundObjects) {
     for (let i = 0; i < 3; i++) {
         let x = i * 720;
@@ -21,6 +32,12 @@ function addBattleground1Objects(backgroundObjects) {
     }
 }
 
+/**
+ * Adds battleground 3 background objects to the provided array
+ * @function addBattleground3Objects
+ * @param {Array} backgroundObjects - Array to add background objects to
+ * @returns {void}
+ */
 function addBattleground3Objects(backgroundObjects) {
     for (let i = 3; i < 5; i++) {
         let x = i * 720;
@@ -35,6 +52,12 @@ function addBattleground3Objects(backgroundObjects) {
     }
 }
 
+/**
+ * Adds battleground 2 background objects to the provided array
+ * @function addBattleground2Objects
+ * @param {Array} backgroundObjects - Array to add background objects to
+ * @returns {void}
+ */
 function addBattleground2Objects(backgroundObjects) {
     for (let i = 5; i < 8; i++) {
         let x = i * 720;
@@ -48,7 +71,12 @@ function addBattleground2Objects(backgroundObjects) {
     }
 }
 
-// Funktion zum Erstellen von Goblins mit spezifischer Position
+/**
+ * Creates a new Goblin enemy at the specified position
+ * @function createGoblinAt
+ * @param {number} x - The x-coordinate position for the goblin
+ * @returns {Goblin} A new Goblin instance with patrol boundaries set
+ */
 function createGoblinAt(x) {
     let goblin = new Goblin();
     goblin.x = x;
@@ -57,7 +85,12 @@ function createGoblinAt(x) {
     return goblin;
 }
 
-// Funktion zum Erstellen von Flying Eyes mit spezifischer Position
+/**
+ * Creates a new Flying Eye enemy at the specified position
+ * @function createFlyingEyeAt
+ * @param {number} x - The x-coordinate position for the flying eye
+ * @returns {FlyingEye} A new FlyingEye instance with starting Y position set
+ */
 function createFlyingEyeAt(x) {
     let flyingEye = new FlyingEye();
     flyingEye.x = x;
@@ -65,7 +98,12 @@ function createFlyingEyeAt(x) {
     return flyingEye;
 }
 
-// Funktion zum Erstellen von Mushrooms mit spezifischer Position
+/**
+ * Creates a new Mushroom enemy at the specified position
+ * @function createMushroomAt
+ * @param {number} x - The x-coordinate position for the mushroom
+ * @returns {Mushroom} A new Mushroom instance with patrol boundaries set
+ */
 function createMushroomAt(x) {
     let mushroom = new Mushroom();
     mushroom.x = x;
@@ -74,7 +112,12 @@ function createMushroomAt(x) {
     return mushroom;
 }
 
-// Funktion zum Erstellen von Skeletons mit spezifischer Position
+/**
+ * Creates a new Skeleton enemy at the specified position
+ * @function createSkeletonAt
+ * @param {number} x - The x-coordinate position for the skeleton
+ * @returns {Skeleton} A new Skeleton instance with patrol boundaries set
+ */
 function createSkeletonAt(x) {
     let skeleton = new Skeleton();
     skeleton.x = x;
@@ -83,13 +126,17 @@ function createSkeletonAt(x) {
     return skeleton;
 }
 
-// Funktion zum Erstellen von Wolken mit spezifischer Position
+/**
+ * Creates a new Cloud object at the specified position with customizable appearance
+ * @function createCloudAt
+ * @param {number} x - The x-coordinate position for the cloud
+ * @param {number} cloudType - The cloud type/image variant (1-5, defaults to 1)
+ * @returns {Cloud} A new Cloud instance with position and image set
+ */
 function createCloudAt(x, cloudType = 1) {
     let cloud = new Cloud();
-    // Setze spezifische Position
     cloud.x = x;
     
-    // Lade verschiedene Wolken-Bilder für Abwechslung
     const cloudImages = [
         './assets/clouds/Cloud1.png',
         './assets/clouds/Cloud2.png',
@@ -100,12 +147,16 @@ function createCloudAt(x, cloudType = 1) {
     
     cloud.loadImage(cloudImages[cloudType - 1] || cloudImages[0]);
     
-    // Variiere Y-Position leicht für natürlicheres Aussehen
     cloud.y = 30 + Math.random() * 40; // Y zwischen 30 und 70
     
     return cloud;
 }
 
+/**
+ * Creates and returns a complete Level 1 instance with all game objects
+ * @function createLevel1
+ * @returns {Level} A new Level instance with enemies, clouds, background objects and collectibles
+ */
 function createLevel1() {
     return new Level(
         createEnemies(),
@@ -115,6 +166,11 @@ function createLevel1() {
     );
 }
 
+/**
+ * Creates all enemy objects for Level 1 with specific positions
+ * @function createEnemies
+ * @returns {Array} Array of enemy objects including goblins, flying eyes, mushrooms and skeletons
+ */
 function createEnemies() {
     return [
         createGoblinAt(500),
@@ -130,6 +186,11 @@ function createEnemies() {
     ];
 }
 
+/**
+ * Creates all cloud objects for Level 1 with varied positions and types
+ * @function createClouds
+ * @returns {Array} Array of cloud objects with different images and positions
+ */
 function createClouds() {
     return [
         createCloudAt(400, 1),
@@ -141,5 +202,7 @@ function createClouds() {
     ];
 }
 
-// Create initial level instance for compatibility
+/**
+ * Initial level instance created for compatibility with existing code
+ */
 const level1 = createLevel1();
