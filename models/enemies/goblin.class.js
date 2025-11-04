@@ -98,24 +98,31 @@ class Goblin extends MovableObject {
 
     constructor() {
         super();
+        this.loadAllImages();
+        this.initializePosition();
+        this.setupPatrolArea();
+        this.animate();
+        this.patrol();
+    }
+
+    loadAllImages() {
         this.loadIdleImage('./assets/monsters/Goblin/Idle.png');
         this.loadRunImage('./assets/monsters/Goblin/Run.png');
         this.loadTakeHitImage('./assets/monsters/Goblin/Take Hit.png');
         this.loadAttackImage('./assets/monsters/Goblin/Attack.png');
         this.loadDeathImage('./assets/monsters/Goblin/Death.png');
+    }
 
-        // Random position and speed (langsamer, angepasst an Character)
+    initializePosition() {
         this.x = 200 + Math.random() * 500;
         this.speed = 0.5 + Math.random() * 0.5;
+    }
 
-        // Setup Patrol-Bereich
+    setupPatrolArea() {
         this.patrolStartX = this.x;
         this.patrolEndX = this.x + this.patrolRange;
-        this.movingRight = Math.random() > 0.5; // Random start direction
-        this.otherDirection = !this.movingRight; // Sprite spiegeln
-
-        this.animate();
-        this.patrol();
+        this.movingRight = Math.random() > 0.5;
+        this.otherDirection = !this.movingRight;
     }
 
     loadIdleImage(path) {

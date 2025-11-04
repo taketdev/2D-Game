@@ -546,17 +546,20 @@ updateMovementStatus(movementState) {
         if (this.isDead || this.isKnockedBack) return;
 
         this.isKnockedBack = true;
+        this.determinePushbackDirection(enemyX);
+        this.knockbackForce = 2;
+        this.schedulePushbackEnd();
+    }
 
-        // Bestimme Pushback-Richtung basierend auf Enemy-Position
+    determinePushbackDirection(enemyX) {
         if (this.x < enemyX) {
-            this.knockbackDirection = -1; // Nach links
+            this.knockbackDirection = -1;
         } else {
-            this.knockbackDirection = 1; // Nach rechts
+            this.knockbackDirection = 1;
         }
+    }
 
-        this.knockbackForce = 2; // Sanftes Wegschieben
-
-        // Pushback-Effekt nach 150ms beenden
+    schedulePushbackEnd() {
         setTimeout(() => {
             this.isKnockedBack = false;
             this.knockbackForce = 0;
@@ -643,22 +646,23 @@ updateMovementStatus(movementState) {
     spawnProjectile(type) {
         if (!this.world) return;
 
-        // Bestimme Schaden basierend auf Projektil-Typ
-        let damage = type === 1 ? 15 : 25; // Attack 1: 15 Schaden, Attack 2: 25 Schaden
+        let damage = this.calculateProjectileDamage(type);
+        let { projectileX, projectileY, direction } = this.calculateProjectileSpawnData();
 
-        // Berechne Spawn-Position (vor dem Character)
-        let projectileX = this.otherDirection ? this.x + 20 : this.x + this.width - 60;
-        let projectileY = this.y + 60; // Ungefähr auf Brusthöhe
-
-        // Richtung: 1 = rechts, -1 = links
-        let direction = this.otherDirection ? -1 : 1;
-
-        // Erstelle Projektil
         let projectile = new Projectile(projectileX, projectileY, direction, type, damage);
-        projectile.world = this.world; // Setze World-Referenz
-
-        // Füge zur World hinzu
+        projectile.world = this.world;
         this.world.addProjectile(projectile);
+    }
+
+    calculateProjectileDamage(type) {
+        return type === 1 ? 15 : 25;
+    }
+
+    calculateProjectileSpawnData() {
+        let projectileX = this.otherDirection ? this.x + 20 : this.x + this.width - 60;
+        let projectileY = this.y + 60;
+        let direction = this.otherDirection ? -1 : 1;
+        return { projectileX, projectileY, direction };
     }
 
     // Debug: Draw collision frame

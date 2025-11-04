@@ -202,27 +202,33 @@ class TouchControls {
     draw(ctx) {
         for (let [name, button] of Object.entries(this.buttons)) {
             const isActive = this.keyboard[button.key];
-
-            // Button background
-            ctx.fillStyle = isActive ? 'rgba(164, 212, 180, 0.9)' : button.color;
-            ctx.fillRect(button.x, button.y, button.width, button.height);
-
-            // Button border
-            ctx.strokeStyle = isActive ? '#a4d4b4' : '#3f6654';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(button.x, button.y, button.width, button.height);
-
-            // Button label
-            ctx.fillStyle = isActive ? '#1a2f23' : '#a4d4b4';
-            ctx.font = 'bold 24px PixelifySans';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(
-                button.label,
-                button.x + button.width / 2,
-                button.y + button.height / 2
-            );
+            this.drawButton(ctx, button, isActive);
         }
+    }
+
+    drawButton(ctx, button, isActive) {
+        this.drawButtonBackground(ctx, button, isActive);
+        this.drawButtonBorder(ctx, button, isActive);
+        this.drawButtonLabel(ctx, button, isActive);
+    }
+
+    drawButtonBackground(ctx, button, isActive) {
+        ctx.fillStyle = isActive ? 'rgba(164, 212, 180, 0.9)' : button.color;
+        ctx.fillRect(button.x, button.y, button.width, button.height);
+    }
+
+    drawButtonBorder(ctx, button, isActive) {
+        ctx.strokeStyle = isActive ? '#a4d4b4' : '#3f6654';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(button.x, button.y, button.width, button.height);
+    }
+
+    drawButtonLabel(ctx, button, isActive) {
+        ctx.fillStyle = isActive ? '#1a2f23' : '#a4d4b4';
+        ctx.font = 'bold 24px PixelifySans';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(button.label, button.x + button.width / 2, button.y + button.height / 2);
     }
 
     /**
