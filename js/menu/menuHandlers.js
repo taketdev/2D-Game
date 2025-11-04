@@ -88,6 +88,13 @@ Menu.prototype.handleClick = function(e) {
     this.handleMainMenuClick(x, y);
 };
 
+/**
+ * Checks and handles a click on the global pause button (outside the menu)
+ * @function handlePauseButtonClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {boolean} True if pause button was clicked and handled, false otherwise
+ */
 Menu.prototype.handlePauseButtonClick = function(x, y) {
     if (!this.isActive && this.gameStarted && world && world.pauseButtonBounds) {
         if (this.isPointInButton(x, y, world.pauseButtonBounds)) {
@@ -98,6 +105,13 @@ Menu.prototype.handlePauseButtonClick = function(x, y) {
     return false;
 };
 
+/**
+ * Delegates click handling to the currently open dialog (settings/controls/pause)
+ * @function handleDialogClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {boolean} True if a dialog handled the click, false otherwise
+ */
 Menu.prototype.handleDialogClick = function(x, y) {
     if (this.currentDialog === 'settings') {
         this.handleSettingsClick(x, y);
@@ -114,6 +128,13 @@ Menu.prototype.handleDialogClick = function(x, y) {
     return false;
 };
 
+/**
+ * Handles clicks on main menu buttons (play, settings, exit, help)
+ * @function handleMainMenuClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {void}
+ */
 Menu.prototype.handleMainMenuClick = function(x, y) {
     if (this.checkPlayButtonClick(x, y)) return;
     if (this.checkSettingsButtonClick(x, y)) return;
@@ -121,6 +142,13 @@ Menu.prototype.handleMainMenuClick = function(x, y) {
     if (this.checkQuestionButtonClick(x, y)) return;
 };
 
+/**
+ * Checks whether the Play button was clicked and triggers the appropriate action
+ * @function checkPlayButtonClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {boolean} True if the play button handled the click, false otherwise
+ */
 Menu.prototype.checkPlayButtonClick = function(x, y) {
     const playBtn = this.buttonStates.play;
     if (playBtn.bounds && this.isPointInButton(x, y, playBtn.bounds)) {
@@ -134,6 +162,13 @@ Menu.prototype.checkPlayButtonClick = function(x, y) {
     return false;
 };
 
+/**
+ * Checks whether the Settings button was clicked and opens the settings dialog
+ * @function checkSettingsButtonClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {boolean} True if the settings button handled the click, false otherwise
+ */
 Menu.prototype.checkSettingsButtonClick = function(x, y) {
     const settingsBtn = this.buttonStates.settings;
     if (settingsBtn.bounds && this.isPointInButton(x, y, settingsBtn.bounds)) {
@@ -143,6 +178,13 @@ Menu.prototype.checkSettingsButtonClick = function(x, y) {
     return false;
 };
 
+/**
+ * Checks whether the Exit button was clicked and triggers exit/return behavior
+ * @function checkExitButtonClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {boolean} True if the exit button handled the click, false otherwise
+ */
 Menu.prototype.checkExitButtonClick = function(x, y) {
     const exitBtn = this.buttonStates.exit;
     if (exitBtn.bounds && this.isPointInButton(x, y, exitBtn.bounds)) {
@@ -156,6 +198,13 @@ Menu.prototype.checkExitButtonClick = function(x, y) {
     return false;
 };
 
+/**
+ * Checks whether the Question/Help button was clicked and opens controls/help
+ * @function checkQuestionButtonClick
+ * @param {number} x - Click X coordinate
+ * @param {number} y - Click Y coordinate
+ * @returns {boolean} True if the question/help button handled the click, false otherwise
+ */
 Menu.prototype.checkQuestionButtonClick = function(x, y) {
     const questionBtn = this.buttonStates.question;
     if (questionBtn.bounds && this.isPointInButton(x, y, questionBtn.bounds)) {
@@ -246,6 +295,12 @@ Menu.prototype.handleTouchStart = function(e) {
     }
 };
 
+/**
+ * Calculate scale factors between canvas display size and its drawing buffer
+ * Useful to convert client/touch coordinates to canvas coordinate space
+ * @function getTouchScaleFactors
+ * @returns {{scaleX:number, scaleY:number, rect:DOMRect}} scale factors and bounding rect
+ */
 Menu.prototype.getTouchScaleFactors = function() {
     const rect = this.canvas.getBoundingClientRect();
     const scaleX = this.canvas.width / rect.width;
@@ -253,6 +308,15 @@ Menu.prototype.getTouchScaleFactors = function() {
     return { scaleX, scaleY, rect };
 };
 
+/**
+ * Process an individual touchstart point and update button pressed states
+ * @function processTouchStartPoint
+ * @param {Touch} touch - The touch object from the event
+ * @param {number} scaleX - Horizontal canvas scale factor
+ * @param {number} scaleY - Vertical canvas scale factor
+ * @param {DOMRect} rect - Canvas bounding rect used for coordinate conversion
+ * @returns {void}
+ */
 Menu.prototype.processTouchStartPoint = function(touch, scaleX, scaleY, rect) {
     const x = (touch.clientX - rect.left) * scaleX;
     const y = (touch.clientY - rect.top) * scaleY;
@@ -262,6 +326,13 @@ Menu.prototype.processTouchStartPoint = function(touch, scaleX, scaleY, rect) {
     }
 };
 
+/**
+ * Mark button(s) as pressed if the provided point lies inside their bounds
+ * @function checkButtonPress
+ * @param {number} x - X coordinate in canvas space
+ * @param {number} y - Y coordinate in canvas space
+ * @returns {void}
+ */
 Menu.prototype.checkButtonPress = function(x, y) {
     Object.entries(this.buttonStates).forEach(([name, state]) => {
         if (state.bounds && this.isPointInButton(x, y, state.bounds)) {
@@ -270,6 +341,12 @@ Menu.prototype.checkButtonPress = function(x, y) {
     });
 };
 
+/**
+ * Handles touchend events by converting touch points and delegating to end processing
+ * @function handleTouchEnd
+ * @param {TouchEvent} e - Touch event object
+ * @returns {void}
+ */
 Menu.prototype.handleTouchEnd = function(e) {
     e.preventDefault();
     if (!this.imagesLoaded) return;
@@ -284,12 +361,26 @@ Menu.prototype.handleTouchEnd = function(e) {
     this.resetButtonPressedStates();
 };
 
+/**
+ * Process an individual touchend point and treat it like a click if appropriate
+ * @function processTouchEndPoint
+ * @param {Touch} touch - The touch object from the event
+ * @param {number} scaleX - Horizontal canvas scale factor
+ * @param {number} scaleY - Vertical canvas scale factor
+ * @param {DOMRect} rect - Canvas bounding rect used for coordinate conversion
+ * @returns {void}
+ */
 Menu.prototype.processTouchEndPoint = function(touch, scaleX, scaleY, rect) {
     const x = (touch.clientX - rect.left) * scaleX;
     const y = (touch.clientY - rect.top) * scaleY;
     this.handleTouchClick(x, y);
 };
 
+/**
+ * Resets all pressed states on menu buttons (called after touchend/mouseup)
+ * @function resetButtonPressedStates
+ * @returns {void}
+ */
 Menu.prototype.resetButtonPressedStates = function() {
     if (this.isActive) {
         Object.values(this.buttonStates).forEach(state => {
@@ -308,6 +399,13 @@ Menu.prototype.handleTouchMove = function(e) {
     e.preventDefault();
 };
 
+/**
+ * Top-level touch click handler that mirrors mouse click handling for touch input
+ * @function handleTouchClick
+ * @param {number} x - X coordinate in canvas space
+ * @param {number} y - Y coordinate in canvas space
+ * @returns {void}
+ */
 Menu.prototype.handleTouchClick = function(x, y) {
     if (this.handleTouchPauseButtonClick(x, y)) return;
     if (!this.isActive) return;
@@ -315,6 +413,13 @@ Menu.prototype.handleTouchClick = function(x, y) {
     this.handleTouchMainMenuClick(x, y);
 };
 
+/**
+ * Checks and handles a touch on the global pause button (outside the menu)
+ * @function handleTouchPauseButtonClick
+ * @param {number} x - X coordinate in canvas space
+ * @param {number} y - Y coordinate in canvas space
+ * @returns {boolean} True if the pause button was handled, false otherwise
+ */
 Menu.prototype.handleTouchPauseButtonClick = function(x, y) {
     if (!this.isActive && this.gameStarted && world && world.pauseButtonBounds) {
         if (this.isPointInButton(x, y, world.pauseButtonBounds)) {
@@ -325,6 +430,13 @@ Menu.prototype.handleTouchPauseButtonClick = function(x, y) {
     return false;
 };
 
+/**
+ * Delegates touch clicks to the active dialog (settings/controls/pause)
+ * @function handleTouchDialogClick
+ * @param {number} x - X coordinate in canvas space
+ * @param {number} y - Y coordinate in canvas space
+ * @returns {boolean} True if a dialog handled the touch, false otherwise
+ */
 Menu.prototype.handleTouchDialogClick = function(x, y) {
     if (this.currentDialog === 'settings') {
         this.handleSettingsClick(x, y);
@@ -341,6 +453,13 @@ Menu.prototype.handleTouchDialogClick = function(x, y) {
     return false;
 };
 
+/**
+ * Handles main menu touch interactions (play, settings, exit, help)
+ * @function handleTouchMainMenuClick
+ * @param {number} x - X coordinate in canvas space
+ * @param {number} y - Y coordinate in canvas space
+ * @returns {void}
+ */
 Menu.prototype.handleTouchMainMenuClick = function(x, y) {
     if (this.checkPlayButtonClick(x, y)) return;
     if (this.checkSettingsButtonClick(x, y)) return;

@@ -290,7 +290,6 @@ function assignAllSharedFunctions(enemyClass) {
     assignSharedCombatFunctions(enemyClass);
 }
 
-// Apply to all ground enemies
 assignAllSharedFunctions(Goblin);
 assignAllSharedFunctions(Skeleton);
 assignAllSharedFunctions(Mushroom);

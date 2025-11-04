@@ -3,10 +3,14 @@
  * Contains collision detection, spawning, and game state management
  */
 
-// Collision Detection System
+/**
+ * Starts the collision detection system with regular interval checks
+ * @function checkCollisions
+ * @returns {void}
+ */
 World.prototype.checkCollisions = function() {
     this.collisionCheckIntervalId = setInterval(() => {
-        if (this.isPaused) return; // Skip updates when paused
+        if (this.isPaused) return;
 
         this.checkEnemyCollisions();
         this.checkProjectileCollisions();
@@ -19,17 +23,26 @@ World.prototype.checkCollisions = function() {
     }, 1000 / 60);
 };
 
+/**
+ * Checks collisions between character and enemies and applies pushback
+ * @function checkEnemyCollisions
+ * @returns {void}
+ */
 World.prototype.checkEnemyCollisions = function() {
     this.level.enemies.forEach(enemy => {
-        if (enemy.isDead) return; // Tote Enemies ignorieren
+        if (enemy.isDead) return;
 
         if (this.character.isColliding(enemy)) {
-            // Nur sanftes Wegschieben bei Kontakt, KEIN Schaden
             this.character.applyPushback(enemy.x);
         }
     });
 };
 
+/**
+ * Checks collisions between projectiles and enemies
+ * @function checkProjectileCollisions
+ * @returns {void}
+ */
 World.prototype.checkProjectileCollisions = function() {
     this.projectiles.forEach(projectile => {
         if (projectile.hasHit) return;
@@ -37,6 +50,12 @@ World.prototype.checkProjectileCollisions = function() {
     });
 };
 
+/**
+ * Checks if a specific projectile collides with any enemy
+ * @function checkProjectileAgainstEnemies
+ * @param {Object} projectile - The projectile to check for collisions
+ * @returns {void}
+ */
 World.prototype.checkProjectileAgainstEnemies = function(projectile) {
     this.level.enemies.forEach(enemy => {
         if (enemy.isDead) return;
@@ -46,24 +65,41 @@ World.prototype.checkProjectileAgainstEnemies = function(projectile) {
     });
 };
 
+/**
+ * Handles what happens when a projectile hits an enemy
+ * @function handleProjectileHit
+ * @param {Object} projectile - The projectile that hit
+ * @param {Object} enemy - The enemy that was hit
+ * @returns {void}
+ */
 World.prototype.handleProjectileHit = function(projectile, enemy) {
     enemy.takeDamage(projectile.damage);
     projectile.hit();
 };
 
+/**
+ * Checks collisions between character and collectible items
+ * @function checkCollectibleCollisions
+ * @returns {void}
+ */
 World.prototype.checkCollectibleCollisions = function() {
     if (!this.level.collectibles) return;
 
     this.level.collectibles.forEach(collectible => {
-        if (collectible.collected) return; // Bereits eingesammelt
+        if (collectible.collected) return;
 
         if (this.character.isColliding(collectible)) {
-            // Character hat Collectible eingesammelt
             this.collectItem(collectible);
         }
     });
 };
 
+/**
+ * Handles collection of an item by the character
+ * @function collectItem
+ * @param {Object} collectible - The collectible item to be collected
+ * @returns {void}
+ */
 World.prototype.collectItem = function(collectible) {
     collectible.collected = true;
     this.restoreHealth(collectible.healthRestore);
@@ -71,6 +107,12 @@ World.prototype.collectItem = function(collectible) {
     this.logCollectionStats();
 };
 
+/**
+ * Restores health to the character up to maximum health
+ * @function restoreHealth
+ * @param {number} amount - Amount of health to restore
+ * @returns {void}
+ */
 World.prototype.restoreHealth = function(amount) {
     this.character.currentHP += amount;
     if (this.character.currentHP > this.character.maxHP) {
@@ -78,6 +120,12 @@ World.prototype.restoreHealth = function(amount) {
     }
 };
 
+/**
+ * Restores mana to the character up to maximum mana
+ * @function restoreMana
+ * @param {number} amount - Amount of mana to restore
+ * @returns {void}
+ */
 World.prototype.restoreMana = function(amount) {
     this.character.currentMana += amount;
     if (this.character.currentMana > this.character.maxMana) {
@@ -85,55 +133,73 @@ World.prototype.restoreMana = function(amount) {
     }
 };
 
+/**
+ * Logs collection statistics (placeholder function)
+ * @function logCollectionStats
+ * @returns {void}
+ */
 World.prototype.logCollectionStats = function() {
 };
 
+/**
+ * Updates enemy directions and behavior based on character position
+ * @function updateEnemyDirections
+ * @returns {void}
+ */
 World.prototype.updateEnemyDirections = function() {
     this.level.enemies.forEach(enemy => {
         if (enemy.isDead) return;
 
-        // Update Aggro für Enemies mit Aggro-System
         if (enemy.setAggro) {
             enemy.setAggro(this.character);
         }
 
-        // Attack-Trigger für Enemies mit Attack-System
         if (enemy.tryAttack) {
             enemy.tryAttack(this.character);
         }
 
-        // turnTowardsCharacter nur für Flying Eye (andere steuern Direction selbst)
         if (enemy.turnTowardsCharacter) {
             if (this.character.x < enemy.x) {
-                enemy.otherDirection = true; // Schaut nach links
+                enemy.otherDirection = true;
             } else {
-                enemy.otherDirection = false; // Schaut nach rechts
+                enemy.otherDirection = false;
             }
         }
     });
 };
 
-// Scroll Spawn System
+/**
+ * Starts the scroll spawning system with initial scrolls and periodic checks
+ * @function startScrollSpawning
+ * @returns {void}
+ */
 World.prototype.startScrollSpawning = function() {
-    // Spawne initial 3 Scrolls
     this.spawnInitialScrolls();
 
-    // Prüfe alle 2 Sekunden ob neue Scrolls gespawnt werden müssen
     this.scrollSpawnIntervalId = setInterval(() => {
         this.checkScrollSpawn();
     }, 2000);
 };
 
+/**
+ * Spawns the initial set of scrolls on the map
+ * @function spawnInitialScrolls
+ * @returns {void}
+ */
 World.prototype.spawnInitialScrolls = function() {
     for (let i = 0; i < this.maxScrollsOnMap; i++) {
         this.spawnScroll();
     }
 };
 
+/**
+ * Checks if new scrolls need to be spawned and spawns them if conditions are met
+ * @function checkScrollSpawn
+ * @returns {void}
+ */
 World.prototype.checkScrollSpawn = function() {
     let activeScrolls = this.getActiveScrollCount();
 
-    // Spawne neuen Scroll wenn weniger als max und Cooldown abgelaufen
     if (activeScrolls < this.maxScrollsOnMap) {
         let now = Date.now();
         if (now - this.lastScrollSpawnTime >= this.scrollSpawnCooldown) {
@@ -143,28 +209,46 @@ World.prototype.checkScrollSpawn = function() {
     }
 };
 
+/**
+ * Gets the count of active (uncollected) scrolls on the map
+ * @function getActiveScrollCount
+ * @returns {number} Number of active scrolls
+ */
 World.prototype.getActiveScrollCount = function() {
     if (!this.level.collectibles) return 0;
     return this.level.collectibles.filter(scroll => !scroll.collected).length;
 };
 
+/**
+ * Spawns a new scroll at a random location on the map
+ * @function spawnScroll
+ * @returns {void}
+ */
 World.prototype.spawnScroll = function() {
     let levelWidth = this.level.level_end_x;
     let groundY = 335;
-    let randomX = Math.random() * (levelWidth - 400) + 200; // Zwischen 200 und 1800
+    let randomX = Math.random() * (levelWidth - 400) + 200;
 
     let newScroll = new Scroll(randomX, groundY);
     this.level.collectibles.push(newScroll);
 };
 
-// Endboss Spawn System
+/**
+ * Checks if the endboss should be spawned based on character position
+ * @function checkEndbossSpawn
+ * @returns {void}
+ */
 World.prototype.checkEndbossSpawn = function() {
-    // Spawne Endboss nur einmal, wenn Character Battleground2 erreicht
     if (!this.endbossSpawned && this.character.x >= this.endbossSpawnX) {
         this.spawnEndboss();
     }
 };
 
+/**
+ * Spawns the endboss and adds it to the level enemies
+ * @function spawnEndboss
+ * @returns {void}
+ */
 World.prototype.spawnEndboss = function() {
     let endboss = new Endboss();
     endboss.world = this;
@@ -172,40 +256,53 @@ World.prototype.spawnEndboss = function() {
     this.endbossSpawned = true;
 };
 
-// Game State Management
+/**
+ * Checks if game over conditions are met and triggers game over sequence
+ * @function checkGameOver
+ * @returns {void}
+ */
 World.prototype.checkGameOver = function() {
-    // Check if character is dead and death animation is finished
     if (this.character.isDead && this.character.deathAnimationFinished && !this.gameOverTriggered) {
         this.gameOverTriggered = true;
-        // Add small delay to ensure death animation is fully visible
         setTimeout(() => {
             this.triggerGameOver();
-        }, 500); // 500ms delay
+        }, 500);
     }
 };
 
+/**
+ * Triggers the game over screen display
+ * @function triggerGameOver
+ * @returns {void}
+ */
 World.prototype.triggerGameOver = function() {
-    // Show game over screen via menu (don't cleanup yet, keep game visible but darkened)
     if (typeof menu !== 'undefined' && menu) {
         menu.showGameOver();
     }
 };
 
+/**
+ * Checks if victory conditions are met and triggers victory sequence
+ * @function checkVictory
+ * @returns {void}
+ */
 World.prototype.checkVictory = function() {
-    // Check if endboss exists and is dead with finished death animation
     let endboss = this.level.enemies.find(enemy => enemy instanceof Endboss);
 
     if (endboss && endboss.isDead && endboss.deathAnimationFinished && !this.victoryTriggered) {
         this.victoryTriggered = true;
-        // Add small delay to ensure death animation is fully visible
         setTimeout(() => {
             this.triggerVictory();
-        }, 500); // 500ms delay
+        }, 500);
     }
 };
 
+/**
+ * Triggers the victory screen display
+ * @function triggerVictory
+ * @returns {void}
+ */
 World.prototype.triggerVictory = function() {
-    // Show victory screen via menu (don't cleanup yet, keep game visible but darkened)
     if (typeof menu !== 'undefined' && menu) {
         menu.showVictory();
     }

@@ -116,13 +116,11 @@ Character.prototype.updateAttack1Animation = function() {
     if (now - this.lastAttack1FrameTime > this.attack1AnimationSpeed) {
         this.currentAttack1Frame++;
 
-        // Spawne Projektil bei Frame 3
         if (this.currentAttack1Frame === 3 && !this.attack1ProjectileSpawned) {
-            this.spawnProjectile(1); // Typ 1 = Charge_1
+            this.spawnProjectile(1);
             this.attack1ProjectileSpawned = true;
         }
 
-        // Animation beenden
         if (this.currentAttack1Frame >= this.attack1FrameCount) {
             this.isAttacking1 = false;
             this.currentAttack1Frame = 0;

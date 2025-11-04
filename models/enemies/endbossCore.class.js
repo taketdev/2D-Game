@@ -356,7 +356,6 @@ class Endboss extends MovableObject {
     drawFrame(ctx) {
         if (!CONFIG.SHOW_COLLISION_BOXES) return;
 
-        // Collision box (gelb)
         ctx.beginPath();
         ctx.lineWidth = 2;
         ctx.strokeStyle = 'yellow';

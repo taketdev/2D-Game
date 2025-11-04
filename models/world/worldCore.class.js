@@ -1,40 +1,39 @@
 class World {
-    // Game Objects
     character = new Character();
-    level = createLevel1(); // Create fresh level instance
-    projectiles = []; // Array für alle Projektile
+    level = createLevel1();
+    projectiles = [];
 
-    // HUD Elements
     healthBar = new HealthBar(20, 10);
     manaBar = new ManaBar(20, 10);
-    bossHealthBar = new BossHealthBar(300, 10); // Mittig (720/2 - 120/2 = 300)
+    bossHealthBar = new BossHealthBar(300, 10);
 
-    // Canvas Properties
     canvas;
     ctx;
     keyboard;
     camera_x = -100;
 
-    // Collectible Spawn System
     maxScrollsOnMap = 3;
-    scrollSpawnCooldown = 10000; // 10 Sekunden Cooldown
+    scrollSpawnCooldown = 10000;
     lastScrollSpawnTime = 0;
 
-    // Endboss Spawn System
     endbossSpawned = false;
-    endbossSpawnX = 3600; // Battleground2 startet bei x=3600
+    endbossSpawnX = 3600;
 
-    // Game Over System
     gameOverTriggered = false;
     victoryTriggered = false;
 
-    // Pause System
     isPaused = false;
 
-    // Interval IDs für Cleanup
     scrollSpawnIntervalId;
     collisionCheckIntervalId;
 
+    /**
+     * Creates a new World instance and initializes the game
+     * @function constructor
+     * @param {HTMLCanvasElement} canvas - The canvas element for rendering
+     * @param {Object} keyboard - The keyboard input handler
+     * @returns {void}
+     */
     constructor(canvas, keyboard) {
         this.ctx = canvas.getContext('2d');
         this.canvas = canvas;
@@ -45,25 +44,43 @@ class World {
         this.startScrollSpawning();
     }
 
+    /**
+     * Sets the world reference for character and enemies
+     * @function setWorld
+     * @returns {void}
+     */
     setWorld() {
         this.character.world = this;
 
-        // Setze World-Referenz für alle Enemies
         this.level.enemies.forEach(enemy => {
             enemy.world = this;
         });
     }
 
+    /**
+     * Adds a projectile to the world's projectile array
+     * @function addProjectile
+     * @param {Object} projectile - The projectile to add
+     * @returns {void}
+     */
     addProjectile(projectile) {
         this.projectiles.push(projectile);
     }
 
+    /**
+     * Removes projectiles marked for deletion from the world
+     * @function cleanupProjectiles
+     * @returns {void}
+     */
     cleanupProjectiles() {
-        // Entferne Projektile die zum Löschen markiert sind
         this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
     }
 
-    // Cleanup method to clear all intervals
+    /**
+     * Cleans up all world resources and stops all intervals
+     * @function cleanup
+     * @returns {void}
+     */
     cleanup() {
         this.clearIntervals();
         this.cleanupCharacter();
@@ -71,6 +88,11 @@ class World {
         this.stopAllProjectiles();
     }
 
+    /**
+     * Clears all active intervals to prevent memory leaks
+     * @function clearIntervals
+     * @returns {void}
+     */
     clearIntervals() {
         if (this.scrollSpawnIntervalId) {
             clearInterval(this.scrollSpawnIntervalId);
@@ -82,12 +104,22 @@ class World {
         }
     }
 
+    /**
+     * Cleans up the character object
+     * @function cleanupCharacter
+     * @returns {void}
+     */
     cleanupCharacter() {
         if (this.character && this.character.cleanup) {
             this.character.cleanup();
         }
     }
 
+    /**
+     * Cleans up all enemy objects
+     * @function cleanupEnemies
+     * @returns {void}
+     */
     cleanupEnemies() {
         this.level.enemies.forEach(enemy => {
             if (enemy.cleanup) {
@@ -96,6 +128,11 @@ class World {
         });
     }
 
+    /**
+     * Stops and cleans up all projectiles
+     * @function stopAllProjectiles
+     * @returns {void}
+     */
     stopAllProjectiles() {
         this.projectiles.forEach(projectile => {
             if (projectile.cleanup) {

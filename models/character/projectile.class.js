@@ -35,7 +35,7 @@ class Projectile extends MovableObject {
         super();
         this.x = x;
         this.y = y;
-        this.otherDirection = direction < 0; // true wenn nach links
+        this.otherDirection = direction < 0;
         this.projectileType = projectileType;
         this.damage = damage;
 
