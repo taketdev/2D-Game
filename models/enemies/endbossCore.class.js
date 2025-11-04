@@ -3,8 +3,8 @@ class Endboss extends MovableObject {
     height = 400;
     width = 350;
 
-    maxHP = 500;
-    currentHP = 500;
+    maxHP = 250;
+    currentHP = 250;
     isDead = false;
 
     collisionOffsetX = 100;

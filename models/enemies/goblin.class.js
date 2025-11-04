@@ -345,7 +345,6 @@ class Goblin extends MovableObject {
 
         if (distance <= this.attackRange + 20) {
             this.world.character.takeAttackDamage(CONFIG.DAMAGE.GOBLIN_ATTACK);
-            console.log('Goblin dealt damage to character!');
         }
     }
 
@@ -361,7 +360,6 @@ class Goblin extends MovableObject {
         this.currentDeathFrame = 0;
         this.deathAnimationFinished = false;
         this.speed = 0;
-        console.log('Goblin died!');
         this.cleanup();
     }
 

@@ -85,7 +85,6 @@ class Menu {
         setTimeout(() => {
             if (typeof audioManager !== 'undefined' && audioManager) {
                 audioManager.playMenuMusic();
-                console.log('Menu music started');
             }
         }, 500);
     }
@@ -138,7 +137,6 @@ class Menu {
                 loadedCount++;
                 if (loadedCount === totalImages) {
                     this.imagesLoaded = true;
-                    console.log('All menu images loaded');
                 }
             };
             img.onerror = () => {

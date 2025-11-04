@@ -9,7 +9,6 @@
  * @returns {void}
  */
 Menu.prototype.startGame = function() {
-    console.log('Starting game...');
     this.isActive = false;
     this.gameStarted = true;
 
@@ -24,7 +23,6 @@ Menu.prototype.startGame = function() {
  * @returns {void}
  */
 Menu.prototype.exitGame = function() {
-    console.log('Exit button clicked');
 };
 
 /**
@@ -33,8 +31,6 @@ Menu.prototype.exitGame = function() {
  * @returns {void}
  */
 Menu.prototype.restartGame = function() {
-    console.log('Restarting game...');
-
     if (typeof cleanup === 'function') {
         cleanup();
     }
@@ -56,8 +52,6 @@ Menu.prototype.restartGame = function() {
  * @returns {void}
  */
 Menu.prototype.returnToMainMenu = function() {
-    console.log('Returning to main menu...');
-
     if (typeof cleanup === 'function') {
         cleanup();
     }
@@ -90,7 +84,6 @@ Menu.prototype.togglePause = function() {
  * @returns {void}
  */
 Menu.prototype.pauseGame = function() {
-    console.log('Pausing game...');
     if (world) {
         world.isPaused = true;
     }
@@ -108,7 +101,6 @@ Menu.prototype.pauseGame = function() {
  * @returns {void}
  */
 Menu.prototype.resumeGame = function() {
-    console.log('Resuming game...');
     if (world) {
         world.isPaused = false;
     }
@@ -126,8 +118,6 @@ Menu.prototype.resumeGame = function() {
  * @returns {void}
  */
 Menu.prototype.exitToMainMenu = function() {
-    console.log('Exiting to main menu from pause...');
-
     if (typeof cleanup === 'function') {
         cleanup();
     }
@@ -145,7 +135,6 @@ Menu.prototype.exitToMainMenu = function() {
  * @returns {void}
  */
 Menu.prototype.openSettings = function() {
-    console.log('Opening settings...');
     this.previousDialog = null;
     this.currentDialog = 'settings';
 };
@@ -156,7 +145,6 @@ Menu.prototype.openSettings = function() {
  * @returns {void}
  */
 Menu.prototype.closeSettings = function() {
-    console.log('Closing settings...');
     if (this.previousDialog === 'pause') {
         this.currentDialog = 'pause';
         this.previousDialog = null;
@@ -171,7 +159,6 @@ Menu.prototype.closeSettings = function() {
  * @returns {void}
  */
 Menu.prototype.openSettingsFromPause = function() {
-    console.log('Opening settings from pause...');
     this.previousDialog = 'pause';
     this.currentDialog = 'settings';
 };
@@ -182,7 +169,6 @@ Menu.prototype.openSettingsFromPause = function() {
  * @returns {void}
  */
 Menu.prototype.openControls = function() {
-    console.log('Opening controls...');
     this.currentDialog = 'controls';
 };
 
@@ -192,7 +178,6 @@ Menu.prototype.openControls = function() {
  * @returns {void}
  */
 Menu.prototype.closeControls = function() {
-    console.log('Closing controls...');
     this.currentDialog = null;
 };
 
@@ -207,8 +192,6 @@ Menu.prototype.toggleMusic = function() {
     } else {
         this.musicEnabled = !this.musicEnabled;
     }
-
-    console.log('Music toggled:', this.musicEnabled ? 'ON' : 'OFF');
 };
 
 /**
@@ -217,7 +200,6 @@ Menu.prototype.toggleMusic = function() {
  * @returns {void}
  */
 Menu.prototype.showGameOver = function() {
-    console.log('Game Over!');
     this.isActive = true;
     this.isGameOver = true;
     this.isVictory = false;
@@ -237,7 +219,6 @@ Menu.prototype.showGameOver = function() {
  * @returns {void}
  */
 Menu.prototype.showVictory = function() {
-    console.log('Victory!');
     this.isActive = true;
     this.isGameOver = false;
     this.isVictory = true;

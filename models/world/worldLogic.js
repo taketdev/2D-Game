@@ -86,7 +86,6 @@ World.prototype.restoreMana = function(amount) {
 };
 
 World.prototype.logCollectionStats = function() {
-    console.log(`Scroll collected! HP: ${this.character.currentHP}/${this.character.maxHP}, Mana: ${this.character.currentMana}/${this.character.maxMana}`);
 };
 
 World.prototype.updateEnemyDirections = function() {
@@ -171,7 +170,6 @@ World.prototype.spawnEndboss = function() {
     endboss.world = this;
     this.level.enemies.push(endboss);
     this.endbossSpawned = true;
-    console.log('Endboss spawned at x=' + endboss.x);
 };
 
 // Game State Management
@@ -187,8 +185,6 @@ World.prototype.checkGameOver = function() {
 };
 
 World.prototype.triggerGameOver = function() {
-    console.log('Triggering Game Over...');
-
     // Show game over screen via menu (don't cleanup yet, keep game visible but darkened)
     if (typeof menu !== 'undefined' && menu) {
         menu.showGameOver();
@@ -209,8 +205,6 @@ World.prototype.checkVictory = function() {
 };
 
 World.prototype.triggerVictory = function() {
-    console.log('Triggering Victory!');
-
     // Show victory screen via menu (don't cleanup yet, keep game visible but darkened)
     if (typeof menu !== 'undefined' && menu) {
         menu.showVictory();

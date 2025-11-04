@@ -134,7 +134,6 @@ Character.prototype.die = function() {
     this.isDead = true;
     this.currentDeathFrame = 0;
     this.deathAnimationFinished = false;
-    console.log('Character died!');
 
     if (this.movementIntervalId) {
         clearInterval(this.movementIntervalId);
@@ -159,7 +158,6 @@ Character.prototype.hasMana = function() {
 Character.prototype.useMana = function() {
     if (this.currentMana >= this.manaCostPerSpell) {
         this.currentMana -= this.manaCostPerSpell;
-        console.log(`Mana used. Current Mana: ${this.currentMana}/${this.maxMana}`);
     }
 };
 

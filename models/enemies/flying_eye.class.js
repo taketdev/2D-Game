@@ -423,7 +423,6 @@ class FlyingEye extends MovableObject {
 
         if (distance <= this.attackRange + 20) {
             this.world.character.takeAttackDamage(CONFIG.DAMAGE.FLYING_EYE_ATTACK);
-            console.log('Flying Eye dealt damage to character!');
         }
     }
 
@@ -439,7 +438,6 @@ class FlyingEye extends MovableObject {
         this.currentDeathFrame = 0;
         this.deathAnimationFinished = false;
         this.speed = 0;
-        console.log('Flying Eye died!');
     }
 
     /**

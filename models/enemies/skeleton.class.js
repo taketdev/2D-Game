@@ -320,7 +320,6 @@ class Skeleton extends MovableObject {
 
         if (distance <= this.attackRange + 20) {
             this.world.character.takeAttackDamage(CONFIG.DAMAGE.SKELETON_ATTACK);
-            console.log('Skeleton dealt damage to character!');
         }
     }
 
@@ -336,7 +335,6 @@ class Skeleton extends MovableObject {
         this.currentDeathFrame = 0;
         this.deathAnimationFinished = false;
         this.speed = 0;
-        console.log('Skeleton died!');
     }
 
     /**

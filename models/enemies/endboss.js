@@ -230,7 +230,6 @@ Endboss.prototype.dealDamageToCharacter = function(damage) {
 
     if (distance <= this.attackRange + 30) {
         this.world.character.takeAttackDamage(damage);
-        console.log(`Endboss dealt ${damage} damage to character!`);
     }
 };
 
@@ -256,7 +255,6 @@ Endboss.prototype.die = function() {
     this.isDead = true;
     this.currentDeathFrame = 0;
     this.deathAnimationFinished = false;
-    console.log('Endboss died!');
 };
 
 /**

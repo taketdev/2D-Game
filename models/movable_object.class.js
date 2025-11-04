@@ -91,7 +91,6 @@ class MovableObject {
      * @returns {void}
      */
     moveRight() {
-        console.log('Moving right');
     }
 
     /**
@@ -200,7 +199,6 @@ class MovableObject {
      * @returns {void}
      */
     logDamage(damage) {
-        console.log(`${this.constructor.name} took ${damage} damage. HP: ${this.currentHP}/${this.maxHP}`);
     }
 
     /**
@@ -232,7 +230,6 @@ class MovableObject {
      */
     die() {
         this.isDead = true;
-        console.log(`${this.constructor.name} died!`);
         this.cleanup();
     }
 

@@ -320,7 +320,6 @@ class Mushroom extends MovableObject {
 
         if (distance <= this.attackRange + 20) {
             this.world.character.takeAttackDamage(CONFIG.DAMAGE.MUSHROOM_ATTACK);
-            console.log('Mushroom dealt damage to character!');
         }
     }
 
@@ -336,7 +335,6 @@ class Mushroom extends MovableObject {
         this.currentDeathFrame = 0;
         this.deathAnimationFinished = false;
         this.speed = 0;
-        console.log('Mushroom died!');
     }
 
     /**
