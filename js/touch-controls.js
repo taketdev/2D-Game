@@ -4,13 +4,17 @@
  */
 
 /**
- * Detects if the current device is a mobile device based on user agent or screen width
+ * Detects if the current device is a mobile device or tablet based on user agent, touch support or screen width
  * @function isMobileDevice
- * @returns {boolean} True if device is mobile, false otherwise
+ * @returns {boolean} True if device is mobile or tablet, false otherwise
  */
 function isMobileDevice() {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-        || window.innerWidth <= 768;
+    const hasTouchScreen = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const isMobileUserAgent = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Tablet/i.test(navigator.userAgent);
+    const isTabletUserAgent = /iPad|Android(?!.*Mobile)|Tablet/i.test(navigator.userAgent);
+    const isSmallScreen = window.innerWidth <= 1024;
+
+    return hasTouchScreen || isMobileUserAgent || isTabletUserAgent || isSmallScreen;
 }
 
 let touchControls = null;
