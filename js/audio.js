@@ -6,10 +6,10 @@
 class AudioManager {
     constructor() {
         this.volume = 0.45;
-        this.musicEnabled = true;
+        this.musicEnabled = this.loadMusicState();
         this.currentMusic = null;
         this.debugMode = false;
-        
+
         this.audio = {
             menuMusic: new Audio('./assets/audio/16 - The Calm Before The Storm.wav'),
             gameMusic: new Audio('./assets/audio/05 - Battle 1.wav')
@@ -19,6 +19,25 @@ class AudioManager {
     }
     
     /**
+     * Loads the music enabled state from localStorage
+     * @function loadMusicState
+     * @returns {boolean} The saved music state or true if no state is saved
+     */
+    loadMusicState() {
+        const savedState = localStorage.getItem('musicEnabled');
+        return savedState === null ? true : savedState === 'true';
+    }
+
+    /**
+     * Saves the current music enabled state to localStorage
+     * @function saveMusicState
+     * @returns {void}
+     */
+    saveMusicState() {
+        localStorage.setItem('musicEnabled', this.musicEnabled.toString());
+    }
+
+    /**
      * Configures audio properties for all audio files including volume, loop settings and event handlers
      * @function setupAudio
      * @returns {void}
@@ -27,9 +46,9 @@ class AudioManager {
         Object.values(this.audio).forEach(audio => {
             audio.volume = this.volume;
             audio.loop = true;
-            
+
             audio.preload = 'auto';
-            
+
             audio.addEventListener('error', (e) => {
                 console.warn('Audio loading error:', e);
             });
@@ -45,26 +64,26 @@ class AudioManager {
      * @returns {void}
      */
     playMenuMusic() {
-        if (!this.musicEnabled) return;
-        
         this.stopCurrentMusic();
         this.currentMusic = this.audio.menuMusic;
-        
-        this.playWithFallback(this.currentMusic);
+
+        if (this.musicEnabled) {
+            this.playWithFallback(this.currentMusic);
+        }
     }
-    
+
     /**
      * Plays game background music and stops any currently playing music
      * @function playGameMusic
      * @returns {void}
      */
     playGameMusic() {
-        if (!this.musicEnabled) return;
-        
         this.stopCurrentMusic();
         this.currentMusic = this.audio.gameMusic;
-        
-        this.playWithFallback(this.currentMusic);
+
+        if (this.musicEnabled) {
+            this.playWithFallback(this.currentMusic);
+        }
     }
     
     /**
@@ -102,12 +121,13 @@ class AudioManager {
     }
     
     /**
-     * Toggles music on or off and returns the new music state
+     * Toggles music on or off, saves the state to localStorage and returns the new music state
      * @function toggleMusic
      * @returns {boolean} The new music enabled state
      */
     toggleMusic() {
         this.musicEnabled = !this.musicEnabled;
+        this.saveMusicState();
 
         if (this.musicEnabled) {
             this.resumeMusic();
