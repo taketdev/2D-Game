@@ -30,8 +30,6 @@ class TouchControls {
         this.buttons = this.defineButtons();
 
         this.registerTouchEvents();
-
-        console.log('Touch Controls initialized');
     }
 
     /**
@@ -165,7 +163,6 @@ class TouchControls {
     activateTouchButton(touchId, buttonName, button, touchX, touchY) {
         this.keyboard[button.key] = true;
         this.activeTouches[touchId] = buttonName;
-        console.log(`Touch start: ${buttonName} (${button.key}) at ${touchX.toFixed(0)},${touchY.toFixed(0)}`);
     }
 
     /**
@@ -185,7 +182,6 @@ class TouchControls {
                 const button = this.buttons[buttonName];
                 this.keyboard[button.key] = false;
                 delete this.activeTouches[touch.identifier];
-                console.log(`Touch end: ${buttonName} (${button.key})`);
             }
         }
     }
@@ -253,7 +249,6 @@ class TouchControls {
     releaseTouchButton(touchId, buttonName, button) {
         this.keyboard[button.key] = false;
         delete this.activeTouches[touchId];
-        console.log(`Touch moved out: ${buttonName} (${button.key})`);
     }
 
     /**

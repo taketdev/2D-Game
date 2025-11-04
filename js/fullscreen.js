@@ -44,7 +44,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof audioManager !== 'undefined' && audioManager) {
             audioManager.pauseMusic();
         }
-        console.log('Game paused: Portrait mode - please rotate device');
     }
 
     /**
@@ -69,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof audioManager !== 'undefined' && audioManager) {
             audioManager.resumeMusic();
         }
-        console.log('Game resumed: Landscape mode');
     }
 
     window.addEventListener('orientationchange', function() {
@@ -81,6 +79,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     setTimeout(checkOrientation, 100);
-
-    console.log('Orientation management initialized - NO FULLSCREEN');
 });

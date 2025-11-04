@@ -8,15 +8,14 @@ class AudioManager {
         this.volume = 0.45;
         this.musicEnabled = true;
         this.currentMusic = null;
+        this.debugMode = false;
         
         this.audio = {
             menuMusic: new Audio('./assets/audio/16 - The Calm Before The Storm.wav'),
             gameMusic: new Audio('./assets/audio/05 - Battle 1.wav')
         };
-        
+
         this.setupAudio();
-        
-        console.log('Audio Manager initialized');
     }
     
     /**
@@ -34,9 +33,8 @@ class AudioManager {
             audio.addEventListener('error', (e) => {
                 console.warn('Audio loading error:', e);
             });
-            
+
             audio.addEventListener('loadeddata', () => {
-                console.log('Audio loaded:', audio.src);
             });
         });
     }
@@ -110,14 +108,13 @@ class AudioManager {
      */
     toggleMusic() {
         this.musicEnabled = !this.musicEnabled;
-        
+
         if (this.musicEnabled) {
             this.resumeMusic();
         } else {
             this.pauseMusic();
         }
-        
-        console.log('Music', this.musicEnabled ? 'enabled' : 'disabled');
+
         return this.musicEnabled;
     }
     
@@ -129,12 +126,10 @@ class AudioManager {
      */
     setVolume(volume) {
         this.volume = Math.max(0, Math.min(1, volume));
-        
+
         Object.values(this.audio).forEach(audio => {
             audio.volume = this.volume;
         });
-        
-        console.log('Volume set to:', Math.round(this.volume * 100) + '%');
     }
     
     /**
@@ -160,7 +155,6 @@ class AudioManager {
      * @returns {void}
      */
     logAudioPlaying(audio) {
-        console.log('Audio playing:', audio.src.split('/').pop());
     }
 
     /**
@@ -171,7 +165,6 @@ class AudioManager {
      * @returns {void}
      */
     handleAutoplayPrevented(audio, error) {
-        console.warn('Autoplay prevented - will play after user interaction:', error);
         this.setupPlayAfterInteraction(audio);
     }
 
@@ -200,7 +193,6 @@ class AudioManager {
     tryPlayAfterInteraction(audio, handler) {
         if (this.musicEnabled && this.currentMusic === audio) {
             audio.play().then(() => {
-                console.log('Audio playing after user interaction:', audio.src.split('/').pop());
             });
         }
         document.removeEventListener('click', handler);

@@ -1,30 +1,39 @@
-/* PixelifySans Font Family */
 @font-face {
     font-family: 'PixelifySans';
     src: url('./assets/fonts/PixelifySans-Regular.ttf') format('truetype');
     font-weight: normal;
-    font-style: normal;
 }
 
 @font-face {
     font-family: 'PixelifySans';
     src: url('./assets/fonts/PixelifySans-Medium.ttf') format('truetype');
     font-weight: 500;
-    font-style: normal;
 }
 
 @font-face {
     font-family: 'PixelifySans';
     src: url('./assets/fonts/PixelifySans-SemiBold.ttf') format('truetype');
     font-weight: 600;
-    font-style: normal;
 }
 
 @font-face {
     font-family: 'PixelifySans';
     src: url('./assets/fonts/PixelifySans-Bold.ttf') format('truetype');
     font-weight: bold;
-    font-style: normal;
+}
+
+:root {
+    --color-bg-dark: #1a1a1a;
+    --color-primary: #2d4a3e;
+    --color-border: #1a2f23;
+    --color-border-dark: #0f1912;
+    --color-highlight: #3f6654;
+    --color-accent: #5a8a70;
+    --color-text: #a4d4b4;
+    --color-text-dim: #8fb89f;
+    --shadow-inset: inset 3px 3px 0 #3f6654, inset -3px -3px 0 #0f1912;
+    --shadow-outer: 6px 6px 0 #000, 12px 12px 0 rgba(0, 0, 0, 0.3);
+    --border-thick: 6px solid var(--color-border);
 }
 
 body {
@@ -34,47 +43,43 @@ body {
     justify-content: flex-start;
     min-height: 100vh;
     margin: 0;
-    padding: 20px;
-    background-color: #1a1a1a;
+    padding: 10px;
+    background-color: var(--color-bg-dark);
     font-family: 'PixelifySans', monospace, sans-serif;
     box-sizing: border-box;
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
+    overflow-x: hidden;
 }
 
-/* Game Container */
 .game-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     max-width: 900px;
-    width: 100%;
-    background-color: #2d4a3e;
-    border: 6px solid #1a2f23;
-    padding: 30px;
-    box-shadow: 
-        inset 3px 3px 0 #3f6654,
-        inset -3px -3px 0 #0f1912,
-        6px 6px 0 #000,
-        12px 12px 0 rgba(0, 0, 0, 0.3);
+    width: calc(100% - 20px);
+    background-color: var(--color-primary);
+    border: var(--border-thick);
+    padding: clamp(15px, 3vw, 30px);
+    box-shadow: var(--shadow-inset), var(--shadow-outer);
     position: relative;
     flex: 1;
     margin-bottom: 20px;
+    box-sizing: border-box;
 }
 
-.game-container::before {
+.game-container::before, .info-panel::before {
     content: '';
     position: absolute;
     top: 8px;
     left: 8px;
     right: 8px;
     bottom: 8px;
-    border: 2px dashed #5a8a70;
+    border: 2px dashed var(--color-accent);
     pointer-events: none;
 }
 
-/* Header */
 .game-header {
     position: relative;
     margin-bottom: 30px;
@@ -82,45 +87,19 @@ body {
 }
 
 h1 {
-    font-family: 'PixelifySans', monospace, sans-serif;
     font-weight: bold;
-    color: #a4d4b4;
-    text-shadow: 
-        2px 0 0 #1a2f23,
-        -2px 0 0 #1a2f23,
-        0 2px 0 #1a2f23,
-        0 -2px 0 #1a2f23,
-        2px 2px 0 #1a2f23,
-        -2px -2px 0 #1a2f23,
-        2px -2px 0 #1a2f23,
-        -2px 2px 0 #1a2f23,
-        4px 4px 0 #0f1912;
+    color: var(--color-text);
+    text-shadow: 2px 0 0 var(--color-border), -2px 0 0 var(--color-border), 0 2px 0 var(--color-border), 0 -2px 0 var(--color-border), 2px 2px 0 var(--color-border), -2px -2px 0 var(--color-border), 2px -2px 0 var(--color-border), -2px 2px 0 var(--color-border), 4px 4px 0 var(--color-border-dark);
     margin: 0;
-    font-size: 3.5em;
-    text-align: center;
-    letter-spacing: 4px;
-    image-rendering: pixelated;
+    font-size: clamp(2em, 4vw, 3.5em);
+    letter-spacing: clamp(2px, 0.5vw, 4px);
 }
 
-/* Pixel Decorations */
 .pixel-decoration {
     height: 16px;
-    background: repeating-linear-gradient(
-        90deg,
-        #1a2f23 0px,
-        #1a2f23 16px,
-        #2d4a3e 16px,
-        #2d4a3e 32px,
-        #3f6654 32px,
-        #3f6654 48px,
-        #2d4a3e 48px,
-        #2d4a3e 64px
-    );
-    border: 3px solid #0f1912;
-    box-shadow: 
-        inset 2px 2px 0 #5a8a70,
-        inset -2px -2px 0 #0a0f0c,
-        3px 3px 0 #000;
+    background: repeating-linear-gradient(90deg, var(--color-border) 0px, var(--color-border) 16px, var(--color-primary) 16px, var(--color-primary) 32px, var(--color-highlight) 32px, var(--color-highlight) 48px, var(--color-primary) 48px, var(--color-primary) 64px);
+    border: 3px solid var(--color-border-dark);
+    box-shadow: inset 2px 2px 0 var(--color-accent), inset -2px -2px 0 #0a0f0c, 3px 3px 0 #000;
     position: relative;
 }
 
@@ -132,12 +111,8 @@ h1 {
     transform: translateX(-50%);
     width: 8px;
     height: 8px;
-    background-color: #a4d4b4;
-    box-shadow: 
-        -24px 0 0 #a4d4b4,
-        24px 0 0 #a4d4b4,
-        -48px 0 0 #a4d4b4,
-        48px 0 0 #a4d4b4;
+    background-color: var(--color-text);
+    box-shadow: -24px 0 0 var(--color-text), 24px 0 0 var(--color-text), -48px 0 0 var(--color-text), 48px 0 0 var(--color-text);
 }
 
 .pixel-decoration.top {
@@ -150,25 +125,24 @@ h1 {
     margin-bottom: 25px;
 }
 
-/* Canvas Frame */
 .canvas-frame {
     margin: 20px 0;
-    padding: 25px;
-    background-color: #333;
-    background-image: 
-        repeating-conic-gradient(#444 0% 25%, #222 0% 50%);
+    padding: clamp(15px, 3vw, 25px);
+    background: repeating-conic-gradient(#444 0% 25%, #222 0% 50%);
     background-size: 20px 20px;
     border: 6px solid #111;
-    box-shadow: 
-        inset 3px 3px 0 #555,
-        inset -3px -3px 0 #000,
-        6px 6px 0 rgba(0, 0, 0, 0.8);
+    box-shadow: inset 3px 3px 0 #555, inset -3px -3px 0 #000, 6px 6px 0 rgba(0, 0, 0, 0.8);
     position: relative;
+    box-sizing: border-box;
+}
+
+.canvas-frame::before, .pixel-border::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
 }
 
 .canvas-frame::before {
-    content: '';
-    position: absolute;
     top: 4px;
     left: 4px;
     right: 4px;
@@ -178,212 +152,170 @@ h1 {
 
 .pixel-border {
     padding: 15px;
-    background-color: #0f1912;
-    border: 4px solid #1a2f23;
+    background-color: var(--color-border-dark);
+    border: 4px solid var(--color-border);
     position: relative;
-    box-shadow: 
-        inset 2px 2px 0 #2d4a3e,
-        inset -2px -2px 0 #000;
+    box-shadow: inset 2px 2px 0 var(--color-primary), inset -2px -2px 0 #000;
     pointer-events: none;
 }
 
 .pixel-border::after {
-    content: '';
-    position: absolute;
     top: 6px;
     left: 6px;
     right: 6px;
     bottom: 6px;
-    border: 1px solid #3f6654;
-    pointer-events: none;
+    border: 1px solid var(--color-highlight);
 }
 
 canvas {
     background-color: #000;
-    border: 3px solid #1a2f23;
+    border: 3px solid var(--color-border);
     display: block;
     image-rendering: pixelated;
     image-rendering: -moz-crisp-edges;
     image-rendering: crisp-edges;
-    box-shadow: 
-        inset 2px 2px 0 rgba(45, 74, 62, 0.3),
-        inset -2px -2px 0 rgba(0, 0, 0, 0.8),
-        0 0 0 1px #2d4a3e;
+    box-shadow: inset 2px 2px 0 rgba(45, 74, 62, 0.3), inset -2px -2px 0 rgba(0, 0, 0, 0.8), 0 0 0 1px var(--color-primary);
     position: relative;
     z-index: 10;
     pointer-events: auto;
+    max-width: 100%;
+    height: auto;
 }
 
-/* Game Info Panel */
 .game-info {
     width: 100%;
     max-width: 720px;
 }
 
-.info-panel {
-    background-color: #2d4a3e;
-    border: 6px solid #1a2f23;
+.info-panel, .impressum-panel {
+    background-color: var(--color-primary);
+    border: var(--border-thick);
     padding: 25px;
-    box-shadow: 
-        inset 3px 3px 0 #3f6654,
-        inset -3px -3px 0 #0f1912,
-        3px 3px 0 #000;
+    box-shadow: var(--shadow-inset), 3px 3px 0 #000;
     position: relative;
 }
 
-.info-panel::before {
-    content: '';
-    position: absolute;
-    top: 8px;
-    left: 8px;
-    right: 8px;
-    bottom: 8px;
-    border: 2px dashed #5a8a70;
-    pointer-events: none;
+.impressum-panel {
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .info-panel h2 {
-    color: #a4d4b4;
+    color: var(--color-text);
     font-size: 2em;
     font-weight: bold;
     text-align: center;
     margin: 0 0 25px 0;
-    text-shadow: 
-        2px 0 0 #1a2f23,
-        -2px 0 0 #1a2f23,
-        0 2px 0 #1a2f23,
-        0 -2px 0 #1a2f23,
-        3px 3px 0 #0f1912;
-    image-rendering: pixelated;
+    text-shadow: 2px 0 0 var(--color-border), -2px 0 0 var(--color-border), 0 2px 0 var(--color-border), 0 -2px 0 var(--color-border), 3px 3px 0 var(--color-border-dark);
 }
 
 .info-content {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     gap: 20px;
-    color: #a4d4b4;
+    color: var(--color-text);
 }
 
-.controls-section,
-.story-section,
-.tips-section {
-    background-color: #1a2f23;
-    border: 4px solid #0f1912;
+.controls-section, .story-section, .tips-section, .impressum-section {
+    background-color: var(--color-border);
+    border: 4px solid var(--color-border-dark);
     padding: 20px;
-    box-shadow: 
-        inset 2px 2px 0 #2d4a3e,
-        inset -2px -2px 0 #000,
-        2px 2px 0 rgba(0, 0, 0, 0.5);
+    box-shadow: inset 2px 2px 0 var(--color-primary), inset -2px -2px 0 #000, 2px 2px 0 rgba(0, 0, 0, 0.5);
     position: relative;
 }
 
-.controls-section::before,
-.story-section::before,
-.tips-section::before {
+.impressum-section {
+    border-width: 3px;
+}
+
+.controls-section::before, .story-section::before, .tips-section::before, .impressum-section::before {
     content: '';
     position: absolute;
     top: 4px;
     left: 4px;
     right: 4px;
     bottom: 4px;
-    border: 1px solid #3f6654;
+    border: 1px solid var(--color-highlight);
     pointer-events: none;
 }
 
-/* Pixel corners for sections */
-.controls-section::after,
-.story-section::after,
-.tips-section::after {
+.controls-section::after, .story-section::after, .tips-section::after {
     content: '';
     position: absolute;
     top: 2px;
     left: 2px;
     width: 6px;
     height: 6px;
-    background-color: #5a8a70;
-    box-shadow: 
-        calc(100% - 12px) 0 0 #5a8a70,
-        0 calc(100% - 12px) 0 #5a8a70,
-        calc(100% - 12px) calc(100% - 12px) 0 #5a8a70;
+    background-color: var(--color-accent);
+    box-shadow: calc(100% - 12px) 0 0 var(--color-accent), 0 calc(100% - 12px) 0 var(--color-accent), calc(100% - 12px) calc(100% - 12px) 0 var(--color-accent);
 }
 
-.info-content h3 {
-    color: #a4d4b4;
+.info-content h3, .impressum-section h3 {
+    color: var(--color-text);
     font-size: 1.3em;
     font-weight: 600;
     margin: 0 0 15px 0;
-    text-shadow: 
-        1px 0 0 #1a2f23,
-        -1px 0 0 #1a2f23,
-        0 1px 0 #1a2f23,
-        0 -1px 0 #1a2f23,
-        2px 2px 0 #0f1912;
-    image-rendering: pixelated;
+    text-shadow: 1px 0 0 var(--color-border), -1px 0 0 var(--color-border), 0 1px 0 var(--color-border), 0 -1px 0 var(--color-border), 2px 2px 0 var(--color-border-dark);
 }
 
-.info-content p {
+.impressum-section h3 {
+    font-size: 1.2em;
+}
+
+.info-content p, .impressum-section p, .footer-content p {
     margin: 12px 0;
     line-height: 1.6;
     font-size: 0.95em;
-    color: #8fb89f;
+    color: var(--color-text-dim);
+}
+
+.impressum-section p {
+    font-size: 0.9em;
+}
+
+.impressum-section strong {
+    color: var(--color-text);
+    text-shadow: 1px 1px 0 var(--color-border);
 }
 
 .key {
-    background-color: #3f6654;
-    color: #a4d4b4;
+    background-color: var(--color-highlight);
+    color: var(--color-text);
     padding: 4px 8px;
-    border: 3px solid #1a2f23;
+    border: 3px solid var(--color-border);
     font-weight: bold;
-    box-shadow: 
-        inset 1px 1px 0 #5a8a70,
-        inset -1px -1px 0 #2d4a3e,
-        2px 2px 0 #0f1912;
-    text-shadow: 1px 1px 0 #1a2f23;
-    image-rendering: pixelated;
+    box-shadow: inset 1px 1px 0 var(--color-accent), inset -1px -1px 0 var(--color-primary), 2px 2px 0 var(--color-border-dark);
+    text-shadow: 1px 1px 0 var(--color-border);
     display: inline-block;
     margin: 0 2px;
 }
 
-/* Footer */
 .pixel-footer {
-    margin-top: 40px;
-    width: 100%;
+    margin-top: 20px;
+    width: calc(100% - 20px);
     max-width: 900px;
-    background-color: #1a2f23;
-    border: 4px solid #0f1912;
-    box-shadow: 
-        inset 2px 2px 0 #2d4a3e,
-        inset -2px -2px 0 #000,
-        0 -4px 0 rgba(0, 0, 0, 0.3);
+    background-color: var(--color-border);
+    border: 4px solid var(--color-border-dark);
+    box-shadow: inset 2px 2px 0 var(--color-primary), inset -2px -2px 0 #000, 0 -4px 0 rgba(0, 0, 0, 0.3);
     position: relative;
+    box-sizing: border-box;
 }
 
 .footer-decoration {
     height: 8px;
-    background: repeating-linear-gradient(
-        90deg,
-        #0f1912 0px,
-        #0f1912 8px,
-        #1a2f23 8px,
-        #1a2f23 16px,
-        #2d4a3e 16px,
-        #2d4a3e 24px,
-        #1a2f23 24px,
-        #1a2f23 32px
-    );
+    background: repeating-linear-gradient(90deg, var(--color-border-dark) 0px, var(--color-border-dark) 8px, var(--color-border) 8px, var(--color-border) 16px, var(--color-primary) 16px, var(--color-primary) 24px, var(--color-border) 24px, var(--color-border) 32px);
     border-bottom: 2px solid #000;
 }
 
 .footer-content {
     padding: 20px;
     text-align: center;
-    color: #8fb89f;
+    color: var(--color-text-dim);
 }
 
 .footer-content p {
     margin: 0 0 15px 0;
-    font-size: 0.9em;
-    text-shadow: 1px 1px 0 #0f1912;
+    text-shadow: 1px 1px 0 var(--color-border-dark);
 }
 
 .footer-links {
@@ -393,42 +325,27 @@ canvas {
 }
 
 .pixel-link {
-    background-color: #2d4a3e;
-    color: #a4d4b4;
+    background-color: var(--color-primary);
+    color: var(--color-text);
     padding: 8px 16px;
-    border: 3px solid #1a2f23;
+    border: 3px solid var(--color-border);
     text-decoration: none;
     font-weight: bold;
-    box-shadow: 
-        inset 1px 1px 0 #3f6654,
-        inset -1px -1px 0 #0f1912,
-        2px 2px 0 #000;
-    text-shadow: 1px 1px 0 #0f1912;
-    image-rendering: pixelated;
+    box-shadow: inset 1px 1px 0 var(--color-highlight), inset -1px -1px 0 var(--color-border-dark), 2px 2px 0 #000;
+    text-shadow: 1px 1px 0 var(--color-border-dark);
     transition: none;
     position: relative;
 }
 
 .pixel-link:hover {
-    background-color: #3f6654;
+    background-color: var(--color-highlight);
     transform: translate(1px, 1px);
-    box-shadow: 
-        inset 1px 1px 0 #5a8a70,
-        inset -1px -1px 0 #1a2f23,
-        1px 1px 0 #000;
+    box-shadow: inset 1px 1px 0 var(--color-accent), inset -1px -1px 0 var(--color-border), 1px 1px 0 #000;
 }
 
 .pixel-link:active {
     transform: translate(2px, 2px);
-    box-shadow: 
-        inset 1px 1px 0 #1a2f23,
-        inset -1px -1px 0 #3f6654;
-}
-
-/* Impressum Styles */
-.impressum-panel {
-    max-width: 800px;
-    margin: 0 auto;
+    box-shadow: inset 1px 1px 0 var(--color-border), inset -1px -1px 0 var(--color-highlight);
 }
 
 .impressum-content {
@@ -438,59 +355,11 @@ canvas {
     margin-bottom: 30px;
 }
 
-.impressum-section {
-    background-color: #1a2f23;
-    border: 3px solid #0f1912;
-    padding: 20px;
-    box-shadow: 
-        inset 2px 2px 0 #2d4a3e,
-        inset -2px -2px 0 #000,
-        2px 2px 0 rgba(0, 0, 0, 0.5);
-    position: relative;
-}
-
-.impressum-section::before {
-    content: '';
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    right: 4px;
-    bottom: 4px;
-    border: 1px solid #3f6654;
-    pointer-events: none;
-}
-
-.impressum-section h3 {
-    color: #a4d4b4;
-    font-size: 1.2em;
-    font-weight: 600;
-    margin: 0 0 15px 0;
-    text-shadow: 
-        1px 0 0 #1a2f23,
-        -1px 0 0 #1a2f23,
-        0 1px 0 #1a2f23,
-        0 -1px 0 #1a2f23,
-        2px 2px 0 #0f1912;
-    image-rendering: pixelated;
-}
-
-.impressum-section p {
-    color: #8fb89f;
-    line-height: 1.6;
-    margin: 12px 0;
-    font-size: 0.9em;
-}
-
-.impressum-section strong {
-    color: #a4d4b4;
-    text-shadow: 1px 1px 0 #1a2f23;
-}
-
 .back-button-container {
     text-align: center;
     margin-top: 25px;
     padding-top: 25px;
-    border-top: 3px solid #1a2f23;
+    border-top: 3px solid var(--color-border);
 }
 
 .back-button {
@@ -498,88 +367,67 @@ canvas {
     padding: 12px 24px;
 }
 
-/* Responsive Design for Impressum */
-@media (max-width: 768px) {
-    .impressum-content {
-        grid-template-columns: 1fr;
-        gap: 20px;
+@media (max-width: 1024px) {
+    body {
+        padding: 5px;
     }
-    
+
+    .game-container {
+        width: calc(100% - 10px);
+        padding: 15px;
+        border-width: 4px;
+    }
+
+    .canvas-frame {
+        padding: 15px;
+        border-width: 4px;
+    }
+
+    .info-panel {
+        padding: 15px;
+        border-width: 4px;
+    }
+}
+
+@media (max-width: 815px) {
+    canvas {
+        max-width: 100%;
+        height: auto;
+        width: 100%;
+    }
+
+    .pixel-border {
+        border-width: 3px;
+        padding: 8px;
+    }
+
+    .canvas-frame {
+        padding: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .info-content, .impressum-content {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
     .impressum-section {
         padding: 15px;
         border-width: 2px;
     }
-    
+
     .impressum-section h3 {
         font-size: 1.1em;
     }
-    
+
     .back-button {
         font-size: 1em;
         padding: 10px 20px;
     }
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-    .game-container {
-        padding: 20px;
-        margin: 10px;
-        border-width: 4px;
-    }
-    
-    .info-content {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    h1 {
-        font-size: 2.5em;
-        letter-spacing: 2px;
-    }
-    
-    .canvas-frame {
-        padding: 20px;
-        border-width: 4px;
-    }
-    
-    .pixel-border {
-        border-width: 3px;
-        padding: 10px;
-    }
-    
-    canvas {
-        max-width: 100%;
-        height: auto;
-    }
-    
-    .info-panel {
-        padding: 20px;
-        border-width: 4px;
-    }
-    
-    .impressum-content {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .impressum-section {
-        padding: 15px;
-        border-width: 2px;
-    }
-    
-    .impressum-section h3 {
-        font-size: 1.1em;
-    }
-    
-    .back-button {
-        font-size: 1em;
-        padding: 10px 20px;
-    }
-}
-/* Mobile Portrait Mode - Show "Tap to Play" overlay on canvas */
-@media screen and (max-width: 768px) and (orientation: portrait) {
-    /* Canvas frame gets overlay */
+@media screen and (max-width: 815px) {
     .canvas-frame {
         position: relative;
         cursor: pointer;
@@ -587,43 +435,32 @@ canvas {
 
     .canvas-frame::before {
         content: '🔄 Please rotate your device 🔄\A\AThis game is best played in landscape mode\A\A📱 ➜ 📲';
-        position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
         background-color: rgba(45, 74, 62, 0.95);
-        color: #a4d4b4;
+        color: var(--color-text);
         display: flex;
         align-items: center;
         justify-content: center;
         text-align: center;
-        font-family: 'PixelifySans', monospace, sans-serif;
         font-size: 1.2em;
         font-weight: bold;
         white-space: pre-line;
         z-index: 100;
-        border: 4px solid #3f6654;
-        box-shadow:
-            inset 2px 2px 0 #5a8a70,
-            inset -2px -2px 0 #1a2f23;
-        text-shadow: 2px 2px 0 #1a2f23;
+        border: 4px solid var(--color-highlight);
+        box-shadow: inset 2px 2px 0 var(--color-accent), inset -2px -2px 0 var(--color-border);
+        text-shadow: 2px 2px 0 var(--color-border);
         user-select: none;
         -webkit-user-select: none;
         -webkit-tap-highlight-color: transparent;
-        pointer-events: none;
     }
 
-    /* Dim canvas behind overlay */
     canvas {
         opacity: 0.3;
         pointer-events: none;
     }
-}
-
-/* Portrait Warning - Show rotation message on mobile portrait mode */
-.portrait-warning {
-    position: relative;
 }
 
 .portrait-warning .canvas-frame::after {
@@ -633,7 +470,6 @@ canvas {
     left: 50%;
     transform: translate(-50%, -50%);
     color: #fff;
-    font-family: 'PixelifySans', monospace;
     font-size: 18px;
     font-weight: bold;
     text-align: center;
@@ -653,9 +489,7 @@ canvas {
     pointer-events: none;
 }
 
-/* Pulse animation for the rotation message */
 @keyframes pulse {
-    0% { transform: translate(-50%, -50%) scale(1); }
+    0%, 100% { transform: translate(-50%, -50%) scale(1); }
     50% { transform: translate(-50%, -50%) scale(1.05); }
-    100% { transform: translate(-50%, -50%) scale(1); }
 }

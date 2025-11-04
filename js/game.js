@@ -124,15 +124,11 @@ function initGame() {
 
     if (typeof isMobileDevice === 'function' && isMobileDevice()) {
         touchControls = new TouchControls(canvas, keyboard);
-        console.log('Touch controls activated for mobile');
     }
 
     if (typeof audioManager !== 'undefined' && audioManager) {
         audioManager.playGameMusic();
-        console.log('Game music started');
     }
-
-    console.log('Game started! My Character is', world.character);
 }
 
 /**
@@ -143,14 +139,12 @@ function initGame() {
 function cleanup() {
     if (world && world.cleanup) {
         world.cleanup();
-        console.log('Game cleanup completed');
     }
     world = null;
 
     if (touchControls && touchControls.cleanup) {
         touchControls.cleanup();
         touchControls = null;
-        console.log('Touch controls cleanup completed');
     }
 }
 
