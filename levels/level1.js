@@ -127,6 +127,18 @@ function createSkeletonAt(x) {
 }
 
 /**
+ * Array of available cloud image paths
+ * @constant {string[]}
+ */
+const CLOUD_IMAGES = [
+    './assets/clouds/Cloud1.png',
+    './assets/clouds/Cloud2.png',
+    './assets/clouds/Cloud3.png',
+    './assets/clouds/Cloud4.png',
+    './assets/clouds/Cloud5.png'
+];
+
+/**
  * Creates a new Cloud object at the specified position with customizable appearance
  * @function createCloudAt
  * @param {number} x - The x-coordinate position for the cloud
@@ -136,19 +148,8 @@ function createSkeletonAt(x) {
 function createCloudAt(x, cloudType = 1) {
     let cloud = new Cloud();
     cloud.x = x;
-    
-    const cloudImages = [
-        './assets/clouds/Cloud1.png',
-        './assets/clouds/Cloud2.png',
-        './assets/clouds/Cloud3.png',
-        './assets/clouds/Cloud4.png',
-        './assets/clouds/Cloud5.png'
-    ];
-    
-    cloud.loadImage(cloudImages[cloudType - 1] || cloudImages[0]);
-    
-    cloud.y = 30 + Math.random() * 40; // Y zwischen 30 und 70
-    
+    cloud.loadImage(CLOUD_IMAGES[cloudType - 1] || CLOUD_IMAGES[0]);
+    cloud.y = 30 + Math.random() * 40;
     return cloud;
 }
 

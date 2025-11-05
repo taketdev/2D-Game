@@ -74,13 +74,31 @@ Endboss.prototype.shouldStopMovement = function() {
  */
 Endboss.prototype.moveTowardsTarget = function() {
     let distanceToTarget = this.targetCharacterX - this.x;
-    let absDistance = Math.abs(distanceToTarget);
+    if (this.shouldStopAtTarget(distanceToTarget)) return;
+    this.moveInDirection(distanceToTarget);
+};
 
-    if (absDistance < 50) {
+/**
+ * Checks if endboss should stop at target distance
+ * @function shouldStopAtTarget
+ * @param {number} distanceToTarget - Distance to target
+ * @returns {boolean} True if should stop
+ */
+Endboss.prototype.shouldStopAtTarget = function(distanceToTarget) {
+    if (Math.abs(distanceToTarget) < 50) {
         this.isWalking = false;
-        return;
+        return true;
     }
+    return false;
+};
 
+/**
+ * Moves endboss in direction based on distance
+ * @function moveInDirection
+ * @param {number} distanceToTarget - Distance to target
+ * @returns {void}
+ */
+Endboss.prototype.moveInDirection = function(distanceToTarget) {
     if (distanceToTarget < 0) {
         this.x -= this.speed;
         this.otherDirection = false;

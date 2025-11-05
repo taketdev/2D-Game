@@ -111,22 +111,37 @@ Character.prototype.updateDeathAnimation = function() {
  */
 Character.prototype.updateAttack1Animation = function() {
     if (!this.isAttacking1) return;
-
     let now = Date.now();
     if (now - this.lastAttack1FrameTime > this.attack1AnimationSpeed) {
         this.currentAttack1Frame++;
-
-        if (this.currentAttack1Frame === 3 && !this.attack1ProjectileSpawned) {
-            this.spawnProjectile(1);
-            this.attack1ProjectileSpawned = true;
-        }
-
-        if (this.currentAttack1Frame >= this.attack1FrameCount) {
-            this.isAttacking1 = false;
-            this.currentAttack1Frame = 0;
-            this.attack1ProjectileSpawned = false;
-        }
+        this.checkAttack1Projectile();
+        this.checkAttack1Complete();
         this.lastAttack1FrameTime = now;
+    }
+};
+
+/**
+ * Checks and spawns attack 1 projectile at the right frame
+ * @function checkAttack1Projectile
+ * @returns {void}
+ */
+Character.prototype.checkAttack1Projectile = function() {
+    if (this.currentAttack1Frame === 3 && !this.attack1ProjectileSpawned) {
+        this.spawnProjectile(1);
+        this.attack1ProjectileSpawned = true;
+    }
+};
+
+/**
+ * Checks if attack 1 animation is complete and resets state
+ * @function checkAttack1Complete
+ * @returns {void}
+ */
+Character.prototype.checkAttack1Complete = function() {
+    if (this.currentAttack1Frame >= this.attack1FrameCount) {
+        this.isAttacking1 = false;
+        this.currentAttack1Frame = 0;
+        this.attack1ProjectileSpawned = false;
     }
 };
 
@@ -137,22 +152,37 @@ Character.prototype.updateAttack1Animation = function() {
  */
 Character.prototype.updateAttack2Animation = function() {
     if (!this.isAttacking2) return;
-
     let now = Date.now();
     if (now - this.lastAttack2FrameTime > this.attack2AnimationSpeed) {
         this.currentAttack2Frame++;
-
-        if (this.currentAttack2Frame === 6 && !this.attack2ProjectileSpawned) {
-            this.spawnProjectile(2);
-            this.attack2ProjectileSpawned = true;
-        }
-
-        if (this.currentAttack2Frame >= this.attack2FrameCount) {
-            this.isAttacking2 = false;
-            this.currentAttack2Frame = 0;
-            this.attack2ProjectileSpawned = false;
-        }
+        this.checkAttack2Projectile();
+        this.checkAttack2Complete();
         this.lastAttack2FrameTime = now;
+    }
+};
+
+/**
+ * Checks and spawns attack 2 projectile at the right frame
+ * @function checkAttack2Projectile
+ * @returns {void}
+ */
+Character.prototype.checkAttack2Projectile = function() {
+    if (this.currentAttack2Frame === 6 && !this.attack2ProjectileSpawned) {
+        this.spawnProjectile(2);
+        this.attack2ProjectileSpawned = true;
+    }
+};
+
+/**
+ * Checks if attack 2 animation is complete and resets state
+ * @function checkAttack2Complete
+ * @returns {void}
+ */
+Character.prototype.checkAttack2Complete = function() {
+    if (this.currentAttack2Frame >= this.attack2FrameCount) {
+        this.isAttacking2 = false;
+        this.currentAttack2Frame = 0;
+        this.attack2ProjectileSpawned = false;
     }
 };
 
@@ -170,27 +200,46 @@ Character.prototype.updateAttack2Animation = function() {
  */
 Character.prototype.drawSprite = function(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
     if (!image || !image.complete) return;
-
     if (this.otherDirection) {
-        ctx.save();
-        ctx.scale(-1, 1);
-        ctx.drawImage(
-            image,
-            frameX, 0,
-            frameWidth, frameHeight,
-            -this.x - displayWidth, this.y,
-            displayWidth, displayHeight
-        );
-        ctx.restore();
+        this.drawFlippedSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
     } else {
-        ctx.drawImage(
-            image,
-            frameX, 0,
-            frameWidth, frameHeight,
-            this.x, this.y,
-            displayWidth, displayHeight
-        );
+        this.drawNormalSprite(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight);
     }
+};
+
+/**
+ * Draws sprite flipped horizontally
+ * @function drawFlippedSprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {HTMLImageElement} image - Image to draw
+ * @param {number} frameX - X position of frame in sprite sheet
+ * @param {number} frameWidth - Width of single frame
+ * @param {number} frameHeight - Height of single frame
+ * @param {number} displayWidth - Display width on canvas
+ * @param {number} displayHeight - Display height on canvas
+ * @returns {void}
+ */
+Character.prototype.drawFlippedSprite = function(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.drawImage(image, frameX, 0, frameWidth, frameHeight, -this.x - displayWidth, this.y, displayWidth, displayHeight);
+    ctx.restore();
+};
+
+/**
+ * Draws sprite in normal direction
+ * @function drawNormalSprite
+ * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+ * @param {HTMLImageElement} image - Image to draw
+ * @param {number} frameX - X position of frame in sprite sheet
+ * @param {number} frameWidth - Width of single frame
+ * @param {number} frameHeight - Height of single frame
+ * @param {number} displayWidth - Display width on canvas
+ * @param {number} displayHeight - Display height on canvas
+ * @returns {void}
+ */
+Character.prototype.drawNormalSprite = function(ctx, image, frameX, frameWidth, frameHeight, displayWidth, displayHeight) {
+    ctx.drawImage(image, frameX, 0, frameWidth, frameHeight, this.x, this.y, displayWidth, displayHeight);
 };
 
 /**

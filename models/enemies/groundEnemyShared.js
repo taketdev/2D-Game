@@ -110,12 +110,17 @@ function assignSharedPatrolFunctions(enemyClass) {
      */
     enemyClass.prototype.handleAggroMovement = function() {
         let distanceToTarget = this.targetCharacterX - this.x;
-        let absDistance = Math.abs(distanceToTarget);
+        if (Math.abs(distanceToTarget) < 30) return;
+        this.moveTowardsTarget(distanceToTarget);
+    };
 
-        if (absDistance < 30) {
-            return;
-        }
-
+    /**
+     * Moves enemy towards target based on distance
+     * @function moveTowardsTarget
+     * @param {number} distanceToTarget - Distance to target
+     * @returns {void}
+     */
+    enemyClass.prototype.moveTowardsTarget = function(distanceToTarget) {
         if (distanceToTarget < 0) {
             this.x -= this.speed * 0.7;
             this.otherDirection = true;
@@ -131,6 +136,16 @@ function assignSharedPatrolFunctions(enemyClass) {
      * @returns {void}
      */
     enemyClass.prototype.handlePatrolMovement = function() {
+        this.moveInPatrolDirection();
+        this.checkPatrolBoundaries();
+    };
+
+    /**
+     * Moves enemy in current patrol direction
+     * @function moveInPatrolDirection
+     * @returns {void}
+     */
+    enemyClass.prototype.moveInPatrolDirection = function() {
         if (this.movingRight) {
             this.x += this.speed;
             this.otherDirection = false;
@@ -138,7 +153,14 @@ function assignSharedPatrolFunctions(enemyClass) {
             this.x -= this.speed;
             this.otherDirection = true;
         }
+    };
 
+    /**
+     * Checks and updates patrol direction at boundaries
+     * @function checkPatrolBoundaries
+     * @returns {void}
+     */
+    enemyClass.prototype.checkPatrolBoundaries = function() {
         if (this.x >= this.patrolEndX) {
             this.movingRight = false;
         } else if (this.x <= this.patrolStartX) {

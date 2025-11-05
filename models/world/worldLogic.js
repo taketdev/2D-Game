@@ -149,23 +149,36 @@ World.prototype.logCollectionStats = function() {
 World.prototype.updateEnemyDirections = function() {
     this.level.enemies.forEach(enemy => {
         if (enemy.isDead) return;
-
-        if (enemy.setAggro) {
-            enemy.setAggro(this.character);
-        }
-
-        if (enemy.tryAttack) {
-            enemy.tryAttack(this.character);
-        }
-
-        if (enemy.turnTowardsCharacter) {
-            if (this.character.x < enemy.x) {
-                enemy.otherDirection = true;
-            } else {
-                enemy.otherDirection = false;
-            }
-        }
+        this.updateSingleEnemy(enemy);
     });
+};
+
+/**
+ * Updates a single enemy's aggro, attack, and direction
+ * @function updateSingleEnemy
+ * @param {Object} enemy - The enemy to update
+ * @returns {void}
+ */
+World.prototype.updateSingleEnemy = function(enemy) {
+    if (enemy.setAggro) {
+        enemy.setAggro(this.character);
+    }
+    if (enemy.tryAttack) {
+        enemy.tryAttack(this.character);
+    }
+    if (enemy.turnTowardsCharacter) {
+        this.updateEnemyDirection(enemy);
+    }
+};
+
+/**
+ * Updates enemy direction to face the character
+ * @function updateEnemyDirection
+ * @param {Object} enemy - The enemy to update direction for
+ * @returns {void}
+ */
+World.prototype.updateEnemyDirection = function(enemy) {
+    enemy.otherDirection = this.character.x < enemy.x;
 };
 
 /**

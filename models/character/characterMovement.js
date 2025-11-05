@@ -43,27 +43,43 @@ Character.prototype.handleMovement = function() {
 Character.prototype.handleMovementInput = function() {
     let isMoving = false;
     let isRunning = this.world.keyboard.SHIFT;
-
     if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
-        let moveSpeed = isRunning ? this.speed * 1.3 : this.speed;
-        this.x += moveSpeed;
-        this.otherDirection = false;
+        this.handleRightMovement(isRunning);
         isMoving = true;
     }
-
     if (this.world.keyboard.LEFT && this.x > this.world.level.level_start_x) {
-        let moveSpeed = isRunning ? this.speed * 1.3 : this.speed;
-        this.x -= moveSpeed;
-        this.otherDirection = true;
+        this.handleLeftMovement(isRunning);
         isMoving = true;
     }
-
     if (this.world.keyboard.SPACE || this.world.keyboard.UP) {
         this.jump();
         isMoving = true;
     }
-
     return { isMoving, isRunning };
+};
+
+/**
+ * Handles character movement to the right
+ * @function handleRightMovement
+ * @param {boolean} isRunning - Whether shift key is pressed
+ * @returns {void}
+ */
+Character.prototype.handleRightMovement = function(isRunning) {
+    let moveSpeed = isRunning ? this.speed * 1.3 : this.speed;
+    this.x += moveSpeed;
+    this.otherDirection = false;
+};
+
+/**
+ * Handles character movement to the left
+ * @function handleLeftMovement
+ * @param {boolean} isRunning - Whether shift key is pressed
+ * @returns {void}
+ */
+Character.prototype.handleLeftMovement = function(isRunning) {
+    let moveSpeed = isRunning ? this.speed * 1.3 : this.speed;
+    this.x -= moveSpeed;
+    this.otherDirection = true;
 };
 
 /**

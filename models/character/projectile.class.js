@@ -38,7 +38,17 @@ class Projectile extends MovableObject {
         this.otherDirection = direction < 0;
         this.projectileType = projectileType;
         this.damage = damage;
+        this.setupProjectileType(projectileType);
+        this.animate();
+    }
 
+    /**
+     * Configures projectile properties based on type
+     * @function setupProjectileType
+     * @param {number} projectileType - Type of projectile (1 or 2)
+     * @returns {void}
+     */
+    setupProjectileType(projectileType) {
         if (projectileType === 1) {
             this.loadProjectileImage('./assets/wizard_assets/Wanderer Magican/Charge_1.png');
             this.frameCount = 9;
@@ -48,8 +58,6 @@ class Projectile extends MovableObject {
             this.frameCount = 6;
             this.frameWidth = 64;
         }
-
-        this.animate();
     }
 
     /**
@@ -121,29 +129,49 @@ class Projectile extends MovableObject {
      */
     drawProjectileSprite(ctx) {
         if (!this.projectileImage || !this.projectileImage.complete) return;
-
         let frameX = this.currentFrame * this.frameWidth;
-
         if (this.otherDirection) {
-            ctx.save();
-            ctx.scale(-1, 1);
-            ctx.drawImage(
-                this.projectileImage,
-                frameX, 0,
-                this.frameWidth, this.frameHeight,
-                -this.x - this.width, this.y,
-                this.width, this.height
-            );
-            ctx.restore();
+            this.drawFlippedProjectile(ctx, frameX);
         } else {
-            ctx.drawImage(
-                this.projectileImage,
-                frameX, 0,
-                this.frameWidth, this.frameHeight,
-                this.x, this.y,
-                this.width, this.height
-            );
+            this.drawNormalProjectile(ctx, frameX);
         }
+    }
+
+    /**
+     * Draws the projectile sprite flipped horizontally
+     * @function drawFlippedProjectile
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {number} frameX - X position of current frame in sprite sheet
+     * @returns {void}
+     */
+    drawFlippedProjectile(ctx, frameX) {
+        ctx.save();
+        ctx.scale(-1, 1);
+        ctx.drawImage(
+            this.projectileImage,
+            frameX, 0,
+            this.frameWidth, this.frameHeight,
+            -this.x - this.width, this.y,
+            this.width, this.height
+        );
+        ctx.restore();
+    }
+
+    /**
+     * Draws the projectile sprite in normal direction
+     * @function drawNormalProjectile
+     * @param {CanvasRenderingContext2D} ctx - Canvas rendering context
+     * @param {number} frameX - X position of current frame in sprite sheet
+     * @returns {void}
+     */
+    drawNormalProjectile(ctx, frameX) {
+        ctx.drawImage(
+            this.projectileImage,
+            frameX, 0,
+            this.frameWidth, this.frameHeight,
+            this.x, this.y,
+            this.width, this.height
+        );
     }
 
     /**

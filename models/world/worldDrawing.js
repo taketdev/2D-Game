@@ -40,17 +40,46 @@ World.prototype.drawCharacter = function() {
  * @returns {void}
  */
 World.prototype.drawCharacterSprite = function() {
+    if (this.drawCharacterPriorityState()) return;
+    this.drawCharacterMovementState();
+};
+
+/**
+ * Draws character priority states (death, hurt, attacks, jump)
+ * @function drawCharacterPriorityState
+ * @returns {boolean} True if a priority state was drawn
+ */
+World.prototype.drawCharacterPriorityState = function() {
     if (this.character.isDead) {
         this.character.drawDeathSprite(this.ctx);
-    } else if (this.character.isHurt) {
+        return true;
+    }
+    if (this.character.isHurt) {
         this.character.drawHurtSprite(this.ctx);
-    } else if (this.character.isAttacking1) {
+        return true;
+    }
+    if (this.character.isAttacking1) {
         this.character.drawAttack1Sprite(this.ctx);
-    } else if (this.character.isAttacking2) {
+        return true;
+    }
+    if (this.character.isAttacking2) {
         this.character.drawAttack2Sprite(this.ctx);
-    } else if (this.character.isAboveGround()) {
+        return true;
+    }
+    if (this.character.isAboveGround()) {
         this.character.drawJumpSprite(this.ctx);
-    } else if (this.character.isRunning) {
+        return true;
+    }
+    return false;
+};
+
+/**
+ * Draws character movement states (running, idle, walking)
+ * @function drawCharacterMovementState
+ * @returns {void}
+ */
+World.prototype.drawCharacterMovementState = function() {
+    if (this.character.isRunning) {
         this.character.drawRunSprite(this.ctx);
     } else if (this.character.isIdle) {
         this.character.drawIdleSprite(this.ctx);

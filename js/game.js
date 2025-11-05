@@ -154,33 +154,25 @@ function cleanup() {
  * @returns {void}
  */
 window.addEventListener('keydown', (event) => {
-    switch(event.keyCode) {
-        case KEYS.RIGHT:
-            keyboard.RIGHT = true;
-            break;
-        case KEYS.LEFT:
-            keyboard.LEFT = true;
-            break;
-        case KEYS.UP:
-            keyboard.UP = true;
-            break;
-        case KEYS.DOWN:
-            keyboard.DOWN = true;
-            break;
-        case KEYS.SPACE:
-            keyboard.SPACE = true;
-            break;
-        case KEYS.SHIFT:
-            keyboard.SHIFT = true;
-            break;
-        case KEYS.D:
-            keyboard.D = true;
-            break;
-        case KEYS.E:
-            keyboard.E = true;
-            break;
-    }
+    handleKeyDown(event.keyCode);
 });
+
+/**
+ * Updates keyboard state for keydown events
+ * @function handleKeyDown
+ * @param {number} keyCode - The key code from the event
+ * @returns {void}
+ */
+function handleKeyDown(keyCode) {
+    if (keyCode === KEYS.RIGHT) keyboard.RIGHT = true;
+    else if (keyCode === KEYS.LEFT) keyboard.LEFT = true;
+    else if (keyCode === KEYS.UP) keyboard.UP = true;
+    else if (keyCode === KEYS.DOWN) keyboard.DOWN = true;
+    else if (keyCode === KEYS.SPACE) keyboard.SPACE = true;
+    else if (keyCode === KEYS.SHIFT) keyboard.SHIFT = true;
+    else if (keyCode === KEYS.D) keyboard.D = true;
+    else if (keyCode === KEYS.E) keyboard.E = true;
+}
 
 /**
  * Handles keyup events and updates keyboard state accordingly
@@ -188,30 +180,22 @@ window.addEventListener('keydown', (event) => {
  * @returns {void}
  */
 window.addEventListener('keyup', (event) => {
-    switch(event.keyCode) {
-        case KEYS.RIGHT:
-            keyboard.RIGHT = false;
-            break;
-        case KEYS.LEFT:
-            keyboard.LEFT = false;
-            break;
-        case KEYS.UP:
-            keyboard.UP = false;
-            break;
-        case KEYS.DOWN:
-            keyboard.DOWN = false;
-            break;
-        case KEYS.SPACE:
-            keyboard.SPACE = false;
-            break;
-        case KEYS.SHIFT:
-            keyboard.SHIFT = false;
-            break;
-        case KEYS.D:
-            keyboard.D = false;
-            break;
-        case KEYS.E:
-            keyboard.E = false;
-            break;
-    }
+    handleKeyUp(event.keyCode);
 });
+
+/**
+ * Updates keyboard state for keyup events
+ * @function handleKeyUp
+ * @param {number} keyCode - The key code from the event
+ * @returns {void}
+ */
+function handleKeyUp(keyCode) {
+    if (keyCode === KEYS.RIGHT) keyboard.RIGHT = false;
+    else if (keyCode === KEYS.LEFT) keyboard.LEFT = false;
+    else if (keyCode === KEYS.UP) keyboard.UP = false;
+    else if (keyCode === KEYS.DOWN) keyboard.DOWN = false;
+    else if (keyCode === KEYS.SPACE) keyboard.SPACE = false;
+    else if (keyCode === KEYS.SHIFT) keyboard.SHIFT = false;
+    else if (keyCode === KEYS.D) keyboard.D = false;
+    else if (keyCode === KEYS.E) keyboard.E = false;
+}
