@@ -10,11 +10,36 @@
  */
 World.prototype.draw = function() {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
     this.ctx.translate(this.camera_x, 0);
-
     this.addObjectsToMap(this.level.backgroundObjects);
+    this.drawCharacter();
+    this.drawProjectiles();
+    this.addObjectsToMap(this.level.clouds);
+    this.drawCollectibles();
+    this.addObjectsToMap(this.level.enemies);
+    this.drawCollisionFrames();
+    this.ctx.translate(-this.camera_x, 0);
+    this.drawHUD();
+    let self = this;
+    requestAnimationFrame(function() { self.draw(); });
+};
 
+/**
+ * Draws the character with appropriate animation based on current state
+ * @function drawCharacter
+ * @returns {void}
+ */
+World.prototype.drawCharacter = function() {
+    this.drawCharacterSprite();
+    this.character.drawFrame(this.ctx);
+};
+
+/**
+ * Draws the appropriate character sprite based on current state
+ * @function drawCharacterSprite
+ * @returns {void}
+ */
+World.prototype.drawCharacterSprite = function() {
     if (this.character.isDead) {
         this.character.drawDeathSprite(this.ctx);
     } else if (this.character.isHurt) {
@@ -32,15 +57,26 @@ World.prototype.draw = function() {
     } else {
         this.character.drawWalkSprite(this.ctx);
     }
-    this.character.drawFrame(this.ctx);
-    
+};
+
+/**
+ * Draws all projectiles on the map
+ * @function drawProjectiles
+ * @returns {void}
+ */
+World.prototype.drawProjectiles = function() {
     this.projectiles.forEach(projectile => {
         projectile.drawProjectileSprite(this.ctx);
         projectile.drawFrame(this.ctx);
     });
+};
 
-    this.addObjectsToMap(this.level.clouds);
-
+/**
+ * Draws all collectible items that have not been collected yet
+ * @function drawCollectibles
+ * @returns {void}
+ */
+World.prototype.drawCollectibles = function() {
     if (this.level.collectibles) {
         this.level.collectibles.forEach(collectible => {
             if (!collectible.collected) {
@@ -49,16 +85,6 @@ World.prototype.draw = function() {
             }
         });
     }
-
-    this.addObjectsToMap(this.level.enemies);
-    this.drawCollisionFrames();
-    this.ctx.translate(-this.camera_x, 0);
-    this.drawHUD();
-
-    let self = this;
-    requestAnimationFrame(function() {
-        self.draw();
-    });
 };
 
 /**
